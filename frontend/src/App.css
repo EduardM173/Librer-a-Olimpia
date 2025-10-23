@@ -1,10 +1,58 @@
+@import url('https://fonts.googleapis.com/css2?family=Arizonia&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 #root {
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
 }
+:root {
+  --color-primario-oscuro: #1D2E69; /* azul navbar-footer */
+  --color-primario-claro: #1e88e5; /* El azul del banner */
+  --color-acento-amarillo: #F7B100; /*amarillo botones*/
+  --color-amarillo-claro:#FFDC15; /*amarillo fondo*/
+  --color-azul-claro: #006FFF; /*para cards*/
+  --color-rojo:#DB0C16;
+  --color-rojo-suave: #FF0000; /*rojo fondo*/
+  --color-verde: #00D8AD; /*verde botón admin*/
+  --color-fondo: #f4f6f8;
+  --color-texto: #333;
+  --color-blanco: #ffffff;
+  --color-gris: #ACACAC; /*gris texto*/
+}
+body {
+  margin: 0;
+  font-family: var(--font-principal); 
+  background-color: var(--color-fondo);
+  color: var(--color-texto);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+main {
+  padding-top: 145px;
+}
 
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+section h2 {
+  font-family: var(--font-titulos);
+  font-size: 48px; 
+  font-weight: 400; 
+  color: var(--color-primario-oscuro);
+  text-align: center;
+  margin-bottom: 40px;
+}
+h1 {
+  font-family: var(--font-principal);
+  font-weight: 700; 
+}
 .logo {
   height: 6em;
   padding: 1.5em;
