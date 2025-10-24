@@ -14,7 +14,7 @@ Nunca trabajes directamente en la rama `main`.
 
 2.  **Crea tu rama personal:** Crea una nueva rama *desde* `main`. Usa un nombre claro que haga referencia a tu HU de Jira (ej. `feat/HU11-homepage`).
     ```bash
-    git checkout -b feat/HU11-homepage
+    git checkout -b feat/HU09-homepage
     ```
 
 ### 2. Trabajar en tu Tarea
@@ -27,7 +27,7 @@ Nunca trabajes directamente en la rama `main`.
     ```
 3.  **Sube tu rama** a GitHub para tener un respaldo:
     ```bash
-    git push -u origin feat/HU11-homepage
+    git push -u origin feat/HU09-homepage
     ```
 
 ### 3. Terminar y Entregar tu Tarea
@@ -36,7 +36,7 @@ Nunca trabajes directamente en la rama `main`.
     ```bash
     git checkout main
     git pull origin main
-    git checkout feat/HU11-homepage
+    git checkout feat/HU09-homepage
     git merge main
     ```
     *(Si hay conflictos aquí, resuélvelos en tu máquina).*
