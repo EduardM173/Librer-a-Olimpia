@@ -9,12 +9,12 @@ const Footer = () => {
         <div className="footer-grid">
           <div className="footer-col">
             <Link to="/" className="footer-logo">
-              <img src="/logo-olimpia-blanco.png" alt="Librería Olimpia" />
+              <img src="/IMG/logo.png" alt="Librería Olimpia" />
             </Link>
             <div className="footer-socials">
-              <a href="#">FB</a>
-              <a href="#">IG</a>
-              <a href="#">TT</a>
+              <a href="https://www.facebook.com/share/1GjYhrcFcA/"><img src="/IMG/ic_facebook.png" alt="FB" /></a>
+              <a href="https://www.instagram.com/libreriaolimpia?igsh=NGU5N3pkaHBpeGFn"><img src="/IMG/ic_instagram.png" alt="IG" /></a>
+              <a href="https://www.tiktok.com/@libreriaolimpia?_t=ZM-90h8gnvG9hw&_r=1"><img src="/IMG/ic_tiktok.png" alt="TK" /></a>
             </div>
           </div>
 
@@ -23,9 +23,8 @@ const Footer = () => {
             <h3>Navegación</h3>
             <ul>
               <li><Link to="/">Inicio</Link></li>
-              <li><Link to="/catalogo">Catálogo</Link></li>
-              <li><Link to="/ofertas">Ofertas</Link></li>
               <li><Link to="/about">Acerca de Nosotros</Link></li>
+              <li><Link to="/catalogo">Catálogo</Link></li>
             </ul>
           </div>
 
@@ -42,11 +41,12 @@ const Footer = () => {
 
           {/* Columna 4: Ayuda */}
           <div className="footer-col">
-            <h3>Ayuda</h3>
+            <h3>Redes Sociales</h3>
             <ul>
-              <li><Link to="/contacto">Contacto</Link></li>
-              <li><Link to="/faq">Preguntas Frecuentes</Link></li>
-              <li><Link to="/sucursales">Sucursales</Link></li>
+              <li><a href="https://www.facebook.com/share/1GjYhrcFcA/">Facebook</a></li>
+              <li><a href="https://www.instagram.com/libreriaolimpia?igsh=NGU5N3pkaHBpeGFn">Instagram</a></li>
+              <li><a href="https://www.tiktok.com/@libreriaolimpia?_t=ZM-90h8gnvG9hw&_r=1">Tik Tok</a></li>
+              <li>76753237</li>
             </ul>
           </div>
         </div>
