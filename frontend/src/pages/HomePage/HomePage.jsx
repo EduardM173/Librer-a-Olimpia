@@ -7,7 +7,9 @@ const heroImage = '/IMG/hero-banner.png';
 const novedad1 = '/IMG/novedad-marmol.png';
 const novedad2 = '/IMG/novedad-disenos.png';
 const aboutImage = '/IMG/nosotros.png';
-
+const ubiImage='/IMG/ic_ubi.png';
+const calImage='/IMG/ic_calendario.png';
+const autoImage='/IMG/ic_auto.png'
 
 const HomePage = () => {
   return (
@@ -25,33 +27,65 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* 2. Features Section */}
+      {/* 2. Top Bar Section */}
+      <section className="top-bar-section">
+        <p>Las mejores marcas, la mejor calidad, todo para ti</p>
+      </section>
+
+      {/* 3. Features Section */}
       <section className="features-section">
-        <h2>Nuestras Sucursales</h2>
-        <div className="features-grid">
-          <div className="feature-item">
-            {/* Reemplaza con íconos */}
-            <span>📍</span> 
-            <h3>Ubicación</h3>
-            <p>Dos sucursales para tu comodidad.</p>
-          </div>
-          <div className="feature-item">
-            <span>🛒</span>
-            <h3>Agendá tu compra</h3>
-            <p>Reserva online y retira en tienda.</p>
-          </div>
-          <div className="feature-item">
-            <span>🚗</span>
-            <h3>Retiro por ventanilla</h3>
-            <p>Rápido, seguro y sin bajarte del auto.</p>
+        <div className="container">
+          <h2>Nuestras Sucursales</h2>
+          <p className="features-subtitle">Ubicanos en cualquiera de nuestras sucursales en toda La Paz</p>
+          
+          <div className="features-path">
+            <div className="feature-item">
+              <div className="feature-icon-wrapper">
+                <div className="icono">
+                  <img src={ubiImage} alt="Ubicación" />
+                </div>
+              </div>
+              <h3>Ubícanos</h3>
+              <div className="feature-content-bubble">
+                <ul>
+                  <li>Ballivian</li>
+                  <li>Handal</li>
+                  <li>Mariscal</li>
+                  <li>Calacoto</li>
+                  <li>San Miguel</li>
+                </ul>
+              </div>
+            </div>
+            <div className="feature-item">
+              <div className="feature-icon-wrapper">
+                <div className="icono">
+                  <img src={calImage} alt="Calendario" />
+                </div>
+              </div>
+              <h3>Agenda tu fecha</h3>
+              <div className="feature-content-bubble">
+                <p>Agenda tu fecha de visita y tu lista de materiales que necesitas</p>
+              </div>
+            </div>
+            <div className="feature-item">
+              <div className="feature-icon-wrapper">
+                <div className="icono">
+                  <img src={autoImage} alt="Auto" />
+                </div>
+              </div>
+              <h3>Pasa por la tienda</h3>
+              <div className="feature-content-bubble">
+                <p>Pasa por la tienda más cercana y realiza tu compra</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* 3. Novedades Section */}
+      {/* 4. Novedades Section */}
       <section className="novedades-section">
         <div className="container">
-          <h2>Novedades</h2>
+          <h3>Novedades</h3>
           <div className="novedades-grid">
             <div className="novedad-card">
               <img src={novedad1} alt="Novedad 1" />
@@ -63,38 +97,75 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* 4. Acerca de Nosotros Section */}
+      {/* 5. Acerca de Nosotros Section */}
       <section className="about-section">
         <div className="container">
+          <h2>Acerca de Nosotros</h2>
+              <p className="about-subtitle">
+                Tenemos más de seis décadas de presencia en Bolivia. Y nos 
+                expandimos con nuevas sucursales gracias a ti!!
+              </p>
           <div className="about-content">
+            
+            {/* Columna Izquierda: Imagen */}
             <div className="about-image">
               <img src={aboutImage} alt="Acerca de Nosotros" />
             </div>
+
+            {/* Columna Derecha: Texto y Features */}
             <div className="about-text">
-              <h2>Acerca de Nosotros</h2>
-              <p>Tradición y calidad desde 1950. Ofrecemos la mayor variedad de productos...</p>
-              <ul>
-                <li><span>📞</span> Atención personalizada</li>
-                <li><span>💰</span> Récord de precios bajos</li>
-                <li><span>🏪</span> 2 sucursales</li>
-              </ul>
-            </div>
-          </div>
+              <div className="about-features">
+                {/* --- Feature 1 --- */}
+                <div className="about-feature-item">
+                  <div className="about-feature-icon">
+                    <span>📞</span> 
+                  </div>
+                  <div className="about-feature-text">
+                    <h3>Atención personalizada</h3>
+                    <p>Aliquam erat volutpat. Integer malesuada turpis id fringilla suscipit. Maecenas ultrices.</p>
+                  </div>
+                </div>
+
+                {/* --- Feature 2 --- */}
+                <div className="about-feature-item">
+                  <div className="about-feature-icon">
+                    <span>🚀</span> 
+                  </div>
+                  <div className="about-feature-text">
+                    <h3>Mejor precio garantizado</h3>
+                    <p>Aliquam erat volutpat. Integer malesuada turpis id fringilla suscipit. Maecenas ultrices.</p>
+                  </div>
+                </div>
+
+                {/* --- Feature 3 --- */}
+                <div className="about-feature-item">
+                  <div className="about-feature-icon">
+                    <span>📍</span> 
+                  </div>
+                  <div className="about-feature-text">
+                    <h3>Diferentes locaciones</h3>
+                    <p>Aliquam erat volutpat. Integer malesuada turpis id fringilla suscipit. Maecenas ultrices.</p>
+                  </div>
+                </div>
+
+              </div>
+            </div> 
+
+          </div> 
         </div>
       </section>
 
-      {/* 5. Catálogo Preview Section */}
+      {/* 6. Catálogo Preview Section */}
       <section className="catalog-preview-section">
         <div className="container">
-          <h2>Catálogo</h2>
+          <h2 className='catalog-title'>Catálogo</h2>
           <div className="catalog-tabs">
             <button className="active">Populares</button>
-            <button>Hogar</button>
+            <button>Bolígrafos</button>
             <button>Cuadernos</button>
-            <button>Random</button>
+            <button>Colores</button>
           </div>
           <div className="catalog-grid">
-            {/* Aquí deberías hacer un "map" de tus productos de prueba */}
             <ProductCard />
             <ProductCard />
             <ProductCard />

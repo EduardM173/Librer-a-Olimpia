@@ -70,7 +70,8 @@
 }
 
 .btn-login:hover {
-  background-color: #f3d87f; /* Un amarillo un poco más claro */
+  background-color: var(--color-rojo);
+  color: white;
 }
 
 .cart-link {

@@ -9,8 +9,8 @@ const ProductCard = ({ producto }) => {
     id: 1,
     nombre: "Nombre Producto Ejemplo",
     precio: "10.00",
-    imagen: "/placeholder-producto.jpg",
-    agotado: true
+    imagen: "/IMG/placeholder-producto.jpg",
+    agotado: false
   };
 
   return (
@@ -26,7 +26,10 @@ const ProductCard = ({ producto }) => {
           {item.agotado ? (
             <span className="price-agotado">Agotado</span>
           ) : (
-            <span className="price-final">${item.precio}</span>
+            <><span className="price-final">${item.precio}</span>
+              <button className="add-to-cart-btn">
+                Agregar al carrito
+              </button></>
           )}
         </div>
       </div>
