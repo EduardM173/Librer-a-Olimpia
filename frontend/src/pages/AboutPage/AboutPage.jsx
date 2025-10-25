@@ -52,7 +52,44 @@ const AboutPage = () => {
           </div>
         </div>
       </section>
+      {/* Nuestros Valores --- */}
+      <section className="values-section">
+        <div className="container">
+          <h2 className="values-title">Nuestros valores</h2>
+          
+          <div className="values-grid">
+            
+            {/* --- Columna Izquierda --- */}
+            <div className="values-column">
+              <div className="value-item">
+                <h3>RESPETO</h3>
+                <p>Brindar un trato amable y cortés, reconociendo y valorando a nuestros clientes internos y externos.</p>
+              </div>
+              <div className="value-item">
+                <h3>COMPROMISO</h3>
+                <p>Ofrecer un servicio de calidad a través de la fabricación, comercialización y distribución de nuestros productos.</p>
+              </div>
+              <div className="value-item">
+                <h3>INTEGRIDAD</h3>
+                <p>Promover la honradez, responsabilidad, puntualidad y lealtad en el desarrollo de nuestras actividades.</p>
+              </div>
+            </div>
 
+            {/* --- Columna Derecha --- */}
+            <div className="values-column">
+              <div className="value-item">
+                <h3>TRABAJO EN EQUIPO</h3>
+                <p>Fomentar el trabajo en equipo para ofrecer el máximo beneficio a nuestro clientela.</p>
+              </div>
+              <div className="value-item">
+                <h3>VOCACIÓN DE SERVICIO</h3>
+                <p>Brindar a nuestros clientes un servicio con amabilidad y respeto.</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>   
     </div>
   );
 };

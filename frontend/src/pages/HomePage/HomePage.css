@@ -120,8 +120,12 @@
   font-size: 40px;
   color: var(--color-primario-oscuro);
   margin-bottom: 20px;
+  transition: transform 0.3s ease, background-color 0.3s ease;
 }
-
+.feature-item:hover .feature-icon-wrapper {
+  transform: scale(1.1); 
+  background-color: #d0e8ff; 
+}
 .features-section h2{
     font-size: 60px;
 }
@@ -142,9 +146,13 @@
   justify-content: center;
   align-items: center;
   padding: 30px;
-  box-sizing: border-box; /* Importante para que el padding no rompa el círculo */
+  box-sizing: border-box; 
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
-
+.feature-item:hover .feature-content-bubble {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
 .feature-content-bubble p {
   font-family: var(--font-principal);
   font-size: 16px;
@@ -197,6 +205,10 @@
   width: 100%;
   max-width: 800px;
   border-radius: 8px;
+  transition: transform 0.4s ease;
+}
+.novedad-card:hover img {
+  transform: scale(1.05); /* Zoom sutil */
 }
 
 /* --- About Section --- */
@@ -306,6 +318,10 @@
   font-size: 16px;
   cursor: pointer;
   color: #888;
+  transition: color 0.3s ease, border-bottom-color 0.3s ease;
+}
+.catalog-tabs button:not(.active):hover {
+  color: var(--color-primario-oscuro);
 }
 .catalog-tabs button.active {
   color: var(--color-primario-oscuro);

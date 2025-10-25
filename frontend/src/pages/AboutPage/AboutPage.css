@@ -7,6 +7,7 @@
 .mv-section {
   padding: 60px 0;
   border-bottom: 2px solid #f0f0f0;
+  margin-bottom: 80px;
 }
 
 .mv-title {
@@ -29,6 +30,7 @@
 .mv-card {
   flex-basis: 45%;
   max-width: 450px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .mv-card-title {
@@ -97,7 +99,7 @@
   margin-right: 40px;
   background-color: white;
   border-radius: 15px;
-  padding: 60px;
+  padding: 80px;
 }
 
 .history-text p {
@@ -115,4 +117,61 @@
   color: var(--color-primario-oscuro);
   text-align: right;
   margin-top: 30px;
+}
+/* --- Sección Nuestros Valores --- */
+.values-section {
+  /* Fondo blanco como en el mockup */
+  background-color: var(--color-blanco);
+  padding: 60px 0 80px 0;
+}
+
+.values-title {
+  /* "Nuestros valores" en fuente script */
+  font-family: var(--font-titulos);
+  font-size: 60px;
+  font-weight: 400;
+  color: var(--color-primario-oscuro);
+  text-align: center;
+  margin: 0 0 50px 0;
+}
+
+.values-grid {
+  display: flex;
+  justify-content: center;
+  gap: 60px; /* Espacio entre las dos columnas */
+}
+
+.values-column {
+  flex-basis: 45%; /* Cada columna ocupa el 45% */
+  display: flex;
+  flex-direction: column;
+  gap: 30px; /* Espacio entre cada item (Respeto, Compromiso, etc) */
+}
+
+.value-item h3 {
+  font-family: var(--font-principal);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-primario-oscuro);
+  margin: 0 0 10px 0;
+  padding-bottom: 5px;
+  border-bottom: 2px solid var(--color-primario-claro); 
+  display: inline-block; /* Para que el borde no ocupe todo el ancho */
+}
+
+.value-item p {
+  font-family: var(--font-principal);
+  font-size: 16px;
+  line-height: 1.7;
+  color: #333;
+  margin: 0;
+}
+.value-item {
+  border-radius: 8px;
+  padding: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.value-item:hover {
+  background-color: #f9f9f9; /* Un fondo gris muy sutil */
 }
