@@ -35,10 +35,10 @@
 .footer-col a:hover {
   opacity: 1;
   text-decoration: underline;
+  color: #ff8465;
 }
-
 .footer-logo img {
-  height: 40px;
+  height: 80px;
   margin-bottom: 20px;
   background-color: white;
 }
@@ -47,6 +47,7 @@
   display: flex;
   gap: 20px; 
   align-items: center;
+  justify-content: center;
 }
 .footer-socials a {
   color: var(--color-blanco);
@@ -62,8 +63,8 @@
 }
 
 .footer-socials a img {
-  width: 24px;
-  height: 24px;
+  width: 35px;
+  height: 35px;
 }
 .footer-bottom {
   text-align: center;

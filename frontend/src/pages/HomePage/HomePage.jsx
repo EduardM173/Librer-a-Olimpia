@@ -22,7 +22,7 @@ const HomePage = () => {
           <p>Comercialización de productos al consumidor final en nuestras cinco sucursales en la ciudad de La Paz</p>
           <div className="hero-buttons">
             <Link to="/catalogo" className="btn btn-primario">Ver catálogo</Link>
-            <Link to="/sucursales" className="btn btn-secundario">Sucursales</Link>
+            <a href="#novedades" className="btn btn-secundario">Novedades</a>
           </div>
         </div>
       </section>
@@ -83,7 +83,7 @@ const HomePage = () => {
       </section>
 
       {/* 4. Novedades Section */}
-      <section className="novedades-section">
+      <section className="novedades-section" id="novedades">
         <div className="container">
           <h3>Novedades</h3>
           <div className="novedades-grid">

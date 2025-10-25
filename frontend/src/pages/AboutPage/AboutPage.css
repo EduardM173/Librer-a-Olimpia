@@ -1,0 +1,118 @@
+.about-page {
+  /* Fondo blanco para la primera sección */
+  background-color: var(--color-blanco);
+}
+
+/* --- Sección Misión y Visión --- */
+.mv-section {
+  padding: 60px 0;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.mv-title {
+  /* Este es el "Acerca de Nosotros" del mockup */
+  font-family: var(--font-principal);
+  font-weight: 700;
+  font-size: 48px;
+  text-align: center;
+  color: var(--color-primario-oscuro);
+  margin-bottom: 40px;
+}
+
+.mv-grid {
+  display: flex;
+  justify-content: center;
+  align-items: stretch; /* Asegura que las tarjetas tengan la misma altura si el contenido varía */
+  gap: 40px;
+}
+
+.mv-card {
+  flex-basis: 45%;
+  max-width: 450px;
+}
+
+.mv-card-title {
+  /* "Misión" y "Visión" en fuente script */
+  font-family: var(--font-titulos);
+  font-size: 48px;
+  font-weight: 400;
+  color: var(--color-primario-oscuro);
+  text-align: center;
+  margin: 0 0 20px 0;
+}
+
+.mv-card-content {
+  /* La caja azul claro */
+  background-color: #cffafe; /* Tono cian/azul claro */
+  border: 1px solid #b3e5fc;
+  border-radius: 8px;
+  padding: 30px;
+  height: 100%; /* Para que la caja ocupe todo el espacio */
+  box-sizing: border-box; /* Para que el padding no rompa la altura */
+}
+
+.mv-card-content p {
+  font-family: var(--font-principal);
+  font-size: 16px;
+  line-height: 1.7;
+  color: #005662; 
+  margin: 0;
+  text-align: center;
+}
+
+/* --- Sección Historia --- */
+.history-section {
+  background-color: var(--color-rojo-suave); 
+  padding: 60px 0 80px 0;
+}
+
+.history-title {
+  /* "Nuestra Historia" en fuente script */
+  font-family: var(--font-titulos);
+  font-size: 60px;
+  font-weight: 400;
+  color: var(--color-primario-oscuro);
+  text-align: center;
+  margin: 0 0 40px 0;
+}
+
+.history-content {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+
+.history-image {
+  flex-basis: 50%;
+}
+
+.history-image img {
+  width: 80%;
+  height: 720px;
+  border-radius: 8px;
+}
+
+.history-text {
+  flex-basis: 50%;
+  margin-right: 40px;
+  background-color: white;
+  border-radius: 15px;
+  padding: 60px;
+}
+
+.history-text p {
+  font-family: var(--font-principal);
+  font-size: 16px;
+  line-height: 1.7;
+  color: #333; /* Color de texto oscuro */
+  margin-bottom: 20px;
+}
+
+.history-signoff {
+  /* "Te esperamos!!" en fuente script */
+  font-family: var(--font-titulos);
+  font-size: 36px;
+  color: var(--color-primario-oscuro);
+  text-align: right;
+  margin-top: 30px;
+}
