@@ -1,20 +1,21 @@
-// backend/index.js
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
+/**
+ * =====================================================
+ * PUNTO DE ENTRADA PRINCIPAL
+ * Proyecto: Librería Olimpia
+ * Autor: (Tu nombre)
+ * Descripción: Carga la estructura modular del backend
+ * =====================================================
+ */
 
-const app = express();
-const PORT = process.env.PORT || 5000;
+require('dotenv').config();  // Carga variables .env
+require('./src/server');     // Inicia el servidor Express
 
-// Middlewares
-app.use(cors()); // Permite conexiones
-app.use(express.json()); // Permite leer JSON del body
-
-// Ruta de prueba
-app.get('/api', (req, res) => {
-  res.json({ message: '¡El backend de la Librería Olimpia funciona!' });
-});
-
-app.listen(PORT, () => {
-  console.log(`Servidor corriendo en el puerto ${PORT}`);
-});
+// Nota:
+// Ya no colocamos aquí lógica de rutas ni conexión a BD.
+// Toda esa funcionalidad está organizada dentro de /src:
+// - src/app.js → Configura la app y middlewares
+// - src/server.js → Arranca el servidor
+// - src/routes/ → Define rutas (ej. products.routes.js)
+// - src/controllers/ → Lógica de control
+// - src/services/ → Acceso a datos (consultas SQL)
+// - src/config/db.js → Conexión MySQL centralizada

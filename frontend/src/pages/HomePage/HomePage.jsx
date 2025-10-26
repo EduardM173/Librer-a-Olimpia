@@ -1,17 +1,37 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import './HomePage.css';
 import ProductCard from '../../components/ProductCard/ProductCard';
+import { getProducts } from '../../services/productService'; // 🔹 Importamos el servicio
 
 const heroImage = '/IMG/hero-banner.png'; 
 const novedad1 = '/IMG/novedad-marmol.png';
 const novedad2 = '/IMG/novedad-disenos.png';
 const aboutImage = '/IMG/nosotros.png';
-const ubiImage='/IMG/ic_ubi.png';
-const calImage='/IMG/ic_calendario.png';
-const autoImage='/IMG/ic_auto.png'
+const ubiImage = '/IMG/ic_ubi.png';
+const calImage = '/IMG/ic_calendario.png';
+const autoImage = '/IMG/ic_auto.png';
 
 const HomePage = () => {
+  // 🔹 Estado para productos populares
+  const [popularProducts, setPopularProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // 🔹 Cargar productos desde la BD (los más populares)
+  useEffect(() => {
+    async function loadPopular() {
+      try {
+        const { items } = await getProducts({ page: 1, pageSize: 4, sort: 'popular' });
+        setPopularProducts(items);
+      } catch (e) {
+        console.error('Error cargando productos del home:', e);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadPopular();
+  }, []);
+
   return (
     <div className="homepage">
       {/* 1. Hero Section */}
@@ -36,7 +56,7 @@ const HomePage = () => {
       <section className="features-section">
         <div className="container">
           <h2>Nuestras Sucursales</h2>
-          <p className="features-subtitle">Ubicanos en cualquiera de nuestras sucursales en toda La Paz</p>
+          <p className="features-subtitle">Ubícanos en cualquiera de nuestras sucursales en toda La Paz</p>
           
           <div className="features-path">
             <div className="feature-item">
@@ -101,56 +121,39 @@ const HomePage = () => {
       <section className="about-section">
         <div className="container">
           <h2>Acerca de Nosotros</h2>
-              <p className="about-subtitle">
-                Tenemos más de seis décadas de presencia en Bolivia. Y nos 
-                expandimos con nuevas sucursales gracias a ti!!
-              </p>
+          <p className="about-subtitle">
+            Tenemos más de seis décadas de presencia en Bolivia. Y nos expandimos con nuevas sucursales gracias a ti!!
+          </p>
           <div className="about-content">
-            
-            {/* Columna Izquierda: Imagen */}
             <div className="about-image">
               <img src={aboutImage} alt="Acerca de Nosotros" />
             </div>
 
-            {/* Columna Derecha: Texto y Features */}
             <div className="about-text">
               <div className="about-features">
-                {/* --- Feature 1 --- */}
                 <div className="about-feature-item">
-                  <div className="about-feature-icon">
-                    <span>📞</span> 
-                  </div>
+                  <div className="about-feature-icon"><span>📞</span></div>
                   <div className="about-feature-text">
                     <h3>Atención personalizada</h3>
                     <p>Aliquam erat volutpat. Integer malesuada turpis id fringilla suscipit. Maecenas ultrices.</p>
                   </div>
                 </div>
-
-                {/* --- Feature 2 --- */}
                 <div className="about-feature-item">
-                  <div className="about-feature-icon">
-                    <span>🚀</span> 
-                  </div>
+                  <div className="about-feature-icon"><span>🚀</span></div>
                   <div className="about-feature-text">
                     <h3>Mejor precio garantizado</h3>
                     <p>Aliquam erat volutpat. Integer malesuada turpis id fringilla suscipit. Maecenas ultrices.</p>
                   </div>
                 </div>
-
-                {/* --- Feature 3 --- */}
                 <div className="about-feature-item">
-                  <div className="about-feature-icon">
-                    <span>📍</span> 
-                  </div>
+                  <div className="about-feature-icon"><span>📍</span></div>
                   <div className="about-feature-text">
                     <h3>Diferentes locaciones</h3>
                     <p>Aliquam erat volutpat. Integer malesuada turpis id fringilla suscipit. Maecenas ultrices.</p>
                   </div>
                 </div>
-
               </div>
             </div> 
-
           </div> 
         </div>
       </section>
@@ -161,16 +164,17 @@ const HomePage = () => {
           <h2 className='catalog-title'>Catálogo</h2>
           <div className="catalog-tabs">
             <button className="active">Populares</button>
-            <button>Bolígrafos</button>
-            <button>Cuadernos</button>
-            <button>Colores</button>
           </div>
+
+          {/* 🔹 Grid con productos reales */}
           <div className="catalog-grid">
-            <ProductCard />
-            <ProductCard />
-            <ProductCard />
-            <ProductCard />
+            {loading && <p>Cargando productos...</p>}
+            {!loading && popularProducts.length === 0 && <p>No hay productos disponibles.</p>}
+            {!loading && popularProducts.map(p => (
+              <ProductCard key={p.id} producto={p} />
+            ))}
           </div>
+
           <div className="catalog-full-link">
             <Link to="/catalogo" className="btn btn-primario">Ver todo el catálogo</Link>
           </div>

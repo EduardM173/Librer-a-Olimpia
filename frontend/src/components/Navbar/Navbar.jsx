@@ -1,39 +1,34 @@
-// frontend/src/components/Navbar/Navbar.jsx
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import './Navbar.css';
-import cartIcon from '../../../public/IMG/carrito.png'; 
 
 const Navbar = () => {
-  // h01
   const isLogged = false; 
+
   return (
     <header className="navbar-fixed">
       <div className="navbar-container">
-        
-        {/*Logo */}
+
+        {/* Logo */}
         <Link to="/" className="navbar-logo">
           <img src="/IMG/logo.png" alt="Librería Olimpia" />
         </Link>
 
-        {/*Links de Navegación */}
+        {/* Navegación */}
         <nav className="navbar-nav">
           <Link to="/">Inicio</Link>
           <Link to="/about">Acerca de Nosotros</Link>
-          <Link to="/catalogo">Catálogo</Link>
+          <Link to="/catalogo">Catálogo</Link> {/* ✅ corregido (antes era /Catalog) */}
         </nav>
 
-        {/*Menú de Usuario */}
+        {/* Menú de Usuario */}
         <div className="navbar-user-menu">
           {isLogged ? (
-            // LOGUEADO
             <>
               <Link to="/mi-perfil" className="navbar-user-link">Hola, [Nombre]</Link>
               <Link to="/logout" className="navbar-user-link">Salir</Link>
             </>
           ) : (
-            // ANÓNIMO
             <>
               <Link to="/register" className="register-link">Register</Link>
               <Link to="/login" className="btn-login">Login</Link>
@@ -41,7 +36,7 @@ const Navbar = () => {
           )}
 
           <Link to="/carrito" className="cart-link">
-            <img src={cartIcon} alt="Carrito" className="cart-icon" />
+            <img src="/IMG/carrito.png" alt="Carrito" className="cart-icon" /> {/* ✅ no se importa, se usa por URL */}
             <span className="cart-count">0</span>
           </Link>
         </div>
