@@ -1,0 +1,79 @@
+.CatalogPage {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+.catalogo-header {
+  text-align: center;
+  margin: 16px 0 24px;
+}
+.catalogo-header h1 {
+  font-size: 40px;
+  margin: 0 0 8px;
+  color: #0a2562;
+}
+
+.catalogo-tabs {
+  display: flex;
+  gap: 16px;
+  border-bottom: 2px solid #e8e8e8;
+  margin: 16px 0 24px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+.tab-btn {
+  background: transparent;
+  border: none;
+  padding: 10px 4px;
+  font-weight: 600;
+  color: #666;
+  cursor: pointer;
+}
+.tab-btn.active {
+  color: #0a2562;
+  border-bottom: 3px solid #0a2562;
+}
+
+.catalogo-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+@media (max-width: 1024px) {
+  .catalogo-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 768px) {
+  .catalogo-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+.catalogo-loading,
+.catalogo-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 24px 0;
+  color: #777;
+}
+
+.catalogo-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 18px;
+}
+.pager {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.pager button {
+  padding: 8px 12px;
+  border: 1px solid #dcdcdc;
+  background: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.pager button:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
