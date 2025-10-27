@@ -11,6 +11,9 @@ import './App.css';
 import OrdersList from './pages/OrdersPage/OrdersList'; 
 import OrderDetail from './pages/OrdersPage/OrderDetail'; 
 import ProfileLayout from './pages/ProfileLayout/ProfileLayout.jsx';
+//Componentes de los reportes de ventas Admin
+import AdminReports from './pages/AdminReports/AdminReports.jsx';
+import AdminLayout from './pages/AdminLayout/AdminLayout.jsx';
 
 
 function App() {
