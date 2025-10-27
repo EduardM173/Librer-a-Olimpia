@@ -4,6 +4,8 @@ const cors = require('cors');
 const products = require('./routes/products.routes');
 const auth = require('./routes/auth.routes');
 const pedidos = require('./routes/pedidos.routes'); 
+const clientesRoutes = require('./routes/clientes.routes');
+
 
 const app = express();
 
@@ -12,7 +14,8 @@ app.use(express.json());
 
 app.use('/api', products);
 app.use('/api', auth);
-app.use('/pedidos', pedidos); 
+app.use('/api/pedidos', pedidos); 
+app.use('/api/clientes', clientesRoutes);
 
 app.use((err, req, res, next) => {
   console.error('❌ Error:', err);

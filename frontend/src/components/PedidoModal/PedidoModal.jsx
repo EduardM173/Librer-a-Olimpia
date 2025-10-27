@@ -6,12 +6,10 @@ export default function PedidoModal({ pedido, onClose }) {
     const [formData, setFormData] = useState({
         cliente: pedido.cliente,
         estado: pedido.estado,
-        zona_envio: pedido.zona_envio || "",
     });
 
-    const editable = pedido.modoEdicion; // 🔹 modo edición o lectura
+    const editable = pedido.modoEdicion;
 
-    // === Cálculos de totales ===
     const subtotal = pedido.detalle
         ? pedido.detalle.reduce(
             (sum, prod) => sum + parseFloat(prod.importe_neto || 0),
@@ -21,16 +19,17 @@ export default function PedidoModal({ pedido, onClose }) {
     const costoEnvio = 0;
     const total = subtotal + costoEnvio;
 
-    // === Manejo de cambios en campos ===
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
     };
 
-    // === Guardar cambios ===
     const handleGuardar = async () => {
         try {
-            await axios.patch(`http://localhost:3000/pedidos/${pedido.id}`, formData);
+            await axios.patch(
+                `http://localhost:3000/api/pedidos/${pedido.id}`,
+                formData
+            );
             alert("✅ Pedido actualizado correctamente");
             onClose();
         } catch (error) {
@@ -74,20 +73,21 @@ export default function PedidoModal({ pedido, onClose }) {
                         <option value="CANCELADO">Cancelado</option>
                     </select>
                 </p>
-
                 <p>
-                    <strong>Zona del envío:</strong>
+                    <strong>Dirección de envío:</strong>{" "}
                     {editable ? (
                         <input
                             type="text"
-                            name="zona_envio"
-                            value={formData.zona_envio}
+                            name="direccion_envio"
+                            value={formData.direccion_envio || pedido.direccion_envio || ""}
                             onChange={handleChange}
+                            placeholder="Ej: Zona Sopocachi, Calle Rosendo Gutiérrez #123"
                         />
                     ) : (
-                        <span>{pedido.zona_envio || "Sin zona definida"}</span>
+                        <span>{pedido.direccion_envio || "Sin dirección registrada"}</span>
                     )}
                 </p>
+
 
                 <h3>Productos</h3>
                 <table className="tabla-productos">
@@ -117,21 +117,6 @@ export default function PedidoModal({ pedido, onClose }) {
                         <p><strong>Costo envío:</strong> {costoEnvio.toFixed(2)}</p>
                         <p><strong>Total:</strong> {total.toFixed(2)}</p>
                     </div>
-                </div>
-
-
-                {/* === Actualizar estado (en ambos modos) === */}
-                <div className="actualizar-estado">
-                    <label><strong>Actualizar Estado:</strong></label>
-                    <select
-                        name="estado"
-                        value={formData.estado}
-                        onChange={handleChange}
-                    >
-                        <option value="PENDIENTE">Pendiente</option>
-                        <option value="ENTREGADO">Entregado</option>
-                        <option value="CANCELADO">Cancelado</option>
-                    </select>
                 </div>
 
                 <div className="acciones">

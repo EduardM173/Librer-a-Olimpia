@@ -11,6 +11,7 @@ import RegisterModal from './components/Auth/RegisterModal';
 import ProfilePage from './pages/ProfilePage/ProfilePage.jsx';
 import NavbarAdmin from "./components/Navbar/NavbarAdmin";
 import PedidosAdmin from "./pages/PedidosAdmin/PedidosAdmin";
+import ClienteAdmin from "./pages/ClienteAdmin/ClienteAdmin";
 import './App.css';
 
 function RequireAuth({ children }) {
@@ -32,6 +33,7 @@ export default function App() {
             <Route path="/about" element={<AboutPage />} />
             <Route path="/catalogo" element={<CatalogPage />} />
             <Route path="/admin/pedidos" element={<PedidosAdmin />} />
+            <Route path="/admin/clientes" element={<ClienteAdmin />} />
             <Route
               path="/perfil"
               element={

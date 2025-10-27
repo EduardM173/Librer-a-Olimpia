@@ -17,7 +17,7 @@ export default function PedidosAdmin() {
 
     const obtenerPedidos = async () => {
         try {
-            const res = await axios.get("http://localhost:3000/pedidos");
+            const res = await axios.get("http://localhost:3000/api/pedidos");
             setPedidos(res.data);
         } catch (err) {
             console.error("Error al obtener pedidos:", err);
@@ -50,17 +50,16 @@ export default function PedidosAdmin() {
     const handleSeleccionarPedido = async (pedidoBase, modoEdicion = false) => {
         try {
             const res = await axios.get(
-                `http://localhost:3000/pedidos/${pedidoBase.id}`
+                `http://localhost:3000/api/pedidos/${pedidoBase.id}`
             );
             const pedidoConDetalle = res.data.pedido;
-            pedidoConDetalle.modoEdicion = modoEdicion; // 🔹 agrega el flag
+            pedidoConDetalle.modoEdicion = modoEdicion;
             setPedidoSeleccionado(pedidoConDetalle);
             setMostrarModal(true);
         } catch (error) {
             console.error("Error al obtener detalles del pedido:", error);
         }
     };
-
 
     const pedidosFiltrados = filtrarPedidos();
 
@@ -119,10 +118,11 @@ export default function PedidosAdmin() {
                                     className="editar-btn"
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        handleSeleccionarPedido(p, true); // 🔹 segundo parámetro: modo edición
+                                        handleSeleccionarPedido(p, true);
                                     }}
-                                >Editar</button>
-
+                                >
+                                    Editar
+                                </button>
                             </td>
                         </tr>
                     ))}
@@ -137,7 +137,6 @@ export default function PedidosAdmin() {
                 </tbody>
             </table>
 
-            {/* Modal */}
             {mostrarModal && (
                 <PedidoModal
                     pedido={pedidoSeleccionado}

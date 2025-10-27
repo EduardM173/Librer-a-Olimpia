@@ -1,0 +1,163 @@
+.cliente-admin-container {
+  min-height: 100vh;
+  padding: 40px;
+}
+
+.titulo {
+  text-align: left;
+  font-family: "Georgia", cursive;
+  margin-bottom: 20px;
+}
+
+.buscador {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
+.buscador input {
+  width: 300px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.buscador button {
+  background-color: #00c2a8;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.buscador button:hover {
+  background-color: #00a890;
+}
+
+.tabla-clientes {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #9ec9ff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.tabla-clientes th,
+.tabla-clientes td {
+  border: 1px solid #ccc;
+  padding: 10px;
+  text-align: center;
+}
+
+.tabla-clientes th {
+  background-color: #1e3a8a;
+  color: white;
+}
+
+.btn-ver {
+  background-color: white;
+  border: 1px solid red;
+  color: red;
+  border-radius: 6px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.btn-editar {
+  background-color: #facc15;
+  border: none;
+  color: black;
+  border-radius: 6px;
+  padding: 5px 10px;
+  cursor: pointer;
+  margin-left: 8px;
+}
+
+.estado.activo {
+  color: green;
+  font-weight: bold;
+}
+
+.estado.inactivo {
+  color: red;
+  font-weight: bold;
+}
+
+/* ===== MODAL (ventana emergente) ===== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.45); /* fondo oscuro semitransparente */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+/* --- caja blanca centrada --- */
+.modal-contenido {
+  background-color: #ffffff; /* 🔹 fondo blanco visible */
+  border: 4px solid #f7b100; /* 🔸 dorado Figma */
+  border-radius: 18px;
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.3); /* 🔹 sombra suave */
+  padding: 30px 35px;
+  width: 420px;
+  max-width: 95%;
+  text-align: center;
+  color: #000;
+  animation: fadeIn 0.3s ease;
+}
+
+/* título del modal */
+.modal-contenido h2 {
+  font-family: 'Allura', cursive;
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  color: #000;
+}
+
+.form-grupo {
+  margin: 15px 0;
+  text-align: left;
+}
+
+.modal-select {
+  width: 100%;
+  border: 3px solid #ff0000; /* 🔹 borde rojo */
+  border-radius: 25px;
+  padding: 10px 14px;
+  font-size: 1rem;
+  background-color: #fff;
+  color: #000;
+  outline: none;
+  transition: 0.3s ease all;
+}
+
+.modal-select:focus {
+  border-color: #cc0000;
+  box-shadow: 0 0 5px rgba(255, 0, 0, 0.4);
+}
+
+.modal-botones {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 25px;
+}
+
+/* Animación suave al aparecer */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
