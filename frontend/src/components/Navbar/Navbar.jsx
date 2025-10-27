@@ -1,46 +1,53 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import './Navbar.css';
+import { useAuth } from '../../context/AuthContext';
 
 const Navbar = () => {
-  const isLogged = false; 
+  const { user, openLogin, openRegister, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const goProfile = () => navigate('/perfil');
 
   return (
     <header className="navbar-fixed">
       <div className="navbar-container">
-
-        {/* Logo */}
         <Link to="/" className="navbar-logo">
           <img src="/IMG/logo.png" alt="Librería Olimpia" />
         </Link>
 
-        {/* Navegación */}
         <nav className="navbar-nav">
           <Link to="/">Inicio</Link>
           <Link to="/about">Acerca de Nosotros</Link>
-          <Link to="/catalogo">Catálogo</Link> {/* ✅ corregido (antes era /Catalog) */}
+          <Link to="/catalogo">Catálogo</Link>
         </nav>
 
-        {/* Menú de Usuario */}
         <div className="navbar-user-menu">
-          {isLogged ? (
+          {user ? (
             <>
-              <Link to="/mi-perfil" className="navbar-user-link">Hola, [Nombre]</Link>
-              <Link to="/logout" className="navbar-user-link">Salir</Link>
+              <button className="navbar-user-link btn-profile" onClick={goProfile}>
+                Mi perfil
+              </button>
+              <button className="navbar-user-link btn-logout" onClick={logout}>
+                Cerrar sesión
+              </button>
             </>
           ) : (
             <>
-              <Link to="/register" className="register-link">Register</Link>
-              <Link to="/login" className="btn-login">Login</Link>
+              <button className="register-link" onClick={openRegister}>
+                Registrarse
+              </button>
+              <button className="btn-login" onClick={openLogin}>
+                Iniciar sesión
+              </button>
             </>
           )}
 
           <Link to="/carrito" className="cart-link">
-            <img src="/IMG/carrito.png" alt="Carrito" className="cart-icon" /> {/* ✅ no se importa, se usa por URL */}
+            <img src="/IMG/carrito.png" alt="Carrito" className="cart-icon" />
             <span className="cart-count">0</span>
           </Link>
         </div>
-
       </div>
     </header>
   );
