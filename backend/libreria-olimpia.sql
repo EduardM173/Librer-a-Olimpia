@@ -223,16 +223,4 @@ BEGIN
 END//
 DELIMITER ;
 
--- =====================================================
--- DATOS INICIALES
--- =====================================================
-
-INSERT INTO sucursal (nombre, ciudad, direccion) VALUES
-('Sucursal Central', 'La Paz', 'Av. 16 de Julio #1234');
-
-INSERT INTO usuario (nombre, email, username, password_hash, rol, zona, calle, numero_casa) VALUES
-('Admin', 'admin@olimpia.com', 'admin', '$2b$10$rZ8qF7xK3mN2pL9wV1tXxO8YhJ4nM6sT7uK2pL9wV1tXxO8YhJ4nM', 'ADMIN', 'Sopocachi', 'Av. 20 de Octubre', '1234');
-
-INSERT INTO categoria (nombre) VALUES
-('Libros'),
-('Útiles Escolares');
+ALTER TABLE cliente ADD COLUMN estado TINYINT(1) DEFAULT 1 AFTER tipo_cliente;

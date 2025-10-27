@@ -3,15 +3,18 @@ import { Link, useNavigate } from "react-router-dom";
 import "./Navbar.css";
 import { useAuth } from "../../context/AuthContext";
 import { isAdmin } from "../../utils/auth";
+import { useCart } from "../../context/CartContext";
 
 const Navbar = () => {
   const { user, openLogin, openRegister, logout } = useAuth();
+  const { count, setIsOpen } = useCart(); // ← usamos count (nº items) y setIsOpen
   const navigate = useNavigate();
   const admin = isAdmin(user);
+
   const [adminMenuOpen, setAdminMenuOpen] = useState(false);
   const adminRef = useRef(null);
 
-  // Cierra el menú si se hace clic fuera
+  // Cierra el menú Admin si se hace clic fuera
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (adminRef.current && !adminRef.current.contains(e.target)) {
@@ -28,22 +31,24 @@ const Navbar = () => {
     navigate("/");
   };
 
+  const openCart = () => setIsOpen(true); // helper para abrir el modal
+
   return (
     <header className="navbar-fixed">
       <div className="navbar-container">
-        {/* 🔹 Logo */}
-        <Link to="/" className="navbar-logo">
+        {/* Logo */}
+        <Link to="/" className="navbar-logo" aria-label="Inicio">
           <img src="/IMG/logo.png" alt="Librería Olimpia" />
         </Link>
 
-        {/* 🔹 Menú principal */}
+        {/* Menú principal */}
         <nav className="navbar-nav">
           <Link to="/">Inicio</Link>
           <Link to="/about">Acerca de Nosotros</Link>
           <Link to="/catalogo">Catálogo</Link>
         </nav>
 
-        {/* 🔹 Menú de usuario */}
+        {/* Menú de usuario */}
         <div className="navbar-user-menu">
           {user ? (
             <>
@@ -51,18 +56,20 @@ const Navbar = () => {
                 👤 {user.nombre || user.username}
               </span>
 
-              {/* 🔹 Si es ADMIN, muestra botón desplegable */}
+              {/* Admin: botón desplegable */}
               {admin ? (
                 <div className="admin-dropdown" ref={adminRef}>
                   <button
                     className="navbar-user-link btn-panel"
-                    onClick={() => setAdminMenuOpen(!adminMenuOpen)}
+                    onClick={() => setAdminMenuOpen((v) => !v)}
+                    aria-expanded={adminMenuOpen}
+                    aria-haspopup="menu"
                   >
                     Admin ▾
                   </button>
 
                   {adminMenuOpen && (
-                    <div className="admin-menu">
+                    <div className="admin-menu" role="menu">
                       <Link to="/admin/productos" onClick={() => setAdminMenuOpen(false)}>
                         Productos
                       </Link>
@@ -79,18 +86,12 @@ const Navbar = () => {
                   )}
                 </div>
               ) : (
-                <button
-                  className="navbar-user-link btn-profile"
-                  onClick={goProfile}
-                >
+                <button className="navbar-user-link btn-profile" onClick={goProfile}>
                   Mi perfil
                 </button>
               )}
 
-              <button
-                className="navbar-user-link btn-logout"
-                onClick={handleLogout}
-              >
+              <button className="navbar-user-link btn-logout" onClick={handleLogout}>
                 Cerrar sesión
               </button>
             </>
@@ -105,12 +106,18 @@ const Navbar = () => {
             </>
           )}
 
-          {/* 🔹 Carrito (solo si no es admin) */}
+          {/* Carrito (solo clientes/visitantes) */}
           {!admin && (
-            <Link to="/carrito" className="cart-link">
+            <button
+              type="button"
+              className="cart-link"
+              onClick={openCart}
+              aria-label={`Abrir carrito. ${count} artículo(s)`}
+              title="Abrir carrito"
+            >
               <img src="/IMG/carrito.png" alt="Carrito" className="cart-icon" />
-              <span className="cart-count">0</span>
-            </Link>
+              {count > 0 && <span className="cart-count">{count}</span>}
+            </button>
           )}
         </div>
       </div>

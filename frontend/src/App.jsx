@@ -6,12 +6,16 @@ import Navbar from './components/Navbar/Navbar';
 import Footer from './components/Footer/Footer';
 
 import AuthProvider, { useAuth } from './context/AuthContext';
+import CartProvider from './context/CartContext';
+import CartModal from './components/Cart/CartModal';
+
 import LoginModal from './components/Auth/LoginModal';
 import RegisterModal from './components/Auth/RegisterModal';
 
 import HomePage from './pages/HomePage/HomePage';
 import AboutPage from './pages/AboutPage/AboutPage.jsx';
 import CatalogPage from './pages/CatalogPage/CatalogPage.jsx';
+import CartPage from './pages/CartPage/CartPage.jsx';
 
 import ProfilePage from './pages/ProfilePage/ProfilePage.jsx';
 import ProfileLayout from './pages/ProfileLayout/ProfileLayout.jsx';
@@ -23,6 +27,8 @@ import OrdersList from './pages/OrdersPage/OrdersList';
 import OrderDetail from './pages/OrdersPage/OrderDetail';
 
 import { isAdmin } from './utils/auth.js';
+
+
 
 import './App.css';
 
@@ -68,9 +74,10 @@ function AppShell() {
       {/* 🔹 Navbar único que adapta opciones según el tipo de usuario */}
       <Navbar />
 
-      {/* 🔹 Modales de autenticación */}
+      {/* 🔹 Modales globales */}
       <LoginModal />
       <RegisterModal />
+      <CartModal />
 
       {/* 🔹 Contenido principal */}
       <main>
@@ -79,6 +86,7 @@ function AppShell() {
           <Route path="/" element={<HomePage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/catalogo" element={<CatalogPage />} />
+          <Route path="/carrito" element={<CartPage />} />
 
           {/* === RUTAS DE ADMIN (PROTEGIDAS) === */}
           <Route
@@ -131,7 +139,9 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <AppShell />
+        <CartProvider>
+          <AppShell />
+        </CartProvider>
       </AuthProvider>
     </BrowserRouter>
   );

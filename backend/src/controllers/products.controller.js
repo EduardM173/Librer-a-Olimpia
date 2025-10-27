@@ -26,12 +26,13 @@ exports.getProducts = async (req, res) => {
 
     const offset = (page - 1) * pageSize;
 
-    // ✅ consulta ajustada a tu esquema
+    // ✅ Incluimos descripción
     const [rows] = await pool.query(
       `
       SELECT 
         p.id,
         p.nombre,
+        p.descripcion,
         p.precio_venta,
         p.imagen_url,
         p.activo,
@@ -41,7 +42,7 @@ exports.getProducts = async (req, res) => {
       LEFT JOIN inventario_actual ia ON ia.producto_id = p.id
       LEFT JOIN venta_detalle vd ON vd.producto_id = p.id
       ${whereSQL}
-      GROUP BY p.id, p.nombre, p.precio_venta, p.imagen_url, p.activo
+      GROUP BY p.id, p.nombre, p.descripcion, p.precio_venta, p.imagen_url, p.activo
       ORDER BY popularity DESC, p.nombre ASC
       LIMIT ? OFFSET ?;
       `,
@@ -51,6 +52,7 @@ exports.getProducts = async (req, res) => {
     const items = rows.map(r => ({
       id: r.id,
       nombre: r.nombre,
+      descripcion: r.descripcion || 'Sin descripción disponible',
       precio: Number(r.precio_venta).toFixed(2),
       imagen: r.imagen_url || '/IMG/placeholder-producto.jpg',
       agotado: r.stock <= 0 || r.activo === 0
@@ -65,7 +67,6 @@ exports.getProducts = async (req, res) => {
     res.status(500).json({ error: 'products_failed' });
   }
 };
-
 
 // =============================
 //  Obtener categorías
@@ -90,11 +91,13 @@ exports.getProductById = async (req, res) => {
     const id = parseInt(req.params.id);
     if (isNaN(id)) return res.status(400).json({ error: 'invalid_id' });
 
+    // ✅ Incluimos descripción
     const [rows] = await pool.query(
       `
       SELECT 
         p.id,
         p.nombre,
+        p.descripcion,
         p.precio_venta,
         p.imagen_url,
         p.activo,
@@ -117,6 +120,7 @@ exports.getProductById = async (req, res) => {
     res.json({
       id: r.id,
       nombre: r.nombre,
+      descripcion: r.descripcion || 'Sin descripción disponible',
       categoria: r.categoria || 'Sin categoría',
       precio: Number(r.precio_venta).toFixed(2),
       imagen: r.imagen_url || '/IMG/placeholder-producto.jpg',
