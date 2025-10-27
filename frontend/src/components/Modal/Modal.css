@@ -1,0 +1,105 @@
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* Panel principal del modal */
+.modal-panel {
+  width: min(520px, 92vw);
+  background: #fff;
+  border-radius: 18px;
+  padding: 26px 28px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, .25);
+  border: 4px solid #2f55ff;
+  color: #222; /* 👈 Asegura que el texto sea visible */
+  font-family: 'Poppins', sans-serif;
+}
+
+.modal-panel h2 {
+  margin: 0 0 24px;
+  font-size: 32px;
+  text-align: center;
+  font-weight: 700;
+  color: #111;
+}
+
+.modal-panel form {
+  display: grid;
+  gap: 18px;
+}
+
+/* Cada campo (label + input) en columna */
+.modal-panel form div {
+  display: flex;
+  flex-direction: column;
+  text-align: left; /* 👈 Alinea texto a la izquierda */
+}
+
+/* Etiquetas */
+.modal-panel label {
+  font-weight: 700; /* 👈 Más negrita como pediste */
+  font-size: 15px;
+  margin-bottom: 6px; /* Espaciado limpio sobre el input */
+  color: #222;
+}
+
+/* Inputs */
+.modal-panel input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #ccc;
+  background-color: #f3f4f6;
+  border-radius: 8px;
+  font-size: 16px;
+  color: #333;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.modal-panel input:focus {
+  border-color: #2f55ff;
+  background-color: #fff;
+}
+
+/* Botón principal */
+.modal-btn {
+  background: #f5b914;
+  border: none;
+  border-radius: 22px;
+  padding: 12px 24px;
+  font-weight: 700;
+  cursor: pointer;
+  color: #333;
+  justify-self: center;
+  margin-top: 12px;
+  font-size: 16px;
+  transition: background 0.2s;
+}
+
+.modal-btn:hover {
+  background: #f7ca35;
+}
+
+/* Texto inferior (p. ej. “¿Ya tienes cuenta?”) */
+.modal-note {
+  text-align: center;
+  font-size: 14px;
+  justify-self: center;
+  margin-top: 8px;
+  color: #444;
+}
+
+/* Link de cambio (registrarse / iniciar sesión) */
+.modal-link {
+  color: #d9304c;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  font-weight: 600;
+}
