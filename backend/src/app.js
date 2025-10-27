@@ -18,7 +18,7 @@ app.use('/api', auth);
 // app.use('/api', orders);
 
 // Las rutas serán: /api/orders y /api/orders/:id
-//necesita autenticacion
+//necesita autenticacion para acceder a las rutas de pedidos
 app.use('/api', ordersRoutes);
 
 module.exports = app;

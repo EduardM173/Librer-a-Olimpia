@@ -43,6 +43,7 @@ export default function App() {
               path="/perfil"
               element={
                 <RequireAuth>
+                  {/* Ingresa al otro layout que creé para el perfil*/}
                   <ProfileLayout />
                 </RequireAuth>
               }
