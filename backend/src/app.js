@@ -6,7 +6,9 @@ const products = require('./routes/products.routes');
 const ordersRoutes = require('./routes/orders.routes');
 
 const auth = require('./routes/auth.routes');
-// const orders = require('./routes/orders.routes');
+const pedidos = require('./routes/pedidos.routes'); 
+const clientesRoutes = require('./routes/clientes.routes');
+
 
 const app = express();
 
@@ -15,7 +17,8 @@ app.use(express.json());
 
 app.use('/api', products);
 app.use('/api', auth);
-// app.use('/api', orders);
+app.use('/api/pedidos', pedidos); 
+app.use('/api/clientes', clientesRoutes);
 
 // Las rutas serán: /api/orders y /api/orders/:id
 //necesita autenticacion para acceder a las rutas de pedidos
