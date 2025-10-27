@@ -1,0 +1,98 @@
+.ProfilePage { 
+    padding: 24px 16px 48px; 
+}
+
+.perfil-title { 
+    text-align: left; 
+    font-size: 40px; 
+    margin: 8px 0 24px; 
+    color: #1a2b6b; 
+    font-family: 'Poppins', sans-serif; 
+}
+
+.perfil-grid { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 24px; 
+}
+
+@media (max-width: 900px) { 
+    .perfil-grid { 
+        grid-template-columns: 1fr; 
+    } 
+}
+
+.perfil-card { 
+    background: #fff; 
+    border-radius: 18px; 
+    padding: 20px; 
+    box-shadow: 0 8px 20px rgba(0,0,0,.08); 
+}
+
+/* Aplicamos estilos de "Mis pedidos" anteriores a "Información personal" */
+.perfil-personal { 
+    border: 3px solid #e74c3c; /* Borde rojo */
+}
+.perfil-personal h2 { 
+    text-align: center; /* Centrado */
+    margin: 0 0 16px; 
+}
+.perfil-personal h3 { 
+    text-align: center; /* Centrado */
+    margin: 18px 0 10px; 
+}
+
+.perfil-row { 
+    display: flex; 
+    gap: 8px; 
+    padding: 6px 2px; 
+    align-items: center; 
+}
+.perfil-row span { 
+    font-weight: 700; 
+    min-width: 180px; 
+    text-align: left; 
+    flex-shrink: 0; 
+}
+
+/* Aplicamos estilos de "Mi perfil" anteriores a "Mis pedidos" */
+.perfil-pedidos { 
+    background: #e54040; /* Fondo rojo */
+    color: #fff; 
+}
+.perfil-pedidos h2 { 
+    text-align: center; /* Centrado */
+    margin: 0 0 16px; 
+    color: #fff; 
+}
+
+.pedido-item { 
+    display: flex; 
+    gap: 14px; 
+    align-items: center; 
+    background: #fff; 
+    color: #333; 
+    border-radius: 14px; 
+    padding: 12px; 
+    margin-bottom: 12px; 
+}
+
+.pedido-thumb { 
+    width: 72px; 
+    height: 72px; 
+    border-radius: 12px; 
+    background: linear-gradient(135deg, #f0ff75, #a3ffb0); 
+}
+
+.pedido-info { 
+    flex: 1; 
+}
+
+.pedido-btn { 
+    background: #f5b914; 
+    border: none; 
+    border-radius: 18px; 
+    padding: 8px 14px; 
+    font-weight: 700; 
+    cursor: pointer; 
+}

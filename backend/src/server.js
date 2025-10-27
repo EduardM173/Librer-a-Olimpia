@@ -1,9 +1,5 @@
-import app from "./app.js";
-import dotenv from "dotenv";
-dotenv.config();
+require('dotenv').config();
+const app = require('./app');
 
 const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-  console.log(`Servidor backend corriendo en http://localhost:${PORT}`);
-});
+app.listen(PORT, () => console.log('✅ API listening on port ' + PORT));

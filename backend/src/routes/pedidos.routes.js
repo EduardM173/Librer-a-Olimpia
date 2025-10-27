@@ -1,6 +1,5 @@
-import express from "express";
-import pool from "../db.js";
-
+const express = require("express");
+const pool = require("../config/db");
 const router = express.Router();
 
 // ✅ Listar todos los pedidos
@@ -22,28 +21,28 @@ router.get("/", async (req, res) => {
 });
 
 // ✅ Ver detalle de un pedido
-// ✅ Ver detalle de un pedido con datos del cliente y total calculado
 router.get("/:id", async (req, res) => {
   try {
     const pedidoId = req.params.id;
 
-    // 1️⃣ Obtener datos del pedido y del cliente
-    const [pedidoRows] = await pool.query(`
+    const [pedidoRows] = await pool.query(
+      `
       SELECT p.id, p.fecha_pedido, p.estado,
              c.nombre AS cliente, c.tipo_cliente, c.nit_ci
       FROM pedido p
       JOIN cliente c ON p.cliente_id = c.id
       WHERE p.id = ?;
-    `, [pedidoId]);
+      `,
+      [pedidoId]
+    );
 
-    if (pedidoRows.length === 0) {
+    if (pedidoRows.length === 0)
       return res.status(404).json({ message: "Pedido no encontrado" });
-    }
 
     const pedido = pedidoRows[0];
 
-    // 2️⃣ Obtener los productos asociados al pedido
-    const [detalleRows] = await pool.query(`
+    const [detalleRows] = await pool.query(
+      `
       SELECT pr.nombre AS producto,
              pd.cantidad,
              pd.precio_unitario,
@@ -51,12 +50,15 @@ router.get("/:id", async (req, res) => {
       FROM pedido_detalle pd
       JOIN producto pr ON pd.producto_id = pr.id
       WHERE pd.pedido_id = ?;
-    `, [pedidoId]);
+      `,
+      [pedidoId]
+    );
 
-    // 3️⃣ Calcular el total sumando los importes
-    const totalCalculado = detalleRows.reduce((acc, item) => acc + Number(item.importe_neto), 0);
+    const totalCalculado = detalleRows.reduce(
+      (acc, item) => acc + Number(item.importe_neto),
+      0
+    );
 
-    // 4️⃣ Estructurar la respuesta final
     const resultado = {
       pedido: {
         id: pedido.id,
@@ -66,8 +68,8 @@ router.get("/:id", async (req, res) => {
         fecha_pedido: pedido.fecha_pedido,
         estado: pedido.estado,
         detalle: detalleRows,
-        total_calculado: totalCalculado
-      }
+        total_calculado: totalCalculado,
+      },
     };
 
     res.json(resultado);
@@ -81,7 +83,10 @@ router.get("/:id", async (req, res) => {
 router.patch("/:id/estado", async (req, res) => {
   try {
     const { estado } = req.body;
-    await pool.query("UPDATE pedido SET estado = ? WHERE id = ?", [estado, req.params.id]);
+    await pool.query("UPDATE pedido SET estado = ? WHERE id = ?", [
+      estado,
+      req.params.id,
+    ]);
     res.json({ message: `Estado del pedido #${req.params.id} actualizado a ${estado}` });
   } catch (error) {
     console.error(error);
@@ -89,4 +94,4 @@ router.patch("/:id/estado", async (req, res) => {
   }
 });
 
-export default router;
+module.exports = router;

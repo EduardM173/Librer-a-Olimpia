@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import "./PedidosAdmin.css";
-import PedidoModal from "../components/PedidoModal.jsx";
+import PedidoModal from "../../components/PedidoModal/PedidoModal.jsx";
 
 export default function PedidosAdmin() {
     const [pedidos, setPedidos] = useState([]);
