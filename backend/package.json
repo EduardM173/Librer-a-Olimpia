@@ -1,17 +1,16 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "Backend de Librería Olimpia - Express + MySQL",
   "main": "index.js",
+  "type": "commonjs",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon index.js",
-    "db:seed": "node scripts/seed.js"
+    "seed": "node scripts/seed.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "Equipo Librería Olimpia",
   "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",

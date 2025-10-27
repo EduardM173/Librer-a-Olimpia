@@ -1,14 +1,9 @@
-const express = require('express');
-const { getClientes, updateCliente } = require('../controllers/clientes.controller');
-// 🔹 De momento no usaremos auth hasta tener el middleware
-// const { verifyToken, isAdmin } = require('../middlewares/auth.middleware');
+const router = require('express').Router();
+const ctrl = require('../controllers/products.controller');
 
-const router = express.Router();
-
-// Listar clientes
-router.get('/', getClientes);
-
-// Actualizar cliente
-router.put('/:id', updateCliente);
+// --- Endpoints principales ---
+router.get('/categories', ctrl.getCategories);
+router.get('/products', ctrl.getProducts);
+router.get('/products/:id', ctrl.getProductById); // ✅ detalle incluye descripción
 
 module.exports = router;
