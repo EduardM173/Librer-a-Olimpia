@@ -1,0 +1,251 @@
+{
+	"info": {
+		"_postman_id": "df7db260-6b9d-4d2f-8f09-6a7279f8939d",
+		"name": "LibreriaOlimpia",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "44222296",
+		"_collection_link": "https://esmeralda-8888434.postman.co/workspace/Esmeralda's-Workspace~6e6fda55-bbd7-4e2c-84ec-2a96beff57bc/collection/44222296-df7db260-6b9d-4d2f-8f09-6a7279f8939d?action=share&source=collection_link&creator=44222296"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Registrar usuario",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"nombre\": \"Juan\",\r\n  \"email\": \"juan@correo.com\",\r\n  \"password\": \"password123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseURL}}/api/auth/register"
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"juan@correo.com\",\r\n  \"password\": \"password123\"\r\n}"
+						},
+						"url": "{{baseURL}}/api/auth/login"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Products",
+			"item": [
+				{
+					"name": "Obtener catálogo",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseURL}}/api/products"
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener categorías",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseURL}}/api/categories"
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener producto específico",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseURL}}/api/products/1"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Checkout",
+			"item": [
+				{
+					"name": "Checkout",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseURL}}/api/checkout"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Historial de Pedidos",
+			"item": [
+				{
+					"name": "Obtener pedidos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseURL}}/api/pedidos/mis-pedidos"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Admin Products",
+			"item": [
+				{
+					"name": "Obtener productos admin",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseURL}}/api/admin/products"
+					},
+					"response": []
+				},
+				{
+					"name": "Registrar producto admin",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseURL}}/api/admin/products"
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizar producto admin",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseURL}}/api/admin/products/1"
+					},
+					"response": []
+				},
+				{
+					"name": "Eliminar producto admin",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "{{baseURL}}/api/admin/products/1"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Admin Pedidos",
+			"item": [
+				{
+					"name": "Obtener pedidos admin",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseURL}}/api/admin/pedidos"
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizar pedido admin",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": "{{baseURL}}/api/admin/pedidos/1"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Admin Clientes",
+			"item": [
+				{
+					"name": "Obtener usuarios",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseURL}}/api/admin/usuarios"
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizar usuarios",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseURL}}/api/admin/usuarios/1"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Admin Reportes",
+			"item": [
+				{
+					"name": "Obtener reportes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseURL}}/api/admin/reportes"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseURL",
+			"value": "",
+			"type": "default"
+		}
+	]
+}
