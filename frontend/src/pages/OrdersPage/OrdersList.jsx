@@ -10,8 +10,18 @@ const fetchOrders = async () => {
     }
   });
   if (!response.ok) {
-    throw new Error('Error al cargar pedidos');
+    // Intenta leer el body como texto si el error es 500 y no hay JSON
+    const contentType = response.headers.get("content-type");
+    if (contentType && contentType.includes("application/json")) {
+        // Si el servidor devolvió un error JSON (ej: { error: 'orders_failed' })
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Error al cargar pedidos (JSON).');
+    } else {
+        // Si el servidor devolvió HTML (ej: la página de error 500/404)
+        throw new Error(`Error ${response.status}: El servidor devolvió HTML inesperado. Revisa la consola del BACKEND.`);
+    }
   }
+  // Si todo está OK, procede a leer JSON
   return response.json();
 };
 // -------------------------------------------------------------------
@@ -66,7 +76,7 @@ const OrdersList = () => {
 
               <div className="card-body">
                 {/* Fecha [cite: 17] */}
-                <p className="order-date">Fecha: {new Date(order.fecha).toLocaleDateString()}</p>
+                <p className="order-date">Fecha: **{order.fecha}**</p>
                 {/* Total [cite: 18] */}
                 <p className="order-total">Total: **Bs. {order.total}**</p>
                 {/* Ver detalles [cite: 19] */}

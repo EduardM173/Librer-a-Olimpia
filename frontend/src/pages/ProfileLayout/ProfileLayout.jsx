@@ -15,15 +15,15 @@ const ProfileLayout = () => {
         {/* === A. El Menú de Navegación del Perfil (Parte estática) === */}
         <nav className="profile-sidebar">
           <Link to="/perfil/info" className="nav-item">Mi información personal</Link>
-          <Link to="/perfil/pedidos" className="nav-item">Mis pedidos</Link> {/* 👈 Tu enlace principal */}
+          <Link to="/perfil/pedidos" className="nav-item">Mis pedidos</Link> 
           <Link to="/perfil/direccion" className="nav-item">Dirección</Link>
         </nav>
         
         {/* === B. El Contenido Dinámico (Sección variable) === */}
-        <div className="profile-section">
-          {/* Aquí se renderiza el componente actual de la ruta (OrdersList o OrderDetail) */}
+         <div className="profile-section">
+          {/* Aquí se renderiza el componente actual de la ruta (OrdersList o OrderDetail)*/} 
           <Outlet /> 
-        </div>
+        </div> 
 
       </div>
     </div>

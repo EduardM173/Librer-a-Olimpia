@@ -43,11 +43,10 @@ export default function App() {
               path="/perfil"
               element={
                 <RequireAuth>
-                  {/* Ingresa al otro layout que creé para el perfil*/}
                   <ProfileLayout />
                 </RequireAuth>
               }
-            />
+            >
             <Route 
               path="pedidos" 
               element={<OrdersList />} 
@@ -58,7 +57,14 @@ export default function App() {
               path="pedidos/:id" 
               element={<OrderDetail />} 
             /> 
-        
+
+            <Route 
+              path="info" 
+              element={<ProfilePage />} 
+            /> 
+
+            
+        </Route>
 
         </Routes>
         </main>

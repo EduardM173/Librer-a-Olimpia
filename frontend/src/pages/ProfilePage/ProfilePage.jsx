@@ -10,7 +10,7 @@ export default function ProfilePage() {
 
   return (
     <div className="ProfilePage">
-      <h1 className="perfil-title">Mi Perfil</h1>
+
 
       <div className="perfil-grid">
         {/* Columna izquierda: información personal */}
