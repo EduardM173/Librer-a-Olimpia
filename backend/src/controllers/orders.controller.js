@@ -9,8 +9,8 @@ exports.getOrders = async (req, res) => {
         // y que el usuario_id en la tabla pedido se corresponde con el cliente registrado
         // NOTA: En tu esquema, 'pedido' tiene FK a 'cliente_id' y a 'usuario_id'.
         // Para "cliente registrado", asumiremos que filtramos por 'usuario_id'.
-        const userId = req.user.id; 
-        if (!userId) {
+        const clienteId = req.user.sub; 
+        if (!clienteId) {
             return res.status(401).json({ error: 'unauthorized' });
         }
 
@@ -24,10 +24,10 @@ exports.getOrders = async (req, res) => {
                 s.nombre AS sucursal_nombre
             FROM pedido p
             JOIN sucursal s ON s.id = p.sucursal_id
-            WHERE p.usuario_id = ?
+            WHERE p.cliente_id = ?
             ORDER BY p.fecha_pedido DESC;
             `,
-            [userId]
+            [clienteId]
         );
 
         const items = rows.map(r => ({
@@ -50,10 +50,10 @@ exports.getOrders = async (req, res) => {
 // =============================
 exports.getOrderDetails = async (req, res) => {
     try {
-        const userId = req.user.id;
+        const clienteId = req.user.sub;
         const pedidoId = parseInt(req.params.id);
 
-        if (!userId) {
+        if (!clienteId) {
             return res.status(401).json({ error: 'unauthorized' });
         }
         if (isNaN(pedidoId)) {
@@ -70,9 +70,9 @@ exports.getOrderDetails = async (req, res) => {
             FROM pedido p
             JOIN sucursal s ON s.id = p.sucursal_id
             JOIN cliente c ON c.id = p.cliente_id
-            WHERE p.id = ? AND p.usuario_id = ?;
+            WHERE p.id = ? AND p.cliente_id = ?;
             `,
-            [pedidoId, userId]
+            [pedidoId, clienteId]
         );
 
         if (!pedidoRows.length) {

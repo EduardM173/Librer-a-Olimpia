@@ -1,7 +1,8 @@
 const jwt = require('jsonwebtoken');
-const JWT_SECRET =  process.env.JWT_SECRET;//'claveultrasecreta123'; en .env
+const JWT_SECRET =  process.env.JWT_SECRET;
 
 module.exports = (req, res, next) => {
+  
   const token = req.headers.authorization;
   if (!token) return res.status(403).json({ error: 'No token provided' });
 
