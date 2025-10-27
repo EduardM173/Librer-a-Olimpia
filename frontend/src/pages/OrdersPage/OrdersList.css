@@ -1,0 +1,59 @@
+/* Ejemplo de estilos para el componente OrdersList.jsx */
+
+.orders-cards-list {
+    display: grid;
+    gap: 20px;
+}
+
+.order-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.order-nro {
+    font-weight: bold;
+    color: #007bff; /* Azul o tu color de marca */
+}
+
+.order-status {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    font-weight: 500;
+}
+
+/* Estilos específicos para el estado "Entregado" [cite: 16] */
+.status-entregado {
+    background-color: #d4edda;
+    color: #155724;
+}
+/* Agrega estilos para PENDIENTE y CANCELADO */
+
+.card-body {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.order-total {
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.btn-details {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 600;
+}
