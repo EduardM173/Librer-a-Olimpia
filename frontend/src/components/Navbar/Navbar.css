@@ -153,3 +153,49 @@
   background-color: #ffd34d;
   transform: scale(1.05);
 }
+/* ===========================
+   Navbar para ADMIN
+   =========================== */
+
+.admin-info {
+  background-color: var(--color-acento-amarillo);
+  color: var(--color-texto);
+  font-family: var(--font-principal);
+  font-weight: 700;
+  border-radius: 6px;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Botón de cerrar sesión ya existe, pero adaptamos el hover */
+.btn-logout {
+  background-color: var(--color-rojo);
+  color: var(--color-blanco);
+  font-family: var(--font-principal);
+  font-weight: 700;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-logout:hover {
+  background-color: #c0392b;
+  transform: scale(1.05);
+}
+
+/* Ajustes visuales en el admin */
+.navbar-nav a {
+  color: var(--color-blanco);
+  font-weight: 500;
+  font-size: 16px;
+  padding: 10px 0;
+  transition: color 0.3s ease;
+}
+
+.navbar-nav a:hover {
+  color: var(--color-acento-amarillo);
+}

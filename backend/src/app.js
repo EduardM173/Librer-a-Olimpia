@@ -7,8 +7,13 @@ const httpLogger = require('./middleware/httpLogger');
 const logger = require('./config/logger');
 
 const products = require('./routes/products.routes');
+//pedidos rutas
+const ordersRoutes = require('./routes/orders.routes');
+
 const auth = require('./routes/auth.routes');
-// const orders = require('./routes/orders.routes');
+const pedidos = require('./routes/pedidos.routes'); 
+const clientesRoutes = require('./routes/clientes.routes');
+
 
 const app = express();
 
@@ -22,8 +27,14 @@ app.use(httpLogger);
 
 app.use('/api', products);
 app.use('/api', auth);
-// app.use('/api', orders);
+app.use('/api/pedidos', pedidos); 
+app.use('/api/clientes', clientesRoutes);
 
+// Las rutas serán: /api/orders y /api/orders/:id
+//necesita autenticacion para acceder a las rutas de pedidos
+app.use('/api', ordersRoutes);
+
+module.exports = app;
 app.use((err, req, res, next) => {
   logger.error('Error no controlado:', {
     message: err.message,

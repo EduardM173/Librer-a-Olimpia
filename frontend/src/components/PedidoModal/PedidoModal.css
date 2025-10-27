@@ -1,0 +1,172 @@
+/* Fondo oscuro transparente */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+/* Cuadro blanco central */
+.modal {
+  background-color: #fff;
+  color: #000;
+  width: 650px;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-title {
+  text-align: center;
+  font-weight: bold;
+  font-size: 1.6rem;
+  margin-bottom: 15px;
+}
+
+/* Tabla interna de productos */
+.tabla-productos {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.tabla-productos th,
+.tabla-productos td {
+  border-bottom: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+
+/* Totales */
+.totales {
+  margin-top: 20px;
+  text-align: right;
+}
+
+/* Sección inferior */
+.acciones {
+  margin-top: 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.acciones select {
+  background-color: #fff;
+  border: 2px solid #ff0000;
+  border-radius: 25px;
+  padding: 6px 12px;
+  font-size: 1rem;
+  color: #000;
+}
+
+.descargar-btn {
+  background-color: #F7B100;
+  color: #000;
+  border: none;
+  border-radius: 25px;
+  padding: 8px 25px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.descargar-btn:hover {
+  background-color: #e0a000;
+}
+
+.cerrar-btn {
+  background-color: #d62828;
+  color: #fff;
+  border: none;
+  border-radius: 25px;
+  padding: 8px 25px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cerrar-btn:hover {
+  background-color: #b71c1c;
+}
+
+/* ===== CAMPOS EDITABLES ===== */
+.modal input[type="text"],
+.modal select {
+  background-color: #ffffff;
+  color: #000000;
+  border: 2px solid #d9d9d9;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.3s ease;
+  margin-left: 6px;
+}
+
+.modal input[type="text"]:focus,
+.modal select:focus {
+  border-color: #00d8ad;
+  box-shadow: 0 0 6px rgba(0, 216, 173, 0.4);
+}
+
+.modal p {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+/* ===== TOTALES===== */
+.totales {
+  display: flex;
+  justify-content: flex-end; /* 🔹 mueve todo el contenido hacia la derecha */
+  margin-top: 20px;
+}
+
+.totales-valores {
+  text-align: right; /* 🔹 alinea el texto dentro del bloque a la derecha */
+  min-width: 250px; /* 🔹 evita que se compacte */
+}
+
+.totales-valores p {
+  margin: 5px 0;
+  font-size: 1rem;
+}
+
+
+/* ===== SECCIÓN DE ACTUALIZAR ESTADO ===== */
+.actualizar-estado {
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.actualizar-estado select {
+  background-color: #ffffff;
+  color: #000000;
+  border: 2px solid #ff0000;
+  border-radius: 25px;
+  padding: 6px 14px;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.actualizar-estado select:focus {
+  border-color: #cc0000;
+  box-shadow: 0 0 4px rgba(255, 0, 0, 0.3);
+}
+
+
