@@ -13,6 +13,7 @@ app.use(express.json());
 app.use('/api', products);
 
 // Las rutas serán: /api/orders y /api/orders/:id
+//necesita autenticacion
 app.use('/api', ordersRoutes);
 
 module.exports = app;
