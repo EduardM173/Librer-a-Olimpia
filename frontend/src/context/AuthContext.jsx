@@ -18,7 +18,25 @@ export default function AuthProvider({ children }) {
   const closeModals = () => setModals({ login:false, register:false });
 
   const login = (u, t) => { setUser(u); setToken(t); closeModals(); };
-  const logout = () => { setUser(null); setToken(''); };
+  const logout = async () => {
+    try {
+      if (token) {
+        await fetch('http://localhost:3000/api/auth/logout', { 
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        });
+      }
+    } catch (error) {
+      // Si falla la llamada (ej. sin internet), no detenemos el logout del frontend
+      console.error("Error al registrar el logout en el backend:", error);
+    }
+    
+    setUser(null);
+    setToken('');
+  };
 
   return (
     <Ctx.Provider value={{ user, token, login, logout, modals, openLogin, openRegister, closeModals }}>

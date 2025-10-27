@@ -1,6 +1,7 @@
 const pool = require('../config/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const logger = require('../config/logger');
 
 // --- Helper para firmar el token ---
 function sign(payload) {
@@ -93,14 +94,17 @@ exports.loginCliente = async (req, res) => {
     );
 
     if (!rows.length)
+      logger.warn('LOGIN_FALLIDO: Cliente no encontrado', { email });
       return res.status(401).json({ error: 'invalid_credentials', message: 'Credenciales inválidas.' });
 
     const cli = rows[0];
     const ok = await bcrypt.compare(password, cli.password_hash || '');
     if (!ok)
+      logger.warn('LOGIN_FALLIDO: Contraseña incorrecta', { email, clienteId: cli.id });
       return res.status(401).json({ error: 'invalid_credentials', message: 'Credenciales inválidas.' });
 
     const token = sign({ sub: cli.id, kind: 'cliente' });
+    logger.info('LOGIN_EXITOSO: Cliente autenticado', { clienteId: cli.id, email: cli.email });
     res.json({
       token,
       user: { id: cli.id, nombre: cli.nombre, email: cli.email, tipo: 'CLIENTE' },
@@ -109,4 +113,20 @@ exports.loginCliente = async (req, res) => {
     console.error('loginCliente', e);
     res.status(500).json({ error: 'login_failed', message: 'Error interno del servidor.' });
   }
+};
+
+// LOGOUT (SCRUM-103)
+exports.logout = (req, res) => {
+  
+  if (req.user) {
+    logger.info('LOGOUT: Sesión cerrada por el usuario', { 
+      userId: req.user.id, 
+      tipo: req.user.tipo 
+    });
+  } else {
+    logger.warn('LOGOUT: Intento de logout sin usuario identificado.');
+  }
+  
+  // Respondemos al frontend que el log fue registrado
+  res.status(200).json({ message: 'Logout registrado exitosamente.' });
 };
