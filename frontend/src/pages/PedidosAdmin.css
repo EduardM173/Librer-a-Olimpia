@@ -1,0 +1,175 @@
+/* ===== TÍTULO ===== */
+.titulo {
+  font-family: 'Allura', cursive;
+  font-size: 5rem;
+  text-align: left;
+  color: #000;
+  margin: 10px 0 10px 15px;
+  letter-spacing: 1px;
+}
+
+/* ===== CONTENEDOR GENERAL ===== */
+.contenedor {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 10px 20px;
+  box-sizing: border-box;
+}
+
+/* ===== TABLA ===== */
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #7FB6FF; /* 🔹 Azul correcto del Figma */
+  border-radius: 10px;
+  margin-top: 10px;
+  color: #000000; /* Texto negro */
+  overflow: hidden; /* evita bordes cortados en el redondeado */
+}
+
+.tabla th,
+.tabla td {
+  padding: 12px;
+  text-align: center;
+  color: #000000; /* Asegura texto negro */
+  font-weight: 500;
+  border-bottom: 1px solid #0000001a; /* línea gris suave entre filas */
+}
+
+/* 🔹 Encabezado ligeramente más oscuro */
+.tabla th {
+  font-weight: 700;
+  background-color: #6EA8F8; /* un tono más oscuro que #7FB6FF */
+}
+
+/* 🔹 Efecto hover */
+.tabla tr:hover {
+  background-color: #92c0ff; /* azul un poco más brillante al pasar el mouse */
+  transition: 0.3s ease;
+}
+
+/* ===== BOTÓN DE ACCIÓN (EDITAR) ===== */
+.editar-btn {
+  background-color: #F7B100; /* 🔹 Dorado brillante */
+  color: #000; /* texto negro */
+  border: none;
+  border-radius: 25px;
+  padding: 8px 30px; /* 🔹 un poco más largo */
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.editar-btn:hover {
+  background-color: #e0a000; /* un tono más oscuro al pasar el mouse */
+  transform: scale(1.03);
+}
+
+.editar-btn:active {
+  transform: scale(0.97);
+}
+
+/* ===== FILTROS Y BUSCADOR ===== */
+.filtros {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 15px 0;
+  flex-wrap: wrap;
+}
+
+.buscador {
+  flex: 1;
+  width: 35%;
+  background-color: #D9D9D9; /* 🔹 Color gris exacto */
+  border: none;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 1rem;
+  outline: none;
+  color: #333;
+  transition: background-color 0.3s;
+  min-width: 280px; /* para que no se achique demasiado */
+  max-width: 500px;
+}
+
+.buscador:focus {
+  background-color: #cfcfcf; /* 🔹 tono un poco más oscuro al hacer foco */
+}
+
+/* ===== SELECT DE ESTADO ===== */
+.estado-label {
+  font-weight: 600;
+  color: #000;
+  font-size: 1rem;
+  margin-right: 5px;
+}
+
+.estado-select {
+  width: 180px;
+  height: 46px;
+  background-color: #ffffff; /* fondo blanco */
+  color: #000000; /* texto negro */
+  border: 4px solid #ff0000;/* borde rojo */
+  border-radius: 23px; /* bordes circulares */
+  font-size: 1rem;
+  padding: 0 12px;
+  outline: none;
+  cursor: pointer;
+  transition: 0.3s ease all;
+}
+
+.estado-select:hover {
+  background-color: #fdfdfd;
+  box-shadow: 0 0 5px rgba(255, 0, 0, 0.3);
+}
+
+.estado-select:focus {
+  border-color: #cc0000;
+}
+
+/* ===== BOTON FILTRO ===== */
+.filtros button {
+  background-color: #00D8AD; /* 🔹 verde turquesa exacto */
+  color: white;
+  border: none;
+  border-radius: 25px; /* bordes más redondeados */
+  padding: 10px 60px; /* 🔹 más largo y más alto */
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.filtros button:hover {
+  background-color: #00b893; /* un poco más oscuro al pasar el mouse */
+  transform: scale(1.03);
+}
+
+.filtros button:active {
+  transform: scale(0.98);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .tabla th,
+  .tabla td {
+    font-size: 0.9rem;
+    padding: 8px;
+  }
+
+  .filtros {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .filtros input {
+    width: 80%;
+  }
+
+  .titulo {
+    font-size: 3rem;
+  }
+}
