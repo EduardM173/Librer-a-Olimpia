@@ -57,7 +57,17 @@ exports.registerCliente = async (req, res) => {
     );
 
     // --- Crear token JWT ---
-    const token = sign({ sub: ins.insertId, kind: 'cliente' });
+    const token = jwt.sign(
+  {
+    sub: usr.id,
+    kind: "usuario",
+    rol: usr.rol.toLowerCase(),
+    email: usr.email,
+  },
+  process.env.JWT_SECRET,
+  { expiresIn: "8h" }
+);
+
 
     res.status(201).json({
       token,

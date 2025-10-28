@@ -1,54 +1,82 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext'; // ✅ para obtener token real
 
-// --- (Función fetchOrders: Mantenemos la misma lógica de la API) ---
-const fetchOrders = async () => {
-  // Simula la llamada a la API: GET /api/orders
-  const response = await fetch('/api/orders', {
+// -------------------------------------------------------------
+// 🔹 Función para obtener pedidos del cliente autenticado
+// -------------------------------------------------------------
+const fetchOrders = async (token) => {
+  const response = await fetch('http://localhost:3000/api/pedidos/mis-pedidos', {
     headers: {
-      'Authorization': `Bearer ${localStorage.getItem('token')}` 
-    }
+      'Authorization': `Bearer ${token}`,
+    },
   });
+
   if (!response.ok) {
-    throw new Error('Error al cargar pedidos');
+    if (response.status === 403) throw new Error('No autorizado. Inicia sesión.');
+    if (response.status === 404) throw new Error('No se encontraron pedidos.');
+    throw new Error('Error al cargar pedidos.');
   }
+
   return response.json();
 };
-// -------------------------------------------------------------------
 
-
-const OrdersList = () => {
+// -------------------------------------------------------------
+// 🔹 Componente principal
+// -------------------------------------------------------------
+export default function OrdersList() {
+  const { token, user, openLogin } = useAuth();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Lógica para cargar los pedidos
     const loadOrders = async () => {
-      try {
-        const data = await fetchOrders();
-        setOrders(data);
+      if (!token) {
+        setError('Debes iniciar sesión para ver tus pedidos.');
         setLoading(false);
+        return;
+      }
+
+      try {
+        const data = await fetchOrders(token);
+        setOrders(data);
       } catch (err) {
         setError(err.message);
+      } finally {
         setLoading(false);
       }
     };
-    loadOrders();
-  }, []);
 
+    loadOrders();
+  }, [token]);
+
+  // -------------------------------------------------------------
+  // 🔹 Estados de carga y error
+  // -------------------------------------------------------------
   if (loading) {
-    return <div className="loading-state">Cargando mis pedidos... 🗿</div>;
+    return <div className="loading-state">Cargando tus pedidos... 🕓</div>;
   }
 
   if (error) {
-    return <div className="error-state" style={{ color: 'red' }}>Error: {error}</div>;
+    return (
+      <div className="error-state" style={{ color: 'red' }}>
+        {error === 'Debes iniciar sesión para ver tus pedidos.' ? (
+          <button className="btn-login" onClick={openLogin}>Iniciar sesión</button>
+        ) : (
+          <>Error: {error}</>
+        )}
+      </div>
+    );
   }
 
+  // -------------------------------------------------------------
+  // 🔹 Render de pedidos
+  // -------------------------------------------------------------
   return (
     <div className="profile-section-content">
       <h2 className="section-title">Mis Pedidos</h2>
-      
+
       {orders.length === 0 ? (
         <p className="no-orders-message">Aún no has realizado ningún pedido.</p>
       ) : (
@@ -56,24 +84,20 @@ const OrdersList = () => {
           {orders.map((order) => (
             <div key={order.id} className="order-card">
               <div className="card-header">
-                {/* Nro Pedido  */}
-                <span className="order-nro">Nro Pedido: **{order.id}**</span>
-                {/* Estado: Entregado [cite: 16] */}
-                <span className={`order-status status-${order.estado.toLowerCase()}`}>
-                  Estado: **{order.estado}**
+                <span className="order-nro">Pedido #{order.id}</span>
+                <span className={`order-status status-${order.estado?.toLowerCase?.() || 'pendiente'}`}>
+                  {order.estado}
                 </span>
               </div>
 
               <div className="card-body">
-                {/* Fecha [cite: 17] */}
-                <p className="order-date">Fecha: {new Date(order.fecha).toLocaleDateString()}</p>
-                {/* Total [cite: 18] */}
-                <p className="order-total">Total: **Bs. {order.total}**</p>
-                {/* Ver detalles [cite: 19] */}
-                <Link 
-                  to={`/perfil/pedidos/${order.id}`} 
-                  className="btn-details"
-                >
+                <p className="order-date">
+                  Fecha: {new Date(order.fecha_pedido || order.fecha).toLocaleDateString()}
+                </p>
+                <p className="order-total">
+                  Total: <strong>Bs {Number(order.total_neto || order.total).toFixed(2)}</strong>
+                </p>
+                <Link to={`/perfil/pedidos/${order.id}`} className="btn-details">
                   Ver detalles →
                 </Link>
               </div>
@@ -83,6 +107,4 @@ const OrdersList = () => {
       )}
     </div>
   );
-};
-
-export default OrdersList;
+}
