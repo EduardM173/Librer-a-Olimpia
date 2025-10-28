@@ -12,6 +12,7 @@ const auth = require('./routes/auth.routes');
 const ordersRoutes = require('./routes/orders.routes'); 
 const pedidos = require('./routes/pedidos.routes');
 const clientesRoutes = require('./routes/clientes.routes'); 
+const checkoutRoutes = require('./routes/checkout.routes');
 
 const app = express();
 
@@ -27,8 +28,9 @@ app.use('/api', products);
 app.use('/api', auth);
 app.use('/api', ordersRoutes); 
 app.use('/api/pedidos', pedidos);
-app.use('/api/clientes', clientesRoutes); 
-
+app.use('/api/clientes', clientesRoutes);
+app.use('/api', ordersRoutes);
+app.use('/api/checkout', checkoutRoutes);
 
 app.use((err, req, res, next) => {
   logger.error('Error no controlado:', {

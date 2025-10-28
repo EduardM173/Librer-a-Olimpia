@@ -1,6 +1,7 @@
 import React from "react";
 import "./CartPage.css";
 import { useCart } from "../../context/CartContext";
+import { Link } from "react-router-dom";
 
 const money = (n) => `Bs ${Number(n).toFixed(2)}`;
 
@@ -85,7 +86,7 @@ export default function CartPage() {
               <button className="btn-clear" onClick={clear}>
                 Vaciar carrito
               </button>
-              <button className="btn-pay">FINALIZAR COMPRA</button>
+              <Link to="/checkout" className="btn-pay">FINALIZAR COMPRA</Link>
             </div>
           </div>
         </>

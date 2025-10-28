@@ -2,38 +2,44 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
+// 🧩 Componentes principales
 import Navbar from './components/Navbar/Navbar';
 import Footer from './components/Footer/Footer';
-
-import AuthProvider, { useAuth } from './context/AuthContext';
-import CartProvider from './context/CartContext';
 import CartModal from './components/Cart/CartModal';
-
 import LoginModal from './components/Auth/LoginModal';
 import RegisterModal from './components/Auth/RegisterModal';
 
+// ⚙️ Contextos
+import AuthProvider, { useAuth } from './context/AuthContext';
+import CartProvider from './context/CartContext';
+
+// 🏠 Páginas
 import HomePage from './pages/HomePage/HomePage';
-import AboutPage from './pages/AboutPage/AboutPage.jsx';
-import CatalogPage from './pages/CatalogPage/CatalogPage.jsx';
-import CartPage from './pages/CartPage/CartPage.jsx';
+import AboutPage from './pages/AboutPage/AboutPage';
+import CatalogPage from './pages/CatalogPage/CatalogPage';
+import CartPage from './pages/CartPage/CartPage';
+import CheckoutPage from './pages/CheckoutPage/CheckoutPage';
+import PedidoExitoso from './pages/CheckoutPage/PedidoExitoso';
 
-import ProfilePage from './pages/ProfilePage/ProfilePage.jsx';
-import ProfileLayout from './pages/ProfileLayout/ProfileLayout.jsx';
+// 👤 Perfil de usuario
+import ProfilePage from './pages/ProfilePage/ProfilePage';
+import ProfileLayout from './pages/ProfileLayout/ProfileLayout';
 
+// 🔧 Admin
 import PedidosAdmin from './pages/PedidosAdmin/PedidosAdmin';
 import ClienteAdmin from './pages/ClienteAdmin/ClienteAdmin';
 
+// 📦 Pedidos del cliente
 import OrdersList from './pages/OrdersPage/OrdersList';
 import OrderDetail from './pages/OrdersPage/OrderDetail';
 
-import { isAdmin } from './utils/auth.js';
-
-
+// 🧭 Utilidad
+import { isAdmin } from './utils/auth';
 
 import './App.css';
 
 /* ============================
-   COMPONENTE: Placeholder Dirección
+   COMPONENTE TEMPORAL: Dirección
 ============================ */
 function AddressPanel() {
   return (
@@ -62,16 +68,15 @@ function RequireAdmin({ children }) {
 }
 
 /* ============================
-   SHELL PRINCIPAL DE LA APP
+   SHELL PRINCIPAL
 ============================ */
 function AppShell() {
   const { loading } = useAuth();
-
   if (loading) return null;
 
   return (
     <>
-      {/* 🔹 Navbar único que adapta opciones según el tipo de usuario */}
+      {/* 🔹 Navbar dinámico */}
       <Navbar />
 
       {/* 🔹 Modales globales */}
@@ -87,6 +92,8 @@ function AppShell() {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/catalogo" element={<CatalogPage />} />
           <Route path="/carrito" element={<CartPage />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
+          <Route path="/pedido-exitoso" element={<PedidoExitoso />} />
 
           {/* === RUTAS DE ADMIN (PROTEGIDAS) === */}
           <Route
@@ -127,6 +134,7 @@ function AppShell() {
         </Routes>
       </main>
 
+      {/* 🔹 Footer */}
       <Footer />
     </>
   );

@@ -1,0 +1,96 @@
+/* === Overlay general === */
+.qr-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+  backdrop-filter: blur(3px);
+  animation: fadeIn 0.25s ease;
+}
+
+/* === Contenedor del modal === */
+.qr-modal {
+  background: #fff;
+  border-radius: 14px;
+  max-width: 420px;
+  width: 92%;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  animation: popIn 0.25s ease;
+  text-align: center;
+}
+@keyframes popIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* === Título === */
+.qr-modal h3 {
+  margin: 0 0 14px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #0d2d63;
+}
+
+/* === Imagen del QR === */
+.qr-img {
+  display: block;
+  margin: 14px auto 18px auto;
+  max-width: 260px;
+  width: 100%;
+  border-radius: 10px;
+  border: 3px solid #f2f2f2;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease;
+}
+.qr-img:hover {
+  transform: scale(1.03);
+}
+
+/* === Botones de acción === */
+.qr-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.qr-cancel,
+.qr-ok {
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  font-family: var(--font-principal);
+}
+
+/* --- Cancelar --- */
+.qr-cancel {
+  background: #f1f1f1;
+  color: #333;
+}
+.qr-cancel:hover {
+  background: #dcdcdc;
+  transform: translateY(-1px);
+}
+
+/* --- Confirmar --- */
+.qr-ok {
+  background: linear-gradient(135deg, #0d2d63, #1a3f85);
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(13, 45, 99, 0.3);
+}
+.qr-ok:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
