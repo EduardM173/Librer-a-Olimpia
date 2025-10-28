@@ -1,6 +1,7 @@
 const pool = require('../config/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const logger = require('../config/logger');
 
 // --- Helper para firmar el token ---
 function sign(payload) {
@@ -93,12 +94,22 @@ exports.login = async (req, res) => {
       `SELECT id, nombre, email, password_hash FROM cliente WHERE email=? LIMIT 1`,
       [email]
     );
-    if (cliRows.length) {
-      const cli = cliRows[0];
+  
+    if (rows.length) {
+      
+      const cli = rows[0];
       const ok = await bcrypt.compare(password, cli.password_hash || '');
-      if (!ok) return res.status(401).json({ error: 'invalid_credentials', message: 'Credenciales inválidas.' });
+      
+      if (!ok) {
+        //LOG DE ERROR
+        logger.warn('LOGIN_FALLIDO: Contraseña incorrecta (Cliente)', { email, clienteId: cli.id });
+        return res.status(401).json({ error: 'invalid_credentials', message: 'Credenciales inválidas.' });
+      }
 
+      //LOG DE ÉXITO
       const token = sign({ sub: cli.id, kind: 'cliente' });
+      logger.info('LOGIN_EXITOSO: Cliente autenticado', { clienteId: cli.id, email: cli.email });
+      
       return res.json({
         token,
         user: { id: cli.id, nombre: cli.nombre, email: cli.email, tipo: 'CLIENTE' },
@@ -113,25 +124,54 @@ exports.login = async (req, res) => {
       [email]
     );
     if (!usrRows.length) {
+      //LOG DE ERROR CLIENTE NO ENCONTRADO
+      logger.warn('LOGIN_FALLIDO: Usuario/Cliente no encontrado', { email });
       return res.status(401).json({ error: 'invalid_credentials', message: 'Credenciales inválidas.' });
     }
 
-    const usr = usrRows[0];
-    if (usr.activo === 0) {
-      return res.status(403).json({ error: 'user_inactive', message: 'Usuario inactivo.' });
+    const cli = rows[0];
+    const ok = await bcrypt.compare(password, usr.password_hash || '');
+    
+    if (!ok) {
+      // --- TU LOG (EXTRA RECOMENDADO) ---
+      logger.warn('LOGIN_FALLIDO: Contraseña incorrecta (Usuario)', { email, usuarioId: usr.id });
+      return res.status(401).json({ error: 'invalid_credentials', message: 'Credenciales inválidas.' });
     }
 
-    const ok = await bcrypt.compare(password, usr.password_hash || '');
-    if (!ok) return res.status(401).json({ error: 'invalid_credentials', message: 'Credenciales inválidas.' });
-
     const token = sign({ sub: usr.id, kind: 'usuario', rol: usr.rol });
+    
+    // --- TU LOG (EXTRA RECOMENDADO) ---
+    logger.info('LOGIN_EXITOSO: Usuario interno autenticado', { usuarioId: usr.id, email: usr.email, rol: usr.rol });
+
     return res.json({
       token,
-      user: { id: usr.id, nombre: usr.nombre, email: usr.email, tipo: 'ADMIN', rol: usr.rol },
+      // Respuesta de tu compañero
+      user: { id: usr.id, nombre: usr.nombre, email: usr.email, tipo: usr.rol, rol: usr.rol },
     });
 
   } catch (e) {
-    console.error('login (unificado)', e);
+    //LOG ERROR GENERAL
+    logger.error('Error interno en Login', { 
+      message: e.message, 
+      stack: e.stack, 
+      email: (req.body ? req.body.email : 'N/A') // Protege por si req.body no existe
+    });
     res.status(500).json({ error: 'login_failed', message: 'Error interno del servidor.' });
   }
+};
+
+// LOGOUT (SCRUM-103)
+exports.logout = (req, res) => {
+  
+  if (req.user) {
+    logger.info('LOGOUT: Sesión cerrada por el usuario', { 
+      userId: req.user.id, 
+      tipo: req.user.tipo 
+    });
+  } else {
+    logger.warn('LOGOUT: Intento de logout sin usuario identificado.');
+  }
+  
+  // Respondemos al frontend que el log fue registrado
+  res.status(200).json({ message: 'Logout registrado exitosamente.' });
 };

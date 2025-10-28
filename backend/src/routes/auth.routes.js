@@ -2,6 +2,7 @@ const router = require('express').Router();
 const ctrl = require('../controllers/auth.controller');
 
 router.post('/auth/register', ctrl.registerCliente);
-router.post('/auth/login',    ctrl.login); // <- unificado
+router.post('/auth/login',    ctrl.login); 
+router.post('/auth/logout',   ctrl.logout);  
 
 module.exports = router;
