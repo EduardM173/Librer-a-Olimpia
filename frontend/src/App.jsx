@@ -26,6 +26,7 @@ import ProfilePage from './pages/ProfilePage/ProfilePage';
 import ProfileLayout from './pages/ProfileLayout/ProfileLayout';
 
 // 🔧 Admin
+import ProductosAdmin from "./pages/Admin/ProductosAdmin/ProductosAdmin";
 import PedidosAdmin from './pages/PedidosAdmin/PedidosAdmin';
 import ClienteAdmin from './pages/ClienteAdmin/ClienteAdmin';
 
@@ -96,6 +97,7 @@ function AppShell() {
           <Route path="/pedido-exitoso" element={<PedidoExitoso />} />
 
           {/* === RUTAS DE ADMIN (PROTEGIDAS) === */}
+          <Route path="productos" element={<ProductosAdmin />} />
           <Route
             path="/admin/pedidos"
             element={

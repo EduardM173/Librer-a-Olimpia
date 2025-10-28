@@ -1,0 +1,134 @@
+/* --- Contenedor Principal --- */
+.admin-container {
+  max-width: 1300px;
+  margin: 24px auto;
+  padding: 24px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.admin-container h1 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 12px;
+}
+
+/* --- Barra de herramientas (Buscador y botón) --- */
+.admin-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 16px;
+}
+
+.admin-search {
+  flex-grow: 1;
+  padding: 10px 14px;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+/* --- Botones --- */
+.admin-btn-primary {
+  background-color: var(--color-primario, #0d2d63);
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.admin-btn-primary:hover {
+  background-color: #1b3f84;
+}
+
+.admin-btn-secondary {
+  background-color: #f0f0f0;
+  color: #333;
+  border: 1px solid #ddd;
+  padding: 10px 16px;
+  font-size: 15px;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.admin-btn-secondary:hover {
+  background-color: #e5e5e5;
+}
+
+/* --- Tabla --- */
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 12px 10px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+  vertical-align: middle;
+}
+
+.admin-table th {
+  background-color: #f9f9f9;
+  font-weight: 600;
+  color: #555;
+}
+
+/* --- Badges de Estado --- */
+.badge-activo,
+.badge-inactivo {
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 4px;
+}
+.badge-activo {
+  background-color: #e6f7eb;
+  color: #1d823b;
+}
+.badge-inactivo {
+  background-color: #fff1f0;
+  color: #c9252d;
+}
+
+/* --- Acciones de Tabla --- */
+.admin-table-actions {
+  display: flex;
+  gap: 8px;
+}
+.admin-btn-edit,
+.admin-btn-delete {
+  padding: 6px 10px;
+  font-size: 13px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.admin-btn-edit {
+  background-color: #f5b914c0;
+  color: #111;
+}
+.admin-btn-delete {
+  background-color: #fff1f0;
+  color: #c9252d;
+  border: 1px solid #ffa39e;
+}
+
+/* --- Errores --- */
+.admin-error {
+  color: #c9252d;
+  background-color: #fff1f0;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+}

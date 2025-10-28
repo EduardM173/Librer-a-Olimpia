@@ -8,6 +8,7 @@ const logger = require('./config/logger');
 
 // --- Importar Rutas (Cambios de ambos) ---
 const products = require('./routes/products.routes');
+const adminRoutes = require('./routes/admin');
 const auth = require('./routes/auth.routes');
 const ordersRoutes = require('./routes/orders.routes'); 
 const pedidos = require('./routes/pedidos.routes');
@@ -26,6 +27,7 @@ app.use(httpLogger);
 // --- Registrar Rutas (Cambios de ambos) ---
 app.use('/api', products);
 app.use('/api', auth);
+app.use('/api/admin', adminRoutes);
 app.use('/api', ordersRoutes); 
 app.use('/api/pedidos', pedidos);
 app.use('/api/clientes', clientesRoutes);
