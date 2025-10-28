@@ -53,17 +53,23 @@ export default function ProfilePage() {
   }, [token]); // Se ejecuta cuando el componente se monta o el token cambia
 
   // Función para formatear la fecha
-  const formatDate = (dateString) => {
-    try {
-      return new Date(dateString).toLocaleDateString('es-ES', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-      });
-    } catch {
-      return dateString;
-    }
-  };
+ // ProfilePage.jsx
+
+// Función para formatear la fecha (COMPLETA)
+  const formatDate = (dateString) => {
+    try {
+      const options = {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      };
+      // Utilizamos toLocaleDateString con la zona horaria UTC para evitar problemas de desfase
+      return new Date(dateString).toLocaleDateString('es-ES', options);
+    } catch (e) {
+      console.error("Error al formatear fecha:", e);
+      return dateString; // Retorna la original si falla
+    }
+  };
 
 
   // Función para renderizar un solo pedido (DRY)
@@ -78,7 +84,9 @@ export default function ProfilePage() {
           Estado: <strong>{pedido.estado || 'Desconocido'}</strong>
         </div>
         <div>
-          Fecha: {formatDate(pedido.fecha)} &nbsp;&nbsp; Total:{" "}
+          Fecha: 
+          <span className="fecha-pedido">{formatDate(pedido.fecha)}</span> 
+          Total:{" "}
           <strong>Bs {pedido.total || '0.00'}</strong>
         </div>
         {/* Aquí puedes enlazar a la vista de detalles del pedido si existe */}
@@ -86,7 +94,7 @@ export default function ProfilePage() {
       </div>
     </article>
   );
-
+  console.log("UsuarioRecibido🤗🎺❤:", user);
   return (
     <div className="ProfilePage">
       <div className="perfil-grid">
@@ -101,18 +109,18 @@ export default function ProfilePage() {
             <strong>{user?.email || '—'}</strong>
           </div>
           <div className="perfil-row">
-            <span>Nro Celular:</span> <strong>—</strong>
+            {/* <span>Nro Celular:</span> <strong>HOLA🥶🔥🔥</strong> */}
           </div>
 
           <h3>Dirección</h3>
           <div className="perfil-row">
-            <span>Zona:</span> <strong>{direccion.zona}</strong>
+            <span>Zona:</span> <strong>{user?.zona}</strong>
           </div>
           <div className="perfil-row">
-            <span>Calle:</span> <strong>{direccion.calle}</strong>
+            <span>Calle:</span> <strong>{user?.calle}</strong>
           </div>
           <div className="perfil-row">
-            <span>Nro Vivienda:</span> <strong>{direccion.numero}</strong>
+            <span>Nro Vivienda:</span> <strong>{user?.numero_casa}</strong>
           </div>
         </section>
 

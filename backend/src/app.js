@@ -1,29 +1,46 @@
 const express = require('express');
 const cors = require('cors');
 
-const products = require('./routes/products.routes');
-//pedidos rutas
-const ordersRoutes = require('./routes/orders.routes');
+// --- Importar Middlewares (Tus cambios) ---
+const decodeUser = require('./middleware/decodeUser');
+const httpLogger = require('./middleware/httpLogger');
+const logger = require('./config/logger');
 
+// --- Importar Rutas (Cambios de ambos) ---
+const products = require('./routes/products.routes');
 const auth = require('./routes/auth.routes');
-// const orders = require('./routes/orders.routes');
+const ordersRoutes = require('./routes/orders.routes'); 
+const pedidos = require('./routes/pedidos.routes');
+const clientesRoutes = require('./routes/clientes.routes'); 
+const checkoutRoutes = require('./routes/checkout.routes');
 
 const app = express();
 
+// Middlewares globales
 app.use(cors());
 app.use(express.json());
 
+app.use(decodeUser);
+app.use(httpLogger);
+
+// --- Registrar Rutas (Cambios de ambos) ---
 app.use('/api', products);
 app.use('/api', auth);
-// app.use('/api', orders);
-
-// Las rutas serán: /api/orders y /api/orders/:id
-//necesita autenticacion para acceder a las rutas de pedidos
+app.use('/api', ordersRoutes); 
+app.use('/api/pedidos', pedidos);
+app.use('/api/clientes', clientesRoutes);
 app.use('/api', ordersRoutes);
+app.use('/api/checkout', checkoutRoutes);
 
-module.exports = app;
 app.use((err, req, res, next) => {
-  console.error('❌ Error:', err);
+  logger.error('Error no controlado:', {
+    message: err.message,
+    stack: err.stack,
+    url: req.originalUrl,
+    method: req.method,
+    user: req.user ? req.user.id : 'Visitante'
+  });
+  
   res.status(500).json({ error: 'internal_server_error' });
 });
 

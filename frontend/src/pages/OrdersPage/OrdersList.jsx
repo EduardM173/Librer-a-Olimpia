@@ -11,6 +11,25 @@ const OrdersList = () => {
   const [error, setError] = useState(null);
   const { token } = useAuth();
 
+const formatDate = (dateString) => {
+        try {
+            const options = {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                //second: '2-digit', // Opcional, si quieres segundos
+                hour12: false, // Formato 24 horas (00:00 a 23:59)
+            };
+            // Usamos UTC para asegurarnos de que no cambie la fecha debido a la zona horaria
+            return new Date(dateString).toLocaleString('es-ES', options);
+        } catch (e) {
+            console.error("Error al formatear fecha:", e);
+            return dateString.split('T')[0] || dateString; // Fallback simple: solo la parte de la fecha
+        }
+    };
+
   useEffect(() => {
     const loadOrders = async () => {
       
@@ -175,9 +194,13 @@ const OrdersList = () => {
                     {order.estado || 'Desconocido'}
                   </span>
                 </p>
-                <p style={{margin: 0, fontSize: '0.9rem', color: '#555'}}>
-                  Fecha: {order.fecha || 'N/A'} Total: <span style={{fontWeight: 'bold', color: '#e74c3c'}}>Bs {order.total || '0.00'}</span>
-                </p>
+                
+<p style={{margin: 0, fontSize: '0.9rem', color: '#555'}}>
+  Fecha: {formatDate(order.fecha)} 
+</p>
+<p style={{margin: 0, fontSize: '0.9rem', color: '#555'}}>
+  Total: <span style={{fontWeight: 'bold', color: '#e74c3c'}}>Bs {order.total || '0.00'}</span>
+</p>
                 <Link
                   to={`/perfil/pedidos/${order.id}`}
                   className="btn-details"
