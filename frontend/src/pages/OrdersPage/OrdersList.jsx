@@ -1,88 +1,231 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-
-// --- (Función fetchOrders: Mantenemos la misma lógica de la API) ---
-const fetchOrders = async () => {
-  // Simula la llamada a la API: GET /api/orders
-  const response = await fetch('/api/orders', {
-    headers: {
-      'Authorization': `Bearer ${localStorage.getItem('token')}` 
-    }
-  });
-  if (!response.ok) {
-    throw new Error('Error al cargar pedidos');
-  }
-  return response.json();
-};
-// -------------------------------------------------------------------
+import { useAuth } from '../../context/AuthContext';
 
 
 const OrdersList = () => {
-  const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  // ... (estados y lógica sin cambios)
 
-  useEffect(() => {
-    // Lógica para cargar los pedidos
-    const loadOrders = async () => {
-      try {
-        const data = await fetchOrders();
-        setOrders(data);
-        setLoading(false);
-      } catch (err) {
-        setError(err.message);
-        setLoading(false);
-      }
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const { token } = useAuth();
+
+const formatDate = (dateString) => {
+        try {
+            const options = {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                //second: '2-digit', // Opcional, si quieres segundos
+                hour12: false, // Formato 24 horas (00:00 a 23:59)
+            };
+            // Usamos UTC para asegurarnos de que no cambie la fecha debido a la zona horaria
+            return new Date(dateString).toLocaleString('es-ES', options);
+        } catch (e) {
+            console.error("Error al formatear fecha:", e);
+            return dateString.split('T')[0] || dateString; // Fallback simple: solo la parte de la fecha
+        }
     };
-    loadOrders();
-  }, []);
 
-  if (loading) {
-    return <div className="loading-state">Cargando mis pedidos... 🗿</div>;
-  }
+  useEffect(() => {
+    const loadOrders = async () => {
+      
+      console.log("Token obtenido 🥵🥵:", token);
 
-  if (error) {
-    return <div className="error-state" style={{ color: 'red' }}>Error: {error}</div>;
-  }
+      if (!token) {
+        setError("No estás autenticado. Por favor, inicia sesión.");
+        setLoading(false);
+        return;
+      }
 
-  return (
-    <div className="profile-section-content">
-      <h2 className="section-title">Mis Pedidos</h2>
-      
-      {orders.length === 0 ? (
-        <p className="no-orders-message">Aún no has realizado ningún pedido.</p>
-      ) : (
-        <div className="orders-cards-list">
-          {orders.map((order) => (
-            <div key={order.id} className="order-card">
-              <div className="card-header">
-                {/* Nro Pedido  */}
-                <span className="order-nro">Nro Pedido: **{order.id}**</span>
-                {/* Estado: Entregado [cite: 16] */}
-                <span className={`order-status status-${order.estado.toLowerCase()}`}>
-                  Estado: **{order.estado}**
-                </span>
-              </div>
+      try {
+        setError(null);
+        setLoading(true);
 
-              <div className="card-body">
-                {/* Fecha [cite: 17] */}
-                <p className="order-date">Fecha: {new Date(order.fecha).toLocaleDateString()}</p>
-                {/* Total [cite: 18] */}
-                <p className="order-total">Total: **Bs. {order.total}**</p>
-                {/* Ver detalles [cite: 19] */}
-                <Link 
-                  to={`/perfil/pedidos/${order.id}`} 
-                  className="btn-details"
-                >
-                  Ver detalles →
-                </Link>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
+        const response = await fetch('http://localhost:3000/api/orders', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          const contentType = response.headers.get("content-type");
+          let errorMessage = `Error ${response.status}`;
+
+          if (contentType && contentType.includes("application/json")) {
+            const errorData = await response.json();
+            errorMessage = errorData.error || errorData.message || errorMessage;
+          } else {
+            errorMessage += ": Respuesta inesperada del servidor (HTML).";
+          }
+          throw new Error(errorMessage);
+        }
+
+        const data = await response.json();
+        setOrders(data || []); 
+      } catch (err) {
+        console.error("Error al cargar pedidos:", err);
+        setError(err.message || "Error desconocido al cargar los pedidos.");
+      } finally {
+        setLoading(false); 
+      }
+    };
+
+    loadOrders();
+  }, [token]); 
+
+  // Renderizado condicional... (sin cambios aquí)
+
+  if (loading) {
+    return <div className="loading-state" style={{textAlign: 'center', padding: '20px'}}>Cargando mis pedidos... 🗿</div>;
+  }
+
+  if (error) {
+    return (
+      <div 
+        className="profile-section-content"
+        style={{
+          backgroundColor: '#e74c3c', // Rojo como el contenedor principal
+          borderRadius: '15px',
+          padding: '20px',
+          maxWidth: '400px', // Ancho máximo para la imagen
+          margin: '20px auto', // Centrar
+          boxShadow: '0 8px 16px rgba(0, 0, 0, 0.2)'
+        }}
+      >
+        <h2 style={{
+          fontFamily: 'cursive', // 🚨 ESTILO DE FUENTE CURSIVA
+          fontSize: '2.5rem',
+          color: '#fff',
+          textAlign: 'center',
+          marginBottom: '20px',
+          textShadow: '1px 1px 2px rgba(0,0,0,0.2)'
+        }}>Mis pedidos</h2>
+        <div className="error-state" style={{ 
+          color: '#fff', 
+          backgroundColor: 'rgba(0,0,0,0.2)',
+          padding: '1rem', 
+          borderRadius: '8px',
+          textAlign: 'center'
+        }}>
+          Error: {error}
+          <br />
+          <small>Revisa la consola para más detalles.</small>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div 
+      className="profile-section-content"
+      style={{
+        backgroundColor: '#e74c3c', // Fondo rojo del contenedor principal
+        borderRadius: '15px',
+        padding: '20px',
+        maxWidth: '400px', // Ancho máximo para que se parezca a la imagen
+        margin: '20px auto', // Centrar
+        boxShadow: '0 8px 16px rgba(0, 0, 0, 0.2)' // Sombra para realzar el contenedor
+      }}
+    >
+      {/* 🚨 CAMBIO DE ESTILO AQUÍ */}
+      <h2 style={{
+        fontFamily: 'Poppins', // Usamos 'cursive' como fallback genérico para fuentes script
+        fontSize: '2.5rem',
+        color: '#fff',
+        textAlign: 'center',
+        marginBottom: '20px',
+        textShadow: '1px 1px 2px rgba(0,0,0,0.2)'
+      }}>Mis pedidos</h2>
+
+      {orders.length === 0 ? (
+        <p className="no-orders-message" style={{textAlign: 'center', color: '#fff', fontSize: '1.1rem'}}>Aún no has realizado ningún pedido.</p>
+      ) : (
+        <div 
+          className="orders-cards-list" 
+          style={{display: 'flex', flexDirection: 'column', gap: '15px'}}
+        >
+          {orders.map((order) => (
+            <div 
+              key={order.id} 
+              className="order-card"
+              style={{
+                display: 'flex',
+                backgroundColor: '#ffffff', // Fondo blanco de la tarjeta
+                borderRadius: '10px',
+                padding: '15px',
+                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                alignItems: 'center',
+                gap: '15px' // Espacio entre la imagen y el texto
+              }}
+            >
+              {/* Placeholder de Imagen */}
+              <div style={{
+                width: '60px',
+                height: '60px',
+                borderRadius: '8px',
+                background: 'linear-gradient(45deg, #a8ff78, #78ffd6)', // Degradado verde-amarillo
+                flexShrink: 0 
+              }}>
+              </div>
+
+              <div 
+                className="order-details"
+                style={{
+                  flexGrow: 1, 
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '5px'
+                }}
+              >
+                <p className="order-title" style={{margin: 0, fontWeight: 'bold', color: '#333', fontSize: '1.1rem'}}>
+                  Nro Pedido **#{order.id}**
+                </p>
+                <p style={{margin: 0, fontSize: '0.9rem', color: '#555'}}>
+                  Estado: <span style={{
+                    fontWeight: 'bold', 
+                    color: order.estado?.toLowerCase() === 'entregado' ? '#27ae60' : '#f39c12'
+                  }}>
+                    {order.estado || 'Desconocido'}
+                  </span>
+                </p>
+                
+<p style={{margin: 0, fontSize: '0.9rem', color: '#555'}}>
+  Fecha: {formatDate(order.fecha)} 
+</p>
+<p style={{margin: 0, fontSize: '0.9rem', color: '#555'}}>
+  Total: <span style={{fontWeight: 'bold', color: '#e74c3c'}}>Bs {order.total || '0.00'}</span>
+</p>
+                <Link
+                  to={`/perfil/pedidos/${order.id}`}
+                  className="btn-details"
+                  style={{
+                    display: 'inline-block',
+                    marginTop: '10px',
+                    padding: '8px 15px',
+                    backgroundColor: '#fcdb03', // Amarillo del botón
+                    color: '#333', 
+                    borderRadius: '5px',
+                    textDecoration: 'none',
+                    textAlign: 'center',
+                    fontWeight: 'bold',
+                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                  }}
+                >
+                  Ver detalles
+                </Link>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default OrdersList;

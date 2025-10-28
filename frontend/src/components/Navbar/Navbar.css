@@ -1,155 +1,233 @@
+/* ============================
+   NAVBAR GENERAL
+============================ */
 .navbar-fixed {
   width: 100%;
   position: fixed;
   top: 0;
   left: 0;
-  background-color: var(--color-primario-oscuro);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(135deg, #0d2d63, #1b3f84);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
   z-index: 1000;
-  padding: 10px 0;
+  padding: 8px 0;
+  backdrop-filter: blur(4px);
 }
 
 .navbar-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 16px;
 }
 
+/* ========== LOGO ========== */
 .navbar-logo img {
-  height: 60px; 
+  height: 58px;
   display: block;
-  background-color: aliceblue;
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 4px;
+  transition: transform 0.2s ease;
+}
+.navbar-logo img:hover {
+  transform: scale(1.05);
 }
 
-/* Centro: Navegación */
+/* ========== MENÚ CENTRAL ========== */
 .navbar-nav {
   display: flex;
-  gap: 40px; 
-  flex-grow: 1; 
+  align-items: center;
+  gap: 28px;
+  flex-grow: 1;
   justify-content: center;
+  flex-wrap: wrap;
 }
 
 .navbar-nav a {
-  color: var(--color-blanco);
-  font-family: var(--font-principal); 
+  color: #f5f7fa;
+  font-family: var(--font-principal);
   font-weight: 500;
   font-size: 16px;
-  padding: 10px 0;
-  transition: color 0.3s ease;
+  text-decoration: none;
+  letter-spacing: 0.2px;
+  transition: color 0.25s ease, transform 0.2s ease;
 }
 
 .navbar-nav a:hover {
   color: var(--color-acento-amarillo);
+  transform: translateY(-1px);
 }
 
+/* ========== USUARIO Y BOTONES ========== */
 .navbar-user-menu {
   display: flex;
   align-items: center;
-  gap: 20px; 
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.navbar-user-name {
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+  background-color: rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  padding: 4px 10px;
+  white-space: nowrap;
+}
+
+/* ========== BOTONES ========= */
+.navbar-user-link,
+.register-link,
+.btn-login {
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  font-family: var(--font-principal);
+}
+
+/* --- Botones principales (sin sesión) --- */
+.btn-login {
+  background: var(--color-acento-amarillo);
+  color: #222;
+}
+.btn-login:hover {
+  background: #ffd34d;
+  transform: translateY(-2px);
 }
 
 .register-link {
-  color: var(--color-blanco);
-  font-family: var(--font-principal);
-  font-size: 14px;
-  text-decoration: underline;
+  background: transparent;
+  color: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+}
+.register-link:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
 }
 
-.btn-login {
-  background-color: var(--color-acento-amarillo);
-  color: var(--color-texto);
-  font-family: var(--font-principal);
-  font-weight: 700;
-  padding: 8px 18px;
-  border-radius: 4px;
-  font-size: 14px;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-.btn-login:hover {
-  background-color: var(--color-rojo);
-  color: white;
-  transform: scale(1.05);
-}
-
-.cart-link {
-  position: relative;
-  display: flex;
-  align-items: center;
-  transition: transform 0.2s ease;
-}
-.cart-link:hover {
-  transform: scale(1.1); 
-}
-.cart-icon {
-  height: 35px; /* Ajusta el tamaño de tu ícono de carrito */
-  width: 35px;
-}
-
-.cart-count {
-  position: absolute;
-  top: -5px;
-  right: -10px;
-  background-color: var(--color-acento-amarillo);
-  color: var(--color-texto);
-  border-radius: 50%;
-  padding: 2px 6px;
-  font-size: 12px;
-  font-weight: bold;
-}
-
-/* Botones de usuario (perfil / salir) */
-.navbar-user-link {
-  border: none;
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-weight: 700;
-  font-size: 14px;
-  cursor: pointer;
-  transition: transform .15s ease, background-color .2s ease;
-}
-
-.navbar-user-link:hover { transform: scale(1.05); }
-
-/* Mi perfil = amarillo (mockup) */
+/* --- Botones autenticados --- */
 .btn-profile {
-  background-color: var(--color-acento-amarillo); /* amarillo */
+  background-color: var(--color-acento-amarillo);
   color: var(--color-texto);
 }
 .btn-profile:hover {
-  background-color: #ffd34d; /* un poco más claro al hover */
+  background-color: #ffd34d;
+  transform: translateY(-2px);
 }
 
-/* Cerrar sesión = rojo (mockup) */
+.btn-panel {
+  background-color: #c8102e;
+  color: #fff;
+  position: relative;
+}
+.btn-panel:hover {
+  background-color: #a60d26;
+  transform: translateY(-2px);
+}
+
 .btn-logout {
   background-color: var(--color-rojo);
   color: #fff;
 }
 .btn-logout:hover {
   background-color: #c0392b;
+  transform: translateY(-2px);
 }
 
-/* Opcional: afina login y register para que combinen */
-.register-link {
-  color: var(--color-blanco);
-  font-family: var(--font-principal);
-  font-size: 14px;
-  text-decoration: underline; /* link blanco como en mockup */
+/* ========== ADMIN DROPDOWN ========== */
+.admin-dropdown {
+  position: relative;
 }
-.btn-login {
+
+.admin-menu {
+  position: absolute;
+  top: 110%;
+  right: 0;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0;
+  min-width: 180px;
+  z-index: 9999;
+  animation: fadeIn 0.2s ease-in-out;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.admin-menu a {
+  padding: 10px 16px;
+  color: #333;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background-color 0.25s ease, color 0.25s ease, padding-left 0.25s ease;
+}
+.admin-menu a:hover {
+  background-color: var(--color-acento-amarillo);
+  color: #111;
+  padding-left: 20px;
+}
+
+/* ========== CARRITO ========== */
+.cart-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+.cart-link:hover {
+  transform: scale(1.1);
+}
+.cart-icon {
+  height: 32px;
+  width: 32px;
+  object-fit: contain; /* mantiene tu imagen tal cual */
+}
+.cart-count {
+  position: absolute;
+  top: -4px;
+  right: -8px;
   background-color: var(--color-acento-amarillo);
   color: var(--color-texto);
-  font-family: var(--font-principal);
-  font-weight: 700;
-  padding: 8px 18px;
-  border-radius: 6px;
-  font-size: 14px;
-  transition: background-color 0.2s ease, transform 0.15s ease;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 12px;
+  font-weight: bold;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.15);
 }
-.btn-login:hover {
-  background-color: #ffd34d;
-  transform: scale(1.05);
+
+/* ========== RESPONSIVO ========== */
+@media (max-width: 950px) {
+  .navbar-container {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .navbar-nav {
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  .navbar-user-menu {
+    margin-top: 10px;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
 }

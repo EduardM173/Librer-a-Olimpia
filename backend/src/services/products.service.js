@@ -69,3 +69,4 @@ async function listProducts({ page=1, pageSize=12, categoryId=null, search='', s
 }
 
 module.exports = { listCategories, listProducts };
+

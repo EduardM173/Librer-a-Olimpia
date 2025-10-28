@@ -1,17 +1,30 @@
-const router = require('express').Router();
-const reportsCtrl = require('../controllers/reports.controller');
-// Supón que tienes un middleware para verificar que sea ADMIN
-const authAdminMiddleware = require('../middlewares/auth'); 
+const express = require('express');
+const router = express.Router();
 
-// Todas las rutas de reportes requieren autenticación y rol de ADMIN
-router.use(authAdminMiddleware); 
+// Middlewares de autenticación
+const auth = require('../middlewares/auth'); 
+const authAdmin = require('../middlewares/authAdmin'); 
 
-// --- Endpoints de Reportes ---
+// Controlador
+const adminProducts = require('../controllers/admin.products.controller');
 
-// GET /api/admin/reportes/ventas-por-dia?fechaInicio=...&fechaFin=...
-router.get('/reportes/ventas-por-dia', reportsCtrl.getSalesSummary);
 
-// GET /api/admin/reportes/top-productos?fechaInicio=...&fechaFin=...
-router.get('/reportes/top-productos', reportsCtrl.getTopProducts);
+// (Aplica ambos middlewares a todas las rutas de este router)
+router.use(auth, authAdmin);
+
+// GET /api/admin/products (Lista para el panel)
+router.get('/products', adminProducts.getAdminProducts);
+
+// POST /api/admin/products (Crear)
+router.post('/products', adminProducts.createProduct);
+
+// GET /api/admin/products/:id (Detalle para editar)
+router.get('/products/:id', adminProducts.getAdminProductById);
+
+// PUT /api/admin/products/:id (Actualizar)
+router.put('/products/:id', adminProducts.updateProduct);
+
+// DELETE /api/admin/products/:id (Desactivar)
+router.delete('/products/:id', adminProducts.deleteProduct);
 
 module.exports = router;
