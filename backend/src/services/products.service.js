@@ -70,5 +70,3 @@ async function listProducts({ page=1, pageSize=12, categoryId=null, search='', s
 
 module.exports = { listCategories, listProducts };
 
-
-ALTER TABLE cliente ADD COLUMN estado TINYINT(1) DEFAULT 1 AFTER tipo_cliente;

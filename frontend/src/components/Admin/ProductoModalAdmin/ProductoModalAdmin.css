@@ -1,0 +1,131 @@
+/* --- Overlay y Contenedor --- */
+.admin-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+
+.admin-modal-content {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 24px 32px;
+  width: 90%;
+  max-width: 800px; /* Modal más ancho para el formulario */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  animation: slideUp 0.2s ease;
+  position: relative;
+}
+
+.admin-modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: transparent;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  color: #666;
+  transition: transform 0.2s ease;
+}
+.admin-modal-close:hover {
+  transform: scale(1.2);
+}
+
+.admin-modal-content h2 {
+  font-size: 20px;
+  margin-top: 0;
+  margin-bottom: 24px;
+}
+
+/* --- Formulario --- */
+.admin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+}
+
+.form-group {
+  flex: 1; /* Ocupa espacio equitativamente */
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: #333;
+}
+
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-sizing: border-box; /* Importante */
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.form-group-checkbox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 20px; /* Alinea con los inputs */
+}
+
+.form-group-checkbox label {
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.form-group-checkbox input {
+  width: 16px;
+  height: 16px;
+}
+
+/* --- Acciones del Formulario --- */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.form-error {
+  color: #c9252d;
+  font-size: 14px;
+  text-align: right;
+  flex-grow: 1;
+}
+
+/* Keyframes (para el modal) */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes slideUp {
+  from { transform: translateY(15px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}

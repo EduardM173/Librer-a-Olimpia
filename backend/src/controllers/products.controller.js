@@ -1,4 +1,5 @@
 const pool = require('../config/db');
+const productsService = require('../services/products.service');
 
 // =============================
 //  Obtener lista de productos
@@ -71,15 +72,15 @@ exports.getProducts = async (req, res) => {
 // =============================
 //  Obtener categorías
 // =============================
+
 exports.getCategories = async (req, res) => {
   try {
-    const [rows] = await pool.query(
-      `SELECT id, nombre FROM categoria ORDER BY nombre ASC;`
-    );
-    res.json(rows);
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: 'categories_failed' });
+    // Usamos la función que ya existe en tu servicio
+    const categories = await productsService.listCategories();
+    res.json(categories);
+  } catch (error) {
+    console.error('Error al obtener categorías:', error);
+    res.status(500).json({ error: 'server_error', message: 'Error al obtener categorías' });
   }
 };
 

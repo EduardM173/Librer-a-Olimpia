@@ -161,3 +161,168 @@
     transform: scale(1);
   }
 }
+.btn-nuevo-producto {
+  background-color: #00c2a8; /* Mismo color que "Buscar" en tu captura */
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.3s;
+  font-weight: 500;
+  white-space: nowrap; /* Evita que el texto se parta */
+}
+.btn-nuevo-producto:hover {
+  background-color: #00a890;
+}
+
+/* Botón "Desactivar" (rojo, como el "Cancelar" del modal) */
+.btn-desactivar {
+  background-color: white;
+  color: red !important; /* Importante para sobreescribir .editar-btn */
+  border: 2px solid red !important;
+  margin-left: 10px;
+}
+.btn-desactivar:hover {
+  background-color: #fff8f8 !important;
+}
+
+/* Botón "Cancelar" del modal (ya usado en EditarClienteModal) */
+.btn-cancelar {
+  background-color: white;
+  color: red !important;
+  border: 2px solid red !important;
+}
+.btn-cancelar:hover {
+  background-color: #fff8f8 !important;
+}
+
+/* Badges de Estado (Activo/Inactivo) */
+.badge-activo,
+.badge-inactivo {
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+.badge-activo {
+  background-color: #e6f7eb;
+  color: #1d823b;
+}
+.badge-inactivo {
+  background-color: #fff1f0;
+  color: #c9252d;
+}
+
+/* Acciones de la tabla */
+.admin-table-actions {
+  display: flex;
+  gap: 8px;
+}
+/* Contenedor para poner campos lado a lado */
+.form-row {
+  display: flex;
+  flex-wrap: wrap; /* Si no caben, se pasan abajo */
+  gap: 16px;
+  width: 100%;
+  margin-bottom: 16px; /* Espacio entre filas */
+}
+
+/* Hace que cada .form-grupo dentro de .form-row 
+  ocupe el mismo espacio 
+*/
+.form-row > .form-grupo {
+  flex: 1;
+  min-width: 200px; /* Ancho mínimo antes de saltar de línea */
+  margin-bottom: 0; /* El row ya da el margen */
+}
+
+/* Estilos para inputs, labels y textareas DENTRO 
+  de .form-grupo (tu CSS no los tenía) 
+*/
+.form-grupo label {
+  font-weight: 500;
+  margin-bottom: 5px;
+  display: block;
+  text-align: left; /* Alinea etiquetas a la izquierda */
+  color: #333;
+}
+
+.form-grupo input[type="text"],
+.form-grupo input[type="number"],
+.form-grupo textarea,
+.form-grupo select.modal-select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-sizing: border-box; /* Importante para que el padding no rompa el layout */
+  font-size: 15px;
+}
+
+.form-grupo textarea {
+  resize: vertical;
+  min-height: 70px;
+}
+
+/* Clase especial para alinear el checkbox 'Activo' 
+  correctamente al lado de 'URL Imagen'
+*/
+.form-grupo-checkbox {
+  flex: 1;
+  display: flex;
+  align-items: center; /* Centra verticalmente */
+  justify-content: center; /* Centra horizontalmente */
+  padding-top: 20px; /* Lo empuja hacia abajo para que se alinee con el input */
+  min-width: 100px;
+}
+
+.form-grupo-checkbox label {
+  flex-direction: row;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 0; /* Quita el margen de label */
+  cursor: pointer;
+  font-weight: 500;
+  color: #333;
+}
+
+.form-grupo-checkbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+}
+
+/* Clase para el mensaje de error del formulario */
+.form-error {
+  color: #d90000; /* Rojo error */
+  font-size: 14px;
+  margin: 0;
+  text-align: left;
+  flex-grow: 1; 
+}
+.btn-activar {
+  background-color: #e6f7eb;
+  color: #1d823b !important; 
+  border: 2px solid #1d823b !important; 
+  margin-left: 10px;
+}
+.btn-activar:hover {
+  background-color: #d1edda !important; 
+}
+
+/* Ajuste para inputs en modals */
+.modal-contenido input::placeholder,
+.modal-contenido textarea::placeholder {
+  color: #888; 
+  opacity: 1; 
+}
+
+.modal-contenido input[type="text"],
+.modal-contenido input[type="number"],
+.modal-contenido textarea,
+.modal-contenido select.modal-select {
+    background-color: #fff; /* Fondo blanco */
+}
