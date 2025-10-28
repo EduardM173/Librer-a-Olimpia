@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import './CatalogPage.css';
 import ProductCard from '../../components/ProductCard/ProductCard.jsx';
+import ProductModal from '../../components/ProductModal/ProductModal.jsx';
 import { getCategories, getProducts } from '../../services/productService';
 
 export default function CatalogPage() {
@@ -9,14 +10,13 @@ export default function CatalogPage() {
   const [list, setList] = useState([]);
   const [meta, setMeta] = useState({ page: 1, pageSize: 12, total: 0 });
   const [loading, setLoading] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
-  // pestañas: Popular + categorías reales
   const tabs = useMemo(() => ([
     { key: 'popular', label: 'Popular', catId: null },
     ...categories.map(c => ({ key: 'cat-' + c.id, label: c.nombre, catId: c.id }))
   ]), [categories]);
 
-  // Carga de productos
   async function load(page = 1, cat = activeCat) {
     setLoading(true);
     try {
@@ -35,14 +35,10 @@ export default function CatalogPage() {
     }
   }
 
-  // Cargar categorías al iniciar
   useEffect(() => {
-    getCategories()
-      .then(setCategories)
-      .catch(() => setCategories([]));
+    getCategories().then(setCategories).catch(() => setCategories([]));
   }, []);
 
-  // Cuando cambia la categoría, recarga productos
   useEffect(() => {
     load(1, activeCat);
   }, [activeCat]);
@@ -51,10 +47,9 @@ export default function CatalogPage() {
     <div className="CatalogPage">
       <header className="catalogo-header">
         <h1>Catálogo</h1>
-        <p>Explora nuestros productos. Agrega al carrito desde aquí.</p>
+        <p>Explora nuestros productos. Haz clic para ver más detalles.</p>
       </header>
 
-      {/* pestañas de categorías */}
       <nav className="catalogo-tabs">
         {tabs.map(t => (
           <button
@@ -67,28 +62,25 @@ export default function CatalogPage() {
         ))}
       </nav>
 
-      {/* grid de productos */}
       <section className="catalogo-grid">
         {loading && <div className="catalogo-loading">Cargando…</div>}
         {!loading && list.length === 0 && <div className="catalogo-empty">Sin resultados.</div>}
         {!loading && list.map(prod => (
-          <ProductCard key={prod.id} producto={prod} />
+          <ProductCard
+            key={prod.id}
+            producto={prod}
+            onSelect={() => setSelectedProduct(prod)}
+          />
         ))}
       </section>
 
-      {/* footer con total y paginación */}
       <footer className="catalogo-footer">
         <span>Total productos: {meta.total}</span>
         <div className="pager">
-          <button
-            disabled={meta.page <= 1 || loading}
-            onClick={() => load(meta.page - 1)}
-          >
+          <button disabled={meta.page <= 1 || loading} onClick={() => load(meta.page - 1)}>
             Anterior
           </button>
-
           <span>Página {meta.page}</span>
-
           <button
             disabled={meta.page * meta.pageSize >= meta.total || loading}
             onClick={() => load(meta.page + 1)}
@@ -97,6 +89,14 @@ export default function CatalogPage() {
           </button>
         </div>
       </footer>
+
+      {/* 🔹 Modal de producto */}
+      {selectedProduct && (
+        <ProductModal
+          producto={selectedProduct}
+          onClose={() => setSelectedProduct(null)}
+        />
+      )}
     </div>
   );
 }
