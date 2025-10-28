@@ -91,7 +91,9 @@ exports.login = async (req, res) => {
 
     // 1) Intentar como CLIENTE
     const [rows] = await pool.query(
-      `SELECT id, nombre, email, password_hash FROM cliente WHERE email=? LIMIT 1`,
+     `SELECT id, nombre, email, password_hash, nit_ci, zona, calle, numero_casa 
+   FROM cliente 
+   WHERE email=? LIMIT 1`,
       [email]
     );
 
@@ -109,10 +111,26 @@ exports.login = async (req, res) => {
       const token = sign({ sub: cli.id, kind: 'cliente' });
       logger.info('LOGIN_EXITOSO: Cliente autenticado', { clienteId: cli.id, email: cli.email });
       
-      return res.json({
-        token,
-        user: { id: cli.id, nombre: cli.nombre, email: cli.email, tipo: 'CLIENTE' },
-      });
+      // return res.json({
+      //   token,
+      //   user: { id: cli.id, nombre: cli.nombre, email: cli.email, tipo: 'CLIENTE' },
+      // });
+
+return res.json({
+  token,
+  user: {
+    id: cli.id,
+    nombre: cli.nombre,
+    email: cli.email,
+    tipo: 'CLIENTE',
+    // ⬅️ CAMPOS AÑADIDOS
+    nit_ci: cli.nit_ci,
+    zona: cli.zona,
+    calle: cli.calle,
+    numero_casa: cli.numero_casa,
+  },
+});
+
     }
 
     // 2) Si no es cliente, intentar como USUARIO (LÓGICA DE TU COMPAÑERO)

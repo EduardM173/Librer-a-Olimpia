@@ -10,10 +10,17 @@
     font-family: 'Poppins', sans-serif; 
 }
 
-.perfil-grid { 
+/* .perfil-grid { 
     display: grid; 
     grid-template-columns: 1fr 1fr; 
     gap: 24px; 
+} */
+
+.perfil-grid {
+    display: flex;
+    justify-content: center; 
+    padding: 20px;
+    gap: 30px; 
 }
 
 @media (max-width: 900px) { 
@@ -22,12 +29,23 @@
     } 
 }
 
-.perfil-card { 
+/* .perfil-card { 
     background: #fff; 
     border-radius: 18px; 
     padding: 20px; 
     box-shadow: 0 8px 20px rgba(0,0,0,.08); 
+} */
+
+.perfil-card {
+    max-width: 450px;
+    width: 100%;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    background-color: white;
 }
+
 
 /* Aplicamos estilos de "Mis pedidos" anteriores a "Información personal" */
 .perfil-personal { 

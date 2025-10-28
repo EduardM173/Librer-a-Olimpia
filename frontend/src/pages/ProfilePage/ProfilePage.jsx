@@ -1,112 +1,149 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './ProfilePage.css';
-import { useAuth } from '../../context/AuthContext';
-import { Link } from 'react-router-dom';
-
-const money = (n) => `Bs ${Number(n || 0).toFixed(2)}`;
+import { useAuth } from '../../context/AuthContext'; // Asumo que `useAuth` proporciona el token si es necesario
 
 export default function ProfilePage() {
-  const { user, token } = useAuth();
-  const [cliente, setCliente] = useState(null);
+  const { user, token } = useAuth(); // Asumo que useAuth también provee el token
   const [pedidos, setPedidos] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  // Datos de dirección aún no ligados al backend (estático por ahora)
+  const direccion = { zona: '—', calle: '—', numero: '—' };
+
+  // 1. Efecto para cargar los pedidos
   useEffect(() => {
-    const loadData = async () => {
-      if (!user || !token) return;
+    async function fetchOrders() {
+      if (!token) {
+        setIsLoading(false);
+        setError("Usuario no autenticado.");
+        return;
+      }
 
       try {
-        // 🔹 Obtener información del cliente
-        const r1 = await fetch('http://localhost:3000/api/clientes/me', {
-          headers: { Authorization: `Bearer ${token}` },
+        console.log("🗿🔥1");
+        const response = await fetch('/api/orders', { // Ajusta la ruta si es necesario
+        
+          headers: {
+            
+            'Authorization': `Bearer ${token}`, // Envía el token de autenticación
+            'Content-Type': 'application/json',
+          },
+          
         });
-        const c = r1.ok ? await r1.json() : null;
-        setCliente(c);
-
-        // 🔹 Obtener pedidos del cliente autenticado
-        const r2 = await fetch('http://localhost:3000/api/pedidos/mis-pedidos', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const p = r2.ok ? await r2.json() : [];
-        setPedidos(p);
+        console.log("🗿🔥2");
+        if (!response.ok) {
+          throw new Error(`Error al cargar pedidos: ${response.statusText}`);
+          console.log("🗿🔥3");
+        }
+        
+        const data = await response.json();
+        console.log("🗿🔥4");
+        console.log(data);
+        setPedidos(data);
       } catch (err) {
-        console.error('Error cargando perfil:', err);
+        console.error("Error fetching orders:", err);
+        setError("No se pudieron cargar los pedidos. Intenta de nuevo más tarde.");
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
-    };
+    }
 
-    loadData();
-  }, [user, token]);
+    fetchOrders();
+  }, [token]); // Se ejecuta cuando el componente se monta o el token cambia
 
-  if (loading)
-    return (
-      <div className="ProfilePage">
-        <p>Cargando perfil...</p>
+  // Función para formatear la fecha
+ // ProfilePage.jsx
+
+// Función para formatear la fecha (COMPLETA)
+  const formatDate = (dateString) => {
+    try {
+      const options = {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      };
+      // Utilizamos toLocaleDateString con la zona horaria UTC para evitar problemas de desfase
+      return new Date(dateString).toLocaleDateString('es-ES', options);
+    } catch (e) {
+      console.error("Error al formatear fecha:", e);
+      return dateString; // Retorna la original si falla
+    }
+  };
+
+
+  // Función para renderizar un solo pedido (DRY)
+  const PedidoItem = ({ pedido }) => (
+    <article className="pedido-item">
+      <div className="pedido-thumb" />
+      <div className="pedido-info">
+        <div>
+          <strong>Nro Pedido</strong> #{pedido.id}
+        </div>
+        <div>
+          Estado: <strong>{pedido.estado || 'Desconocido'}</strong>
+        </div>
+        <div>
+          Fecha: 
+          <span className="fecha-pedido">{formatDate(pedido.fecha)}</span> 
+          Total:{" "}
+          <strong>Bs {pedido.total || '0.00'}</strong>
+        </div>
+        {/* Aquí puedes enlazar a la vista de detalles del pedido si existe */}
+        <button className="pedido-btn">Ver detalles</button>
       </div>
-    );
-
+    </article>
+  );
+  console.log("UsuarioRecibido🤗🎺❤:", user);
   return (
     <div className="ProfilePage">
-      <h1 className="perfil-title">Mi Perfil</h1>
-
       <div className="perfil-grid">
-        {/* 🧍 Información personal */}
+        {/* Columna izquierda: información personal */}
         <section className="perfil-card perfil-personal">
           <h2>Mi información personal</h2>
           <div className="perfil-row">
-            <span>Nombre:</span> <strong>{cliente?.nombre || '—'}</strong>
+            <span>Nombre:</span> <strong>{user?.nombre || '—'}</strong>
           </div>
           <div className="perfil-row">
-            <span>Correo electrónico:</span>{' '}
-            <strong>{cliente?.email || '—'}</strong>
+            <span>Correo electrónico:</span>{" "}
+            <strong>{user?.email || '—'}</strong>
+          </div>
+          <div className="perfil-row">
+            {/* <span>Nro Celular:</span> <strong>HOLA🥶🔥🔥</strong> */}
           </div>
 
           <h3>Dirección</h3>
           <div className="perfil-row">
-            <span>Zona:</span> <strong>{cliente?.zona || '—'}</strong>
+            <span>Zona:</span> <strong>{user?.zona}</strong>
           </div>
           <div className="perfil-row">
-            <span>Calle:</span> <strong>{cliente?.calle || '—'}</strong>
+            <span>Calle:</span> <strong>{user?.calle}</strong>
           </div>
           <div className="perfil-row">
-            <span>N° Vivienda:</span>{' '}
-            <strong>{cliente?.numero_casa || '—'}</strong>
-          </div>
-
-          <h3>Datos de Factura</h3>
-          <div className="perfil-row">
-            <span>NIT / CI:</span> <strong>{cliente?.nit_ci || '—'}</strong>
+            <span>Nro Vivienda:</span> <strong>{user?.numero_casa}</strong>
           </div>
         </section>
 
-        {/* 📦 Pedidos del cliente */}
-        <section className="perfil-card perfil-pedidos">
+        
+        {/* <section className="perfil-card perfil-pedidos">
           <h2>Mis pedidos</h2>
 
-          {pedidos.length === 0 ? (
-            <p style={{ color: '#888' }}>No tienes pedidos registrados.</p>
-          ) : (
-            pedidos.map((p) => (
-              <article key={p.id} className="pedido-item">
-                <div className="pedido-thumb" />
-                <div className="pedido-info">
-                  <div>
-                    <strong>Nro Pedido</strong> #{p.id}
-                  </div>
-                  <div>Estado: <strong>{p.estado}</strong></div>
-                  <div>
-                    Fecha: {p.fecha_pedido || '—'} &nbsp;&nbsp; Total:{' '}
-                    <strong>{money(p.total_neto)}</strong>
-                  </div>
-                  <Link to={`/perfil/pedidos/${p.id}`} className="pedido-btn">
-                    Ver detalles
-                  </Link>
-                </div>
-              </article>
-            ))
+          {isLoading && <p>Cargando pedidos...</p>}
+          {error && <p className="error-message">❌ {error}</p>}
+
+          {!isLoading && !error && (
+            <div className="pedidos-list">
+              {pedidos.length > 0 ? (
+                pedidos.map((pedido) => (
+                  // 4. Renderizado dinámico de la lista de pedidos
+                  <PedidoItem key={pedido.id} pedido={pedido} />
+                ))
+              ) : (
+                <p>Aún no tienes pedidos registrados.</p>
+              )}
+            </div>
           )}
-        </section>
+        </section> */}
       </div>
     </div>
   );
