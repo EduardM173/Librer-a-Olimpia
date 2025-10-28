@@ -81,7 +81,7 @@ exports.registerCliente = async (req, res) => {
 };
 
 // ========================================================
-// LOGIN UNIFICADO (cliente o usuario/admin)
+// LOGIN UNIFICADO (CLIENTE Y USUARIO) 
 // ========================================================
 exports.login = async (req, res) => {
   try {
@@ -90,23 +90,22 @@ exports.login = async (req, res) => {
       return res.status(400).json({ error: 'missing_fields', message: 'Campos incompletos.' });
 
     // 1) Intentar como CLIENTE
-    const [cliRows] = await pool.query(
+    const [rows] = await pool.query(
       `SELECT id, nombre, email, password_hash FROM cliente WHERE email=? LIMIT 1`,
       [email]
     );
-  
+
     if (rows.length) {
-      
       const cli = rows[0];
       const ok = await bcrypt.compare(password, cli.password_hash || '');
       
       if (!ok) {
-        //LOG DE ERROR
+        // --- TU LOG DE ERROR ---
         logger.warn('LOGIN_FALLIDO: Contraseña incorrecta (Cliente)', { email, clienteId: cli.id });
         return res.status(401).json({ error: 'invalid_credentials', message: 'Credenciales inválidas.' });
       }
 
-      //LOG DE ÉXITO
+      // --- TU LOG DE ÉXITO ---
       const token = sign({ sub: cli.id, kind: 'cliente' });
       logger.info('LOGIN_EXITOSO: Cliente autenticado', { clienteId: cli.id, email: cli.email });
       
@@ -116,36 +115,42 @@ exports.login = async (req, res) => {
       });
     }
 
-    // 2) Si no es cliente, intentar como USUARIO (ADMIN / VENDEDOR / ALMACEN)
+    // 2) Si no es cliente, intentar como USUARIO (LÓGICA DE TU COMPAÑERO)
     const [usrRows] = await pool.query(
       `SELECT id, nombre, email, password_hash, rol, activo
-         FROM usuario
-        WHERE email=? LIMIT 1`,
+          FROM usuario
+         WHERE email=? LIMIT 1`,
       [email]
     );
+
+    // Si NO se encuentra en NINGUNA tabla
     if (!usrRows.length) {
-      //LOG DE ERROR CLIENTE NO ENCONTRADO
+      // --- TU LOG DE ERROR (CLIENTE NO ENCONTRADO) ---
       logger.warn('LOGIN_FALLIDO: Usuario/Cliente no encontrado', { email });
       return res.status(401).json({ error: 'invalid_credentials', message: 'Credenciales inválidas.' });
     }
 
-    const cli = rows[0];
+    // --- USUARIO ENCONTRADO (LÓGICA DE TU COMPAÑERO) ---
+    const usr = usrRows[0];
+    if (usr.activo === 0) {
+      logger.warn('LOGIN_FALLIDO: Usuario inactivo', { email, usuarioId: usr.id });
+      return res.status(403).json({ error: 'user_inactive', message: 'Usuario inactivo.' });
+    }
+
     const ok = await bcrypt.compare(password, usr.password_hash || '');
     
     if (!ok) {
-      // --- TU LOG (EXTRA RECOMENDADO) ---
       logger.warn('LOGIN_FALLIDO: Contraseña incorrecta (Usuario)', { email, usuarioId: usr.id });
       return res.status(401).json({ error: 'invalid_credentials', message: 'Credenciales inválidas.' });
     }
 
+    // --- ÉXITO PARA EL USUARIO (ADMIN) ---
     const token = sign({ sub: usr.id, kind: 'usuario', rol: usr.rol });
     
-    // --- TU LOG (EXTRA RECOMENDADO) ---
     logger.info('LOGIN_EXITOSO: Usuario interno autenticado', { usuarioId: usr.id, email: usr.email, rol: usr.rol });
 
     return res.json({
       token,
-      // Respuesta de tu compañero
       user: { id: usr.id, nombre: usr.nombre, email: usr.email, tipo: usr.rol, rol: usr.rol },
     });
 
@@ -154,7 +159,7 @@ exports.login = async (req, res) => {
     logger.error('Error interno en Login', { 
       message: e.message, 
       stack: e.stack, 
-      email: (req.body ? req.body.email : 'N/A') // Protege por si req.body no existe
+      email: (req.body ? req.body.email : 'N/A')
     });
     res.status(500).json({ error: 'login_failed', message: 'Error interno del servidor.' });
   }
