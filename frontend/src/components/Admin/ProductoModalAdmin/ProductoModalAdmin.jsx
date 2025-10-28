@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useAuth } from "../../../context/AuthContext";
-import "./ProductoModalAdmin.css"; // CSS específico para el modal
+import "../../../pages/ClienteAdmin/ClienteAdmin.css";
 
 // Estado inicial para un producto nuevo
 const initialState = {
@@ -10,7 +10,6 @@ const initialState = {
   descripcion: "",
   categoria_id: "", // Usamos "" para "Sin Categoría"
   precio_venta: "",
-  precio_costo: "",
   imagen_url: "",
   activo: 1, // Por defecto 'activo' al crear
 };
@@ -64,7 +63,6 @@ export default function ProductoModalAdmin({ producto, onClose, onSave }) {
       ...formData,
       // Aseguramos que los números sean números y los nulos sean nulos
       precio_venta: Number(formData.precio_venta) || 0,
-      precio_costo: Number(formData.precio_costo) || 0,
       categoria_id: formData.categoria_id || null,
       activo: formData.activo ? 1 : 0,
     };
@@ -105,9 +103,9 @@ export default function ProductoModalAdmin({ producto, onClose, onSave }) {
   };
 
   return (
-    <div className="admin-modal-overlay" onClick={onClose}>
+    <div className="modal-overlay" onClick={onClose}>
       <div
-        className="admin-modal-content"
+        className="modal-contenido"
         onClick={(e) => e.stopPropagation()}
       >
         <button className="admin-modal-close" onClick={onClose}>
@@ -163,6 +161,7 @@ export default function ProductoModalAdmin({ producto, onClose, onSave }) {
                 name="categoria_id"
                 value={formData.categoria_id || ""}
                 onChange={handleChange}
+                className="modal-select"
               >
                 <option value="">-- Sin Categoría --</option>
                 {categorias.map((c) => (
@@ -184,17 +183,7 @@ export default function ProductoModalAdmin({ producto, onClose, onSave }) {
                 required
               />
             </div>
-            <div className="form-group">
-              <label htmlFor="precio_costo">Precio Costo (Bs)</label>
-              <input
-                type="number"
-                step="0.01"
-                id="precio_costo"
-                name="precio_costo"
-                value={formData.precio_costo}
-                onChange={handleChange}
-              />
-            </div>
+            
           </div>
 
           {/* Fila 4: Imagen y Estado */}
@@ -225,10 +214,10 @@ export default function ProductoModalAdmin({ producto, onClose, onSave }) {
 
           {/* Errores y Botones */}
           {error && <p className="form-error">{error}</p>}
-          <div className="form-actions">
+          <div className="modal-botones">
             <button
               type="button"
-              className="admin-btn-secondary"
+              className="editar-btn btn-cancelar"
               onClick={onClose}
               disabled={loading}
             >
@@ -236,7 +225,7 @@ export default function ProductoModalAdmin({ producto, onClose, onSave }) {
             </button>
             <button
               type="submit"
-              className="admin-btn-primary"
+              className="editar-btn"
               disabled={loading}
             >
               {loading ? "Guardando..." : "Guardar"}
@@ -247,3 +236,38 @@ export default function ProductoModalAdmin({ producto, onClose, onSave }) {
     </div>
   );
 }
+const styles = `
+.form-row {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+}
+.form-row > .form-grupo {
+  flex: 1;
+}
+.form-grupo label {
+  font-weight: 500;
+  margin-bottom: 5px;
+  display: block;
+}
+.form-grupo input[type="text"],
+.form-grupo input[type="number"],
+.form-grupo textarea,
+.form-grupo select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-sizing: border-box; /* Importante */
+}
+.form-error {
+  color: red;
+  margin: 0;
+  text-align: left;
+  flex-grow: 1;
+}
+`;
+// Inyectamos los estilos en el <head>
+const styleSheet = document.createElement("style");
+styleSheet.innerText = styles;
+document.head.appendChild(styleSheet);

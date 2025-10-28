@@ -1,5 +1,6 @@
 const pool = require('../config/db');
 
+
 // =============================
 //  Obtener lista de productos
 // =============================

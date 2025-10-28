@@ -97,7 +97,14 @@ function AppShell() {
           <Route path="/pedido-exitoso" element={<PedidoExitoso />} />
 
           {/* === RUTAS DE ADMIN (PROTEGIDAS) === */}
-          <Route path="productos" element={<ProductosAdmin />} />
+          <Route
+            path="/admin/productos"
+            element={
+              <RequireAdmin>
+                <ProductosAdmin/>
+              </RequireAdmin>
+            }
+          />
           <Route
             path="/admin/pedidos"
             element={

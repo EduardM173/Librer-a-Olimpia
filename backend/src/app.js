@@ -8,7 +8,7 @@ const logger = require('./config/logger');
 
 // --- Importar Rutas (Cambios de ambos) ---
 const products = require('./routes/products.routes');
-const adminRoutes = require('./routes/admin');
+const adminRoutes = require('./routes/admin.routes');
 const auth = require('./routes/auth.routes');
 const ordersRoutes = require('./routes/orders.routes'); 
 const pedidos = require('./routes/pedidos.routes');
@@ -44,6 +44,6 @@ app.use((err, req, res, next) => {
   });
   
   res.status(500).json({ error: 'internal_server_error' });
-});
+}); 
 
 module.exports = app;

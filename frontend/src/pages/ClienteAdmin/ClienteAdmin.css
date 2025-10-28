@@ -161,3 +161,62 @@
     transform: scale(1);
   }
 }
+.btn-nuevo-producto {
+  background-color: #00c2a8; /* Mismo color que "Buscar" en tu captura */
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.3s;
+  font-weight: 500;
+  white-space: nowrap; /* Evita que el texto se parta */
+}
+.btn-nuevo-producto:hover {
+  background-color: #00a890;
+}
+
+/* Botón "Desactivar" (rojo, como el "Cancelar" del modal) */
+.btn-desactivar {
+  background-color: white;
+  color: red !important; /* Importante para sobreescribir .editar-btn */
+  border: 2px solid red !important;
+  margin-left: 10px;
+}
+.btn-desactivar:hover {
+  background-color: #fff8f8 !important;
+}
+
+/* Botón "Cancelar" del modal (ya usado en EditarClienteModal) */
+.btn-cancelar {
+  background-color: white;
+  color: red !important;
+  border: 2px solid red !important;
+}
+.btn-cancelar:hover {
+  background-color: #fff8f8 !important;
+}
+
+/* Badges de Estado (Activo/Inactivo) */
+.badge-activo,
+.badge-inactivo {
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+.badge-activo {
+  background-color: #e6f7eb;
+  color: #1d823b;
+}
+.badge-inactivo {
+  background-color: #fff1f0;
+  color: #c9252d;
+}
+
+/* Acciones de la tabla */
+.admin-table-actions {
+  display: flex;
+  gap: 8px;
+}

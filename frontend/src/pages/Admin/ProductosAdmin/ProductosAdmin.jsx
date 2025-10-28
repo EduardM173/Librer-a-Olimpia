@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import { useAuth } from "../../../context/AuthContext";
 import ProductoModalAdmin from "../../../components/Admin/ProductoModalAdmin/ProductoModalAdmin";
-import "../Admin.css"; 
+import "../../ClienteAdmin/ClienteAdmin.css";
 
 export default function ProductosAdmin() {
   const { token } = useAuth();
@@ -114,19 +114,19 @@ export default function ProductosAdmin() {
   };
 
   return (
-    <div className="admin-container">
-      <h1>Gestión de Productos</h1>
+    <div className="cliente-admin-container">
+      <h1 className="titulo">Gestión de Productos</h1>
+
       {error && <p className="admin-error">{error}</p>}
 
-      <div className="admin-toolbar">
+      <div className="buscador">
         <input
           type="text"
-          className="admin-search"
           placeholder="Buscar por SKU o nombre..."
           value={filtroBusqueda}
           onChange={(e) => setFiltroBusqueda(e.target.value)}
         />
-        <button className="admin-btn-primary" onClick={handleNuevo}>
+        <button onClick={handleNuevo} className="btn-nuevo-producto">
           + Nuevo Producto
         </button>
       </div>
@@ -134,7 +134,7 @@ export default function ProductosAdmin() {
       {loading ? (
         <p>Cargando productos...</p>
       ) : (
-        <table className="admin-table">
+        <table className="tabla-clientes">
           <thead>
             <tr>
               <th>SKU</th>
@@ -142,7 +142,6 @@ export default function ProductosAdmin() {
               <th>Categoría</th>
               <th>Stock</th>
               <th>Precio Venta</th>
-              <th>Precio Costo</th>
               <th>Estado</th>
               <th>Acciones</th>
             </tr>
@@ -155,7 +154,7 @@ export default function ProductosAdmin() {
                 <td>{p.categoria || "N/A"}</td>
                 <td>{p.stock}</td>
                 <td>Bs {Number(p.precio_venta).toFixed(2)}</td>
-                <td>Bs {Number(p.precio_costo).toFixed(2)}</td>
+                
                 <td>
                   {p.activo ? (
                     <span className="badge-activo">Activo</span>
@@ -165,14 +164,14 @@ export default function ProductosAdmin() {
                 </td>
                 <td className="admin-table-actions">
                   <button
-                    className="admin-btn-edit"
+                    className="editar-btn"
                     onClick={() => handleEditar(p)}
                   >
                     Editar
                   </button>
                   {p.activo === 1 && ( // Solo muestra Desactivar si está activo
                     <button
-                      className="admin-btn-delete"
+                      className="editar-btn btn-desactivar"
                       onClick={() => handleDesactivar(p)}
                     >
                       Desactivar
