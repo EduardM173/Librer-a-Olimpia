@@ -25,7 +25,7 @@ app.use(decodeUser);
 app.use(httpLogger);
 
 // --- Registrar Rutas (Cambios de ambos) ---
-app.use('/api', products);
+app.use('/api/products', products);
 app.use('/api', auth);
 app.use('/api/admin', adminRoutes);
 app.use('/api', ordersRoutes); 

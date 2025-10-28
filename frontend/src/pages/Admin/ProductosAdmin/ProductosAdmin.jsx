@@ -63,28 +63,30 @@ export default function ProductosAdmin() {
     setMostrarModal(true);
   };
 
-  const handleDesactivar = async (producto) => {
+  const handleActivarDesactivar = async (producto, activar) => {
     if (
       !window.confirm(
-        `¿Seguro que quieres desactivar el producto "${producto.nombre}"?`
+        `¿Seguro que quieres ${activar ? "ACTIVAR" : "DESACTIVAR"} el producto "${producto.nombre}"?`
       )
     )
       return;
 
     try {
-      await axios.delete(
+      await axios.put(
         `http://localhost:3000/api/admin/products/${producto.id}`,
+        { ...producto, activo: activar ? 1 : 0 }, // Solo cambiamos el estado 'activo'
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      // Actualiza el estado local (sin recargar)
       setProductos((prev) =>
         prev.map((p) =>
-          p.id === producto.id ? { ...p, activo: 0 } : p
+          p.id === producto.id ? { ...p, activo: activar ? 1 : 0 } : p
         )
       );
+    // eslint-disable-next-line no-unused-vars
     } catch (err) {
-      console.error("Error al desactivar el producto:", err);
-      setError("Error al desactivar el producto.");
+      setError(
+        `Error al ${activar ? "activar" : "desactivar"} el producto.`
+      );
     }
   };
 
@@ -169,12 +171,19 @@ export default function ProductosAdmin() {
                   >
                     Editar
                   </button>
-                  {p.activo === 1 && ( // Solo muestra Desactivar si está activo
+                  {p.activo === 1 ? (
                     <button
                       className="editar-btn btn-desactivar"
-                      onClick={() => handleDesactivar(p)}
+                      onClick={() => handleActivarDesactivar(p, false)}
                     >
                       Desactivar
+                    </button>
+                  ) : (
+                    <button
+                      className="editar-btn btn-activar" 
+                      onClick={() => handleActivarDesactivar(p, true)}
+                    >
+                      Activar
                     </button>
                   )}
                 </td>

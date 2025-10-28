@@ -220,3 +220,109 @@
   display: flex;
   gap: 8px;
 }
+/* Contenedor para poner campos lado a lado */
+.form-row {
+  display: flex;
+  flex-wrap: wrap; /* Si no caben, se pasan abajo */
+  gap: 16px;
+  width: 100%;
+  margin-bottom: 16px; /* Espacio entre filas */
+}
+
+/* Hace que cada .form-grupo dentro de .form-row 
+  ocupe el mismo espacio 
+*/
+.form-row > .form-grupo {
+  flex: 1;
+  min-width: 200px; /* Ancho mínimo antes de saltar de línea */
+  margin-bottom: 0; /* El row ya da el margen */
+}
+
+/* Estilos para inputs, labels y textareas DENTRO 
+  de .form-grupo (tu CSS no los tenía) 
+*/
+.form-grupo label {
+  font-weight: 500;
+  margin-bottom: 5px;
+  display: block;
+  text-align: left; /* Alinea etiquetas a la izquierda */
+  color: #333;
+}
+
+.form-grupo input[type="text"],
+.form-grupo input[type="number"],
+.form-grupo textarea,
+.form-grupo select.modal-select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-sizing: border-box; /* Importante para que el padding no rompa el layout */
+  font-size: 15px;
+}
+
+.form-grupo textarea {
+  resize: vertical;
+  min-height: 70px;
+}
+
+/* Clase especial para alinear el checkbox 'Activo' 
+  correctamente al lado de 'URL Imagen'
+*/
+.form-grupo-checkbox {
+  flex: 1;
+  display: flex;
+  align-items: center; /* Centra verticalmente */
+  justify-content: center; /* Centra horizontalmente */
+  padding-top: 20px; /* Lo empuja hacia abajo para que se alinee con el input */
+  min-width: 100px;
+}
+
+.form-grupo-checkbox label {
+  flex-direction: row;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 0; /* Quita el margen de label */
+  cursor: pointer;
+  font-weight: 500;
+  color: #333;
+}
+
+.form-grupo-checkbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+}
+
+/* Clase para el mensaje de error del formulario */
+.form-error {
+  color: #d90000; /* Rojo error */
+  font-size: 14px;
+  margin: 0;
+  text-align: left;
+  flex-grow: 1; 
+}
+.btn-activar {
+  background-color: #e6f7eb;
+  color: #1d823b !important; 
+  border: 2px solid #1d823b !important; 
+  margin-left: 10px;
+}
+.btn-activar:hover {
+  background-color: #d1edda !important; 
+}
+
+/* Ajuste para inputs en modals */
+.modal-contenido input::placeholder,
+.modal-contenido textarea::placeholder {
+  color: #888; 
+  opacity: 1; 
+}
+
+.modal-contenido input[type="text"],
+.modal-contenido input[type="number"],
+.modal-contenido textarea,
+.modal-contenido select.modal-select {
+    background-color: #fff; /* Fondo blanco */
+}
