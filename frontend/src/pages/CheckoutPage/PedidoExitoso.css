@@ -1,0 +1,5 @@
+.PedidoOK{max-width:760px;margin:40px auto;background:#fff;border-radius:12px;padding:24px;box-shadow:0 8px 24px rgba(0,0,0,.08)}
+.PedidoOK h1{margin-top:0}
+.ok-actions{display:flex;gap:12px;margin-top:16px}
+.ok-btn{background:#17365d;color:#fff;text-decoration:none;padding:10px 16px;border-radius:8px}
+.ok-btn.outline{background:#fff;color:#17365d;border:1px solid #17365d}

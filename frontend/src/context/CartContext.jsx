@@ -1,11 +1,10 @@
-// src/context/CartContext.jsx
 import React, { createContext, useContext, useEffect, useState } from "react";
 
 const CartContext = createContext();
 export const useCart = () => useContext(CartContext);
 
 export const CartProvider = ({ children }) => {
-  // ✅ Carga directa desde localStorage en el estado inicial (sin parpadeo)
+  // ✅ Cargar carrito desde localStorage al iniciar
   const [items, setItems] = useState(() => {
     try {
       const saved = localStorage.getItem("cart_items");
@@ -18,7 +17,7 @@ export const CartProvider = ({ children }) => {
 
   const [isOpen, setIsOpen] = useState(false);
 
-  // 💾 Sincroniza cada cambio
+  // 💾 Sincronizar cambios del carrito
   useEffect(() => {
     try {
       localStorage.setItem("cart_items", JSON.stringify(items));
@@ -27,7 +26,7 @@ export const CartProvider = ({ children }) => {
     }
   }, [items]);
 
-  // 🛒 Agregar
+  // 🛒 Agregar al carrito
   const addItem = (p, qty = 1) => {
     setItems((prev) => {
       const i = prev.findIndex((x) => x.id === p.id);
@@ -49,10 +48,10 @@ export const CartProvider = ({ children }) => {
     });
   };
 
-  // ❌ Quitar
+  // ❌ Quitar producto
   const removeItem = (id) => setItems((prev) => prev.filter((x) => x.id !== id));
 
-  // 🔄 Cantidad
+  // 🔄 Actualizar cantidad
   const updateQty = (id, qty) =>
     setItems((prev) =>
       prev.map((x) =>
@@ -60,14 +59,15 @@ export const CartProvider = ({ children }) => {
       )
     );
 
-  // 🧹 Vaciar (nota: sólo cuando el usuario lo pida)
+  // 🧹 Vaciar carrito
   const clear = () => {
     setItems([]);
     localStorage.removeItem("cart_items");
   };
 
-  const total = items.reduce((s, x) => s + x.precio * x.qty, 0);
-  const count = items.reduce((s, x) => s + x.qty, 0);
+  // 💰 Totales
+  const total = items.reduce((sum, x) => sum + Number(x.precio) * Number(x.qty), 0);
+  const count = items.reduce((sum, x) => sum + Number(x.qty), 0);
 
   return (
     <CartContext.Provider
