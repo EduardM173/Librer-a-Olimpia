@@ -10,6 +10,7 @@ module.exports = (req, res, next) => {
     const ip = req.ip;
     let userIdentifier;
 
+    console.log("HOla🍔🍔🔥");
     if (req.user) {
       userIdentifier = `Usuario: ${req.user.id} (Tipo: ${req.user.tipo})`;
     } else {

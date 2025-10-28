@@ -1,28 +1,26 @@
-const jwt = require("jsonwebtoken");
-const SECRET = process.env.JWT_SECRET || "supersecret";
+const jwt = require('jsonwebtoken');
+const JWT_SECRET =  process.env.JWT_SECRET;
 
 module.exports = (req, res, next) => {
-  const header = req.headers.authorization;
+  
+  // 🛑 VERIFICACIÓN CRÍTICA
+    if (!JWT_SECRET) {
+        console.error('🛑 ERROR FATAL: JWT_SECRET no cargada.');
+        return res.status(500).json({ 
+            error: 'server_config_error', 
+            message: 'Error de configuración. La clave secreta JWT no está definida.' 
+        });
+    }
 
-  if (!header) {
-    return res.status(403).json({ error: "no_token", message: "Token no proporcionado" });
-  }
+    
+  const token = req.headers.authorization;
+  if (!token) return res.status(403).json({ error: 'No token provided' });
 
   try {
-    const token = header.split(" ")[1];
-    const decoded = jwt.verify(token, SECRET);
-
-    // Normalizar campos
-    decoded.kind = decoded.kind ? decoded.kind.toLowerCase() : null;
-    decoded.rol = decoded.rol ? decoded.rol.toLowerCase() : null;
-
-    // Si no tiene kind pero tiene rol=admin, lo tratamos como usuario interno
-    if (!decoded.kind && decoded.rol === "admin") decoded.kind = "usuario";
-
+    const decoded = jwt.verify(token.split(' ')[1], JWT_SECRET);
     req.user = decoded;
     next();
   } catch (err) {
-    console.error("❌ Error verificando token:", err.message);
-    return res.status(403).json({ error: "invalid_token", message: "Token inválido o expirado" });
+    res.status(403).json({ error: 'Token inválido' });
   }
 };
