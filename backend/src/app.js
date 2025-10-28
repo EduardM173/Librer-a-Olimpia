@@ -1,40 +1,35 @@
 const express = require('express');
 const cors = require('cors');
 
-// Importar Middlewares
+// --- Importar Middlewares (Tus cambios) ---
 const decodeUser = require('./middleware/decodeUser');
 const httpLogger = require('./middleware/httpLogger');
 const logger = require('./config/logger');
 
+// --- Importar Rutas (Cambios de ambos) ---
 const products = require('./routes/products.routes');
-//pedidos rutas
-const ordersRoutes = require('./routes/orders.routes');
-
 const auth = require('./routes/auth.routes');
-const pedidos = require('./routes/pedidos.routes'); 
-const clientesRoutes = require('./routes/clientes.routes');
-
+const ordersRoutes = require('./routes/orders.routes'); 
+const pedidos = require('./routes/pedidos.routes');
+const clientesRoutes = require('./routes/clientes.routes'); 
 
 const app = express();
 
+// Middlewares globales
 app.use(cors());
 app.use(express.json());
 
-// 1. Decodificar usuario (para saber quién es)
 app.use(decodeUser);
-// 2. Registrar la petición (ahora que ya sabemos quién es)
 app.use(httpLogger);
 
+// --- Registrar Rutas (Cambios de ambos) ---
 app.use('/api', products);
 app.use('/api', auth);
-app.use('/api/pedidos', pedidos); 
-app.use('/api/clientes', clientesRoutes);
+app.use('/api', ordersRoutes); 
+app.use('/api/pedidos', pedidos);
+app.use('/api/clientes', clientesRoutes); 
 
-// Las rutas serán: /api/orders y /api/orders/:id
-//necesita autenticacion para acceder a las rutas de pedidos
-app.use('/api', ordersRoutes);
 
-module.exports = app;
 app.use((err, req, res, next) => {
   logger.error('Error no controlado:', {
     message: err.message,
