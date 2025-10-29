@@ -27,26 +27,39 @@ exports.registerCliente = async (req, res) => {
   try {
     let { nombre, email, password } = req.body;
     nombre = (nombre || '').trim();
-    email  = (email  || '').trim().toLowerCase();
+    email = (email || '').trim().toLowerCase();
 
     // --- Validaciones previas ---
     if (!nombre || nombre.length < 3) {
-      return res.status(400).json({ error: 'invalid_name', message: 'El nombre debe tener al menos 3 caracteres.' });
+      return res.status(400).json({
+        error: 'invalid_name',
+        message: 'El nombre debe tener al menos 3 caracteres.',
+      });
     }
     if (!isValidEmail(email)) {
-      return res.status(400).json({ error: 'invalid_email', message: 'El correo electrónico no es válido.' });
+      return res.status(400).json({
+        error: 'invalid_email',
+        message: 'El correo electrónico no es válido.',
+      });
     }
     if (!isStrongPassword(password)) {
       return res.status(400).json({
         error: 'weak_password',
-        message: 'La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.',
+        message:
+          'La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.',
       });
     }
 
     // --- Verificar si el correo ya existe ---
-    const [exists] = await pool.query(`SELECT id FROM cliente WHERE email=?`, [email]);
+    const [exists] = await pool.query(
+      `SELECT id FROM cliente WHERE email=?`,
+      [email]
+    );
     if (exists.length > 0) {
-      return res.status(409).json({ error: 'email_in_use', message: 'Este correo ya está registrado.' });
+      return res.status(409).json({
+        error: 'email_in_use',
+        message: 'Este correo ya está registrado.',
+      });
     }
 
     // --- Insertar nuevo cliente ---
@@ -57,144 +70,184 @@ exports.registerCliente = async (req, res) => {
       [nombre, email, hash]
     );
 
-    // --- Crear token JWT ---
-    const token = jwt.sign(
-  {
-    sub: usr.id,
-    kind: "usuario",
-    rol: usr.rol.toLowerCase(),
-    email: usr.email,
-  },
-  process.env.JWT_SECRET,
-  { expiresIn: "8h" }
-);
+    // --- Crear objeto de usuario (reemplaza al "usr" inexistente) ---
+    const newUser = {
+      id: ins.insertId,
+      nombre,
+      email,
+      rol: 'CLIENTE',
+    };
 
+    // --- Crear token JWT coherente con el login ---
+    const token = jwt.sign(
+      {
+        sub: newUser.id,
+        kind: 'cliente',
+        rol: newUser.rol.toLowerCase(),
+        email: newUser.email,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '8h' }
+    );
+
+    // --- Log de registro exitoso ---
+    logger.info('REGISTRO_EXITOSO: Nuevo cliente registrado', {
+      clienteId: newUser.id,
+      email: newUser.email,
+    });
 
     res.status(201).json({
       token,
-      user: { id: ins.insertId, nombre, email, tipo: 'CLIENTE' },
+      user: {
+        id: newUser.id,
+        nombre: newUser.nombre,
+        email: newUser.email,
+        tipo: 'CLIENTE',
+      },
     });
   } catch (e) {
-    console.error('registerCliente', e);
-    res.status(500).json({ error: 'register_failed', message: 'Error interno del servidor.' });
+    logger.error('Error en registerCliente', {
+      message: e.message,
+      stack: e.stack,
+    });
+    res
+      .status(500)
+      .json({ error: 'register_failed', message: 'Error interno del servidor.' });
   }
 };
 
 // ========================================================
-// LOGIN UNIFICADO (CLIENTE Y USUARIO) 
+// LOGIN UNIFICADO (CLIENTE Y USUARIO)
 // ========================================================
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password)
-      return res.status(400).json({ error: 'missing_fields', message: 'Campos incompletos.' });
+      return res
+        .status(400)
+        .json({ error: 'missing_fields', message: 'Campos incompletos.' });
 
     // 1) Intentar como CLIENTE
     const [rows] = await pool.query(
-     `SELECT id, nombre, email, password_hash, nit_ci, zona, calle, numero_casa 
-   FROM cliente 
-   WHERE email=? LIMIT 1`,
+      `SELECT id, nombre, email, password_hash, nit_ci, zona, calle, numero_casa 
+       FROM cliente 
+       WHERE email=? LIMIT 1`,
       [email]
     );
 
     if (rows.length) {
       const cli = rows[0];
       const ok = await bcrypt.compare(password, cli.password_hash || '');
-      
+
       if (!ok) {
-        // --- TU LOG DE ERROR ---
-        logger.warn('LOGIN_FALLIDO: Contraseña incorrecta (Cliente)', { email, clienteId: cli.id });
-        return res.status(401).json({ error: 'invalid_credentials', message: 'Credenciales inválidas.' });
+        logger.warn('LOGIN_FALLIDO: Contraseña incorrecta (Cliente)', {
+          email,
+          clienteId: cli.id,
+        });
+        return res
+          .status(401)
+          .json({ error: 'invalid_credentials', message: 'Credenciales inválidas.' });
       }
 
-      // --- TU LOG DE ÉXITO ---
       const token = sign({ sub: cli.id, kind: 'cliente' });
-      logger.info('LOGIN_EXITOSO: Cliente autenticado', { clienteId: cli.id, email: cli.email });
-      
-      // return res.json({
-      //   token,
-      //   user: { id: cli.id, nombre: cli.nombre, email: cli.email, tipo: 'CLIENTE' },
-      // });
+      logger.info('LOGIN_EXITOSO: Cliente autenticado', {
+        clienteId: cli.id,
+        email: cli.email,
+      });
 
-return res.json({
-  token,
-  user: {
-    id: cli.id,
-    nombre: cli.nombre,
-    email: cli.email,
-    tipo: 'CLIENTE',
-    // ⬅️ CAMPOS AÑADIDOS
-    nit_ci: cli.nit_ci,
-    zona: cli.zona,
-    calle: cli.calle,
-    numero_casa: cli.numero_casa,
-  },
-});
-
+      return res.json({
+        token,
+        user: {
+          id: cli.id,
+          nombre: cli.nombre,
+          email: cli.email,
+          tipo: 'CLIENTE',
+          nit_ci: cli.nit_ci,
+          zona: cli.zona,
+          calle: cli.calle,
+          numero_casa: cli.numero_casa,
+        },
+      });
     }
 
-    // 2) Si no es cliente, intentar como USUARIO (LÓGICA DE TU COMPAÑERO)
+    // 2) Si no es cliente, intentar como USUARIO
     const [usrRows] = await pool.query(
       `SELECT id, nombre, email, password_hash, rol, activo
-          FROM usuario
-         WHERE email=? LIMIT 1`,
+       FROM usuario
+       WHERE email=? LIMIT 1`,
       [email]
     );
 
-    // Si NO se encuentra en NINGUNA tabla
     if (!usrRows.length) {
-      // --- TU LOG DE ERROR (CLIENTE NO ENCONTRADO) ---
       logger.warn('LOGIN_FALLIDO: Usuario/Cliente no encontrado', { email });
-      return res.status(401).json({ error: 'invalid_credentials', message: 'Credenciales inválidas.' });
+      return res
+        .status(401)
+        .json({ error: 'invalid_credentials', message: 'Credenciales inválidas.' });
     }
 
-    // --- USUARIO ENCONTRADO (LÓGICA DE TU COMPAÑERO) ---
     const usr = usrRows[0];
     if (usr.activo === 0) {
-      logger.warn('LOGIN_FALLIDO: Usuario inactivo', { email, usuarioId: usr.id });
-      return res.status(403).json({ error: 'user_inactive', message: 'Usuario inactivo.' });
+      logger.warn('LOGIN_FALLIDO: Usuario inactivo', {
+        email,
+        usuarioId: usr.id,
+      });
+      return res
+        .status(403)
+        .json({ error: 'user_inactive', message: 'Usuario inactivo.' });
     }
 
     const ok = await bcrypt.compare(password, usr.password_hash || '');
-    
     if (!ok) {
-      logger.warn('LOGIN_FALLIDO: Contraseña incorrecta (Usuario)', { email, usuarioId: usr.id });
-      return res.status(401).json({ error: 'invalid_credentials', message: 'Credenciales inválidas.' });
+      logger.warn('LOGIN_FALLIDO: Contraseña incorrecta (Usuario)', {
+        email,
+        usuarioId: usr.id,
+      });
+      return res
+        .status(401)
+        .json({ error: 'invalid_credentials', message: 'Credenciales inválidas.' });
     }
 
-    // --- ÉXITO PARA EL USUARIO (ADMIN) ---
     const token = sign({ sub: usr.id, kind: 'usuario', rol: usr.rol });
-    
-    logger.info('LOGIN_EXITOSO: Usuario interno autenticado', { usuarioId: usr.id, email: usr.email, rol: usr.rol });
+    logger.info('LOGIN_EXITOSO: Usuario interno autenticado', {
+      usuarioId: usr.id,
+      email: usr.email,
+      rol: usr.rol,
+    });
 
     return res.json({
       token,
-      user: { id: usr.id, nombre: usr.nombre, email: usr.email, tipo: usr.rol, rol: usr.rol },
+      user: {
+        id: usr.id,
+        nombre: usr.nombre,
+        email: usr.email,
+        tipo: usr.rol,
+        rol: usr.rol,
+      },
     });
-
   } catch (e) {
-    //LOG ERROR GENERAL
-    logger.error('Error interno en Login', { 
-      message: e.message, 
-      stack: e.stack, 
-      email: (req.body ? req.body.email : 'N/A')
+    logger.error('Error interno en Login', {
+      message: e.message,
+      stack: e.stack,
+      email: req.body ? req.body.email : 'N/A',
     });
-    res.status(500).json({ error: 'login_failed', message: 'Error interno del servidor.' });
+    res
+      .status(500)
+      .json({ error: 'login_failed', message: 'Error interno del servidor.' });
   }
 };
 
-// LOGOUT (SCRUM-103)
+// ========================================================
+// LOGOUT
+// ========================================================
 exports.logout = (req, res) => {
-  
   if (req.user) {
-    logger.info('LOGOUT: Sesión cerrada por el usuario', { 
-      userId: req.user.id, 
-      tipo: req.user.tipo 
+    logger.info('LOGOUT: Sesión cerrada por el usuario', {
+      userId: req.user.id,
+      tipo: req.user.tipo,
     });
   } else {
     logger.warn('LOGOUT: Intento de logout sin usuario identificado.');
   }
-  
-  // Respondemos al frontend que el log fue registrado
+
   res.status(200).json({ message: 'Logout registrado exitosamente.' });
 };

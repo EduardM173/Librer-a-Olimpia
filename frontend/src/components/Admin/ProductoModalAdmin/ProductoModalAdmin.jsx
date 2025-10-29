@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useAuth } from "../../../context/AuthContext";
-import "../../../pages/ClienteAdmin/ClienteAdmin.css"; 
+import "./ProductoModalAdmin.css";
 
-// Estado inicial para "Nuevo Producto"
 const initialState = {
   nombre: "",
   sku: "",
@@ -18,61 +17,52 @@ export default function ProductoModalAdmin({ producto, onClose, onSave }) {
   const { token } = useAuth();
   const [formData, setFormData] = useState(initialState);
   const [categorias, setCategorias] = useState([]);
-  
-  // Estados de carga
-  const [loadingSubmit, setLoadingSubmit] = useState(false); // Para el botón de Guardar
-  const [loadingData, setLoadingData] = useState(true);   // Para cargar datos al abrir
-  
+  const [imagenFile, setImagenFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState("");
+
+  const [loadingSubmit, setLoadingSubmit] = useState(false);
+  const [loadingData, setLoadingData] = useState(true);
   const [error, setError] = useState("");
 
   const isEdit = !!producto?.id;
 
-  // --- Cargar datos del Modal (Categorías y Detalles del Producto) ---
+  // --- Cargar categorías y producto ---
   useEffect(() => {
-    const loadModalData = async () => {
+    const loadData = async () => {
       if (!token) return;
-      
       setLoadingData(true);
       setError("");
-      
+
       try {
-        // 1. Siempre trae las categorías
-        // (Asegúrate de que el backend tenga esta ruta, ver paso 2)
-        const resCat = await axios.get(
-          "http://localhost:3000/api/products/categories"
-        );
+        const resCat = await axios.get("http://localhost:3000/api/products/categories");
         setCategorias(resCat.data || []);
 
-        // 2. Si es "Editar", busca los datos completos del producto
         if (isEdit) {
           const resProd = await axios.get(
             `http://localhost:3000/api/admin/products/${producto.id}`,
             { headers: { Authorization: `Bearer ${token}` } }
           );
-          // Rellena el formulario con los datos de la BD
-          setFormData(resProd.data); 
+          setFormData(resProd.data);
+          if (resProd.data.imagen_url)
+            setPreviewUrl(`http://localhost:5173${resProd.data.imagen_url}`);
         } else {
-          // Si es "Nuevo", asegura que el formulario esté vacío
           setFormData(initialState);
         }
-
       } catch (err) {
-        console.error("Error al cargar datos del modal", err);
-        if (err.config.url.includes('categories')) {
+        console.error("❌ Error al cargar datos:", err);
+        if (err.config?.url?.includes("categories")) {
           setError("No se pudieron cargar las categorías. (Verifica el backend)");
         } else {
-          setError("No se pudo cargar el detalle del producto.");
+          setError("Error al cargar el producto.");
         }
       } finally {
-        setLoadingData(false); // Termina la carga
+        setLoadingData(false);
       }
     };
-    
-    loadModalData();
-  }, [producto, isEdit, token]); // Se ejecuta cada vez que el 'producto' cambia
+    loadData();
+  }, [producto, isEdit, token]);
 
-  
-  // --- Handlers del formulario ---
+  // --- Manejar cambios de campos ---
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
@@ -81,182 +71,199 @@ export default function ProductoModalAdmin({ producto, onClose, onSave }) {
     }));
   };
 
-  // --- Submit ---
+  // --- Manejar imagen ---
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImagenFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
+  };
+
+  // --- Subir imagen y devolver la ruta ---
+  const uploadImage = async () => {
+    if (!imagenFile) return formData.imagen_url || "";
+    const form = new FormData();
+    form.append("imagen", imagenFile);
+
+    const res = await axios.post("http://localhost:3000/api/upload/image", form, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return res.data.imagePath; // /IMG/xxx.jpg
+  };
+
+  // --- Guardar producto ---
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (loadingSubmit || !token) return;
-
     setLoadingSubmit(true);
     setError("");
 
-    const dataToSend = {
-      ...formData,
-      precio_venta: Number(formData.precio_venta) || 0,
-      categoria_id: formData.categoria_id || null,
-      activo: formData.activo ? 1 : 0,
-    };
-    delete dataToSend.precio_costo; // Por si acaso
-    delete dataToSend.stock; // No enviamos el stock de vuelta
-
     try {
+      const imagePath = await uploadImage();
+      const dataToSend = {
+        ...formData,
+        precio_venta: Number(formData.precio_venta) || 0,
+        categoria_id: formData.categoria_id || null,
+        imagen_url: imagePath,
+        activo: formData.activo ? 1 : 0,
+      };
+      delete dataToSend.stock;
+
+      let response;
       if (isEdit) {
-        await axios.put(
+        response = await axios.put(
           `http://localhost:3000/api/admin/products/${producto.id}`,
           dataToSend,
           { headers: { Authorization: `Bearer ${token}` } }
         );
+        onSave({ ...dataToSend, id: producto.id });
       } else {
-        await axios.post(
+        response = await axios.post(
           "http://localhost:3000/api/admin/products",
           dataToSend,
           { headers: { Authorization: `Bearer ${token}` } }
         );
+        onSave({ ...dataToSend, id: response.data.id });
       }
-      onSave(); // Llama a onSave sin argumentos (la tabla se recarga sola)
-
     } catch (err) {
-      console.error("Error al guardar:", err);
+      console.error("❌ Error al guardar producto:", err);
       const msg = err.response?.data?.message || "Error al guardar.";
-      setError(msg.includes("SKU") ? "Error: Ese SKU ya está en uso." : msg);
+      setError(msg.includes("SKU") ? "Ese SKU ya está en uso." : msg);
     } finally {
       setLoadingSubmit(false);
     }
   };
 
+  // --- Render ---
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div
         className="modal-contenido"
         onClick={(e) => e.stopPropagation()}
-        style={{ width: "800px", maxWidth: "90%" }} 
       >
         <h2>{isEdit ? "Editar Producto" : "Nuevo Producto"}</h2>
 
-        {/* --- ESTADO DE CARGA --- */}
         {loadingData ? (
-          <p style={{textAlign: 'center', margin: '30px 0'}}>Cargando datos...</p>
+          <p style={{ textAlign: "center", margin: "30px 0" }}>Cargando datos...</p>
         ) : (
-        /* --- FORMULARIO --- */
-        <form onSubmit={handleSubmit}>
-          
-          {/* Fila 1: Nombre y SKU */}
-          <div className="form-row">
-            <div className="form-grupo">
-              <label htmlFor="nombre">Nombre</label>
-              <input
-                type="text"
-                id="nombre"
-                name="nombre"
-                value={formData.nombre}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div className="form-grupo">
-              <label htmlFor="sku">SKU</label>
-              <input
-                type="text"
-                id="sku"
-                name="sku"
-                value={formData.sku}
-                onChange={handleChange}
-                required
-              />
-            </div>
-          </div>
-
-          {/* Fila 2: Descripción */}
-          <div className="form-grupo" style={{ marginBottom: "16px" }}>
-            <label htmlFor="descripcion">Descripción</label>
-            <textarea
-              id="descripcion"
-              name="descripcion"
-              rows="3"
-              value={formData.descripcion || ""}
-              onChange={handleChange}
-            ></textarea>
-          </div>
-
-          {/* Fila 3: Categoría y Venta */}
-          <div className="form-row">
-            <div className="form-grupo">
-              <label htmlFor="categoria_id">Categoría</label>
-              <select
-                id="categoria_id"
-                name="categoria_id"
-                // Asegura que el valor sea string para el <select>
-                value={formData.categoria_id || ""} 
-                onChange={handleChange}
-                className="modal-select"
-              >
-                <option value="">-- Sin Categoría --</option>
-                {categorias.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.nombre}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="form-grupo">
-              <label htmlFor="precio_venta">Precio Venta (Bs)</label>
-              <input
-                type="number"
-                step="0.01"
-                id="precio_venta"
-                name="precio_venta"
-                value={formData.precio_venta}
-                onChange={handleChange}
-                required
-              />
-            </div>
-          </div>
-
-          {/* Fila 4: Imagen y Estado */}
-          <div className="form-row">
-            <div className="form-grupo" style={{ flexGrow: 3 }}>
-              <label htmlFor="imagen_url">URL de Imagen</label>
-              <input
-                type="text"
-                id="imagen_url"
-                name="imagen_url"
-                value={formData.imagen_url || ""}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="form-grupo-checkbox">
-              <label htmlFor="activo">
+          <form onSubmit={handleSubmit}>
+            <div className="form-row">
+              <div className="form-grupo">
+                <label>Nombre</label>
                 <input
-                  type="checkbox"
-                  id="activo"
-                  name="activo"
-                  checked={formData.activo == 1}
+                  name="nombre"
+                  value={formData.nombre}
                   onChange={handleChange}
+                  required
                 />
-                Activo
-              </label>
+              </div>
+              <div className="form-grupo">
+                <label>SKU</label>
+                <input
+                  name="sku"
+                  value={formData.sku}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
             </div>
-          </div>
 
-          {/* Fila 5: Botones y Errores */}
-          <div className="modal-botones" style={{ marginTop: "20px" }}>
-            {error && <p className="form-error">{error}</p>}
-            <button
-              type="button"
-              className="editar-btn btn-cancelar"
-              onClick={onClose}
-              disabled={loadingSubmit}
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              className="editar-btn"
-              disabled={loadingSubmit}
-            >
-              {loadingSubmit ? "Guardando..." : "Guardar"}
-            </button>
-          </div>
-        </form>
+            <div className="form-grupo">
+              <label>Descripción</label>
+              <textarea
+                name="descripcion"
+                rows="3"
+                value={formData.descripcion || ""}
+                onChange={handleChange}
+              ></textarea>
+            </div>
+
+            <div className="form-row">
+              <div className="form-grupo">
+                <label>Categoría</label>
+                <select
+                  name="categoria_id"
+                  value={formData.categoria_id || ""}
+                  onChange={handleChange}
+                >
+                  <option value="">-- Sin Categoría --</option>
+                  {categorias.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.nombre}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="form-grupo">
+                <label>Precio Venta (Bs)</label>
+                <input
+                  type="number"
+                  name="precio_venta"
+                  step="0.01"
+                  value={formData.precio_venta}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            </div>
+
+            {/* === Campo de imagen mejorado === */}
+            <div className="form-row">
+              <div className="form-grupo" style={{ flexGrow: 3 }}>
+                <label>Imagen del producto</label>
+                <div className="input-imagen">
+                  <label htmlFor="imagen">Elegir imagen</label>
+                  <input
+                    id="imagen"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                  />
+                  <span>{imagenFile ? imagenFile.name : "Ningún archivo seleccionado"}</span>
+                </div>
+
+                {previewUrl && (
+                  <img
+                    src={previewUrl}
+                    alt="preview"
+                  />
+                )}
+              </div>
+
+              <div className="form-grupo-checkbox">
+                <label>
+                  <input
+                    type="checkbox"
+                    name="activo"
+                    checked={formData.activo == 1}
+                    onChange={handleChange}
+                  />
+                  Activo
+                </label>
+              </div>
+            </div>
+
+            {/* === Botones === */}
+            <div className="modal-botones">
+              {error && <p className="form-error">{error}</p>}
+              <button
+                type="button"
+                onClick={onClose}
+                disabled={loadingSubmit}
+                className="boton boton-cancelar"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                disabled={loadingSubmit}
+                className="boton"
+              >
+                {loadingSubmit ? "Guardando..." : "Guardar"}
+              </button>
+            </div>
+          </form>
         )}
       </div>
     </div>

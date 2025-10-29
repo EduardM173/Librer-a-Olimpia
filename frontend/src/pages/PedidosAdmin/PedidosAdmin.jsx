@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import Swal from "sweetalert2/dist/sweetalert2.all.js"; // ✅ import elegante
 import "./PedidosAdmin.css";
 import PedidoModal from "../../components/PedidoModal/PedidoModal.jsx";
 import { useAuth } from "../../context/AuthContext";
@@ -29,10 +30,23 @@ export default function PedidosAdmin() {
       });
       setPedidos(res.data);
       setError("");
+      Swal.fire({
+        title: "📦 Pedidos actualizados",
+        text: "La lista de pedidos se cargó correctamente.",
+        icon: "success",
+        timer: 1800,
+        showConfirmButton: false,
+      });
     } catch (err) {
       if (err.response?.status === 403)
         setError("No tienes permisos para ver los pedidos.");
       else setError("Error al cargar los pedidos. Intenta nuevamente.");
+      Swal.fire({
+        title: "❌ Error al cargar pedidos",
+        text: "No se pudieron obtener los datos desde el servidor.",
+        icon: "error",
+        confirmButtonColor: "#d33",
+      });
     }
   };
 
@@ -43,6 +57,15 @@ export default function PedidosAdmin() {
         p.id === pedidoActualizado.id ? { ...p, estado: pedidoActualizado.estado } : p
       )
     );
+
+    Swal.fire({
+      title: "✅ Pedido actualizado",
+      text: `El estado del pedido #${pedidoActualizado.id} se actualizó a "${pedidoActualizado.estado}".`,
+      icon: "success",
+      confirmButtonColor: "#3085d6",
+      timer: 2000,
+      showConfirmButton: false,
+    });
   };
 
   // ===== Filtrar pedidos =====
@@ -75,6 +98,12 @@ export default function PedidosAdmin() {
       setMostrarModal(true);
     } catch {
       setError("No se pudo cargar el detalle del pedido.");
+      Swal.fire({
+        title: "⚠️ Error",
+        text: "No se pudo cargar el detalle del pedido.",
+        icon: "warning",
+        confirmButtonColor: "#d33",
+      });
     }
   };
 
@@ -115,7 +144,19 @@ export default function PedidosAdmin() {
               <option value="CANCELADO">Cancelado</option>
             </select>
 
-            <button onClick={obtenerPedidos}>Actualizar</button>
+            <button
+              onClick={obtenerPedidos}
+              className="btn-actualizar"
+              style={{
+                background: "#3085d6",
+                color: "#fff",
+                border: "none",
+                borderRadius: "8px",
+                padding: "6px 12px",
+              }}
+            >
+              🔄 Actualizar
+            </button>
           </div>
 
           <table className="tabla">

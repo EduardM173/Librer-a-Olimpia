@@ -1,5 +1,7 @@
+// ===========================================
+//  CONTROLADOR DE PRODUCTOS - Librería Olimpia
+// ===========================================
 const pool = require('../config/db');
-const productsService = require('../services/products.service');
 
 // =============================
 //  Obtener lista de productos
@@ -14,20 +16,28 @@ exports.getProducts = async (req, res) => {
     const where = ['p.activo = 1'];
     const params = [];
 
-    if (categoryId) { where.push('p.categoria_id = ?'); params.push(categoryId); }
-    if (search) { where.push('(p.nombre LIKE ? OR p.sku LIKE ?)'); params.push(`%${search}%`, `%${search}%`); }
+    if (categoryId) {
+      where.push('p.categoria_id = ?');
+      params.push(categoryId);
+    }
+
+    if (search) {
+      where.push('(p.nombre LIKE ? OR p.sku LIKE ?)');
+      params.push(`%${search}%`, `%${search}%`);
+    }
 
     const whereSQL = where.length ? `WHERE ${where.join(' AND ')}` : '';
 
-    // total
+    // Total de productos activos
     const [tot] = await pool.query(
-      `SELECT COUNT(*) AS total FROM producto p ${whereSQL}`, params
+      `SELECT COUNT(*) AS total FROM producto p ${whereSQL}`,
+      params
     );
     const total = tot[0]?.total || 0;
 
     const offset = (page - 1) * pageSize;
 
-    // ✅ Incluimos descripción
+    // ✅ Consulta principal con joins
     const [rows] = await pool.query(
       `
       SELECT 
@@ -59,28 +69,32 @@ exports.getProducts = async (req, res) => {
       agotado: r.stock <= 0 || r.activo === 0
     }));
 
-    res.json({
-      items,
-      meta: { page, pageSize, total }
-    });
+    res.json({ items, meta: { page, pageSize, total } });
   } catch (e) {
     console.error('❌ Error en getProducts:', e.message);
-    res.status(500).json({ error: 'products_failed' });
+    res.status(500).json({ error: 'products_failed', message: e.message });
   }
 };
 
 // =============================
-//  Obtener categorías
+//  Obtener categorías (para modal o catálogo)
 // =============================
-
 exports.getCategories = async (req, res) => {
   try {
-    // Usamos la función que ya existe en tu servicio
-    const categories = await productsService.listCategories();
-    res.json(categories);
+    const [rows] = await pool.query(`
+      SELECT id, nombre
+      FROM categoria
+      ORDER BY nombre ASC
+    `);
+
+    // Si no hay categorías, devolver lista vacía (no error)
+    res.json(rows || []);
   } catch (error) {
-    console.error('Error al obtener categorías:', error);
-    res.status(500).json({ error: 'server_error', message: 'Error al obtener categorías' });
+    console.error('❌ Error al obtener categorías:', error);
+    res.status(500).json({
+      error: 'server_error',
+      message: 'Error al obtener categorías desde la base de datos.',
+    });
   }
 };
 
@@ -90,9 +104,10 @@ exports.getCategories = async (req, res) => {
 exports.getProductById = async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    if (isNaN(id)) return res.status(400).json({ error: 'invalid_id' });
+    if (isNaN(id)) {
+      return res.status(400).json({ error: 'invalid_id', message: 'El ID de producto no es válido.' });
+    }
 
-    // ✅ Incluimos descripción
     const [rows] = await pool.query(
       `
       SELECT 
@@ -115,7 +130,9 @@ exports.getProductById = async (req, res) => {
       [id]
     );
 
-    if (!rows.length) return res.status(404).json({ error: 'not_found' });
+    if (!rows.length) {
+      return res.status(404).json({ error: 'not_found', message: 'Producto no encontrado.' });
+    }
 
     const r = rows[0];
     res.json({
@@ -127,10 +144,10 @@ exports.getProductById = async (req, res) => {
       imagen: r.imagen_url || '/IMG/placeholder-producto.jpg',
       agotado: r.stock <= 0 || r.activo === 0,
       stock: r.stock,
-      popularidad: r.popularity
+      popularidad: r.popularity,
     });
   } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: 'product_detail_failed' });
+    console.error('❌ Error en getProductById:', e.message);
+    res.status(500).json({ error: 'product_detail_failed', message: e.message });
   }
 };
