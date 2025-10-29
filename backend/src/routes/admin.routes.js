@@ -1,30 +1,22 @@
+// routes/admin.products.routes.js
 const express = require('express');
 const router = express.Router();
 
-// Middlewares de autenticación
-const auth = require('../middlewares/auth'); 
-const authAdmin = require('../middlewares/authAdmin'); 
+const auth = require('../middlewares/auth');
+const authAdmin = require('../middlewares/authAdmin');
+const ctrl = require('../controllers/admin.products.controller');
 
-// Controlador
-const adminProducts = require('../controllers/admin.products.controller');
-
-
-// (Aplica ambos middlewares a todas las rutas de este router)
+// 🧱 Middleware global: solo admins autenticados
 router.use(auth, authAdmin);
 
-// GET /api/admin/products (Lista para el panel)
-router.get('/products', adminProducts.getAdminProducts);
+// 🔹 CRUD principal
+router.get('/products', ctrl.getAdminProducts);
+router.get('/products/:id', ctrl.getAdminProductById);
+router.post('/products', ctrl.createProduct);
+router.put('/products/:id', ctrl.updateProduct);
+router.delete('/products/:id', ctrl.deleteProduct);
 
-// POST /api/admin/products (Crear)
-router.post('/products', adminProducts.createProduct);
-
-// GET /api/admin/products/:id (Detalle para editar)
-router.get('/products/:id', adminProducts.getAdminProductById);
-
-// PUT /api/admin/products/:id (Actualizar)
-router.put('/products/:id', adminProducts.updateProduct);
-
-// DELETE /api/admin/products/:id (Desactivar)
-router.delete('/products/:id', adminProducts.deleteProduct);
+// 🔹 Endpoint específico para cambiar estado (activar/desactivar)
+router.patch('/products/:id/estado', ctrl.toggleEstado);
 
 module.exports = router;

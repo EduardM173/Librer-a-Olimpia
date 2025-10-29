@@ -14,7 +14,7 @@ export default function ProductosAdmin() {
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
   const [mostrarModal, setMostrarModal] = useState(false);
 
-  // --- Carga de datos ---
+  // --- Cargar lista de productos ---
   const fetchProductos = async () => {
     if (!token) return;
     try {
@@ -23,13 +23,12 @@ export default function ProductosAdmin() {
       const res = await axios.get("http://localhost:3000/api/admin/products", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      // La API devuelve { items: [...], meta: {...} }
       setProductos(res.data.items || []);
     } catch (err) {
-      console.error(err);
+      console.error("❌ Error cargando productos:", err);
       setError(
         err.response?.status === 403
-          ? "No tienes permisos."
+          ? "No tienes permisos para acceder al panel de productos."
           : "Error al cargar productos."
       );
     } finally {
@@ -41,7 +40,7 @@ export default function ProductosAdmin() {
     fetchProductos();
   }, [token]);
 
-  // --- Filtrado (lado del cliente) ---
+  // --- Filtro en memoria ---
   const productosFiltrados = useMemo(() => {
     const busqueda = filtroBusqueda.toLowerCase();
     if (!busqueda) return productos;
@@ -52,69 +51,67 @@ export default function ProductosAdmin() {
     );
   }, [productos, filtroBusqueda]);
 
-  // --- Handlers ---
+  // --- Nuevo producto ---
   const handleNuevo = () => {
-    setProductoSeleccionado(null); // 'null' indica que es "Nuevo"
+    setProductoSeleccionado(null);
     setMostrarModal(true);
   };
 
+  // --- Editar producto ---
   const handleEditar = (producto) => {
     setProductoSeleccionado(producto);
     setMostrarModal(true);
   };
 
+  // --- Activar / Desactivar producto ---
   const handleActivarDesactivar = async (producto, activar) => {
-    if (
-      !window.confirm(
-        `¿Seguro que quieres ${activar ? "ACTIVAR" : "DESACTIVAR"} el producto "${producto.nombre}"?`
-      )
-    )
-      return;
+    const confirmacion = window.confirm(
+      `¿Seguro que deseas ${activar ? "ACTIVAR" : "DESACTIVAR"} el producto "${producto.nombre}"?`
+    );
+    if (!confirmacion) return;
 
     try {
       await axios.put(
         `http://localhost:3000/api/admin/products/${producto.id}`,
-        { ...producto, activo: activar ? 1 : 0 }, // Solo cambiamos el estado 'activo'
+        { ...producto, activo: activar ? 1 : 0 },
         { headers: { Authorization: `Bearer ${token}` } }
       );
+
+      // Actualiza en memoria
       setProductos((prev) =>
         prev.map((p) =>
           p.id === producto.id ? { ...p, activo: activar ? 1 : 0 } : p
         )
       );
-    // eslint-disable-next-line no-unused-vars
     } catch (err) {
-      setError(
-        `Error al ${activar ? "activar" : "desactivar"} el producto.`
-      );
+      console.error("❌ Error al cambiar estado:", err);
+      setError(`Error al ${activar ? "activar" : "desactivar"} el producto.`);
     }
   };
 
-  // --- Handlers del Modal ---
+  // --- Cerrar modal ---
   const handleCloseModal = () => {
     setMostrarModal(false);
     setProductoSeleccionado(null);
   };
 
-  // Callback cuando el modal guarda (crea o edita)
+  // --- Guardar cambios desde modal ---
   const onSaveProducto = (productoGuardado) => {
     if (productoSeleccionado) {
-      // Editando
+      // Edición
       setProductos((prev) =>
         prev.map((p) =>
           p.id === productoGuardado.id ? { ...p, ...productoGuardado } : p
         )
       );
     } else {
-      // Creando
-      // NOTA: El productoGuardado (nuevo) no tiene "stock" o "categoria" (nombre)
-      // Lo ideal es recargar, pero por UX lo agregamos al inicio
+      // Nuevo
       setProductos((prev) => [productoGuardado, ...prev]);
-      // Opcionalmente, recarga todo: fetchProductos();
     }
     handleCloseModal();
   };
 
+  // --- Render principal ---
   return (
     <div className="cliente-admin-container">
       <h1 className="titulo">Gestión de Productos</h1>
@@ -143,7 +140,7 @@ export default function ProductosAdmin() {
               <th>Nombre</th>
               <th>Categoría</th>
               <th>Stock</th>
-              <th>Precio Venta</th>
+              <th>Precio Venta (Bs)</th>
               <th>Estado</th>
               <th>Acciones</th>
             </tr>
@@ -155,8 +152,7 @@ export default function ProductosAdmin() {
                 <td>{p.nombre}</td>
                 <td>{p.categoria || "N/A"}</td>
                 <td>{p.stock}</td>
-                <td>Bs {Number(p.precio_venta).toFixed(2)}</td>
-                
+                <td>Bs {Number(p.precio_venta || 0).toFixed(2)}</td>
                 <td>
                   {p.activo ? (
                     <span className="badge-activo">Activo</span>
@@ -171,6 +167,7 @@ export default function ProductosAdmin() {
                   >
                     Editar
                   </button>
+
                   {p.activo === 1 ? (
                     <button
                       className="editar-btn btn-desactivar"
@@ -180,7 +177,7 @@ export default function ProductosAdmin() {
                     </button>
                   ) : (
                     <button
-                      className="editar-btn btn-activar" 
+                      className="editar-btn btn-activar"
                       onClick={() => handleActivarDesactivar(p, true)}
                     >
                       Activar
