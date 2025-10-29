@@ -1,17 +1,39 @@
-import React, { useState, useEffect } from 'react';
-import './ProfilePage.css';
-import { useAuth } from '../../context/AuthContext'; // Asumo que `useAuth` proporciona el token si es necesario
+import React, { useState, useEffect } from "react";
+import "./ProfilePage.css";
+import { useAuth } from "../../context/AuthContext";
 
 export default function ProfilePage() {
-  const { user, token } = useAuth(); // Asumo que useAuth también provee el token
+  const { user, token, setUser } = useAuth(); // ✅ asegúrate de tener setUser en el contexto
   const [pedidos, setPedidos] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Datos de dirección aún no ligados al backend (estático por ahora)
-  const direccion = { zona: '—', calle: '—', numero: '—' };
+  // 🔹 Efecto 1: actualizar los datos del usuario desde el backend
+  useEffect(() => {
+    async function fetchUserData() {
+      if (!token) return;
 
-  // 1. Efecto para cargar los pedidos
+      try {
+        const res = await fetch("/api/clientes/me", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (!res.ok) throw new Error("No se pudo obtener el perfil del cliente");
+
+        const freshUser = await res.json();
+        console.log("♻️ Datos actualizados del cliente:", freshUser);
+
+        // ✅ Actualizamos el usuario en el contexto global
+        if (setUser) setUser((prev) => ({ ...prev, ...freshUser }));
+      } catch (e) {
+        console.error("Error al refrescar perfil:", e);
+      }
+    }
+
+    fetchUserData();
+  }, [token]);
+
+  // 🔹 Efecto 2: cargar pedidos
   useEffect(() => {
     async function fetchOrders() {
       if (!token) {
@@ -21,58 +43,43 @@ export default function ProfilePage() {
       }
 
       try {
-        console.log("🗿🔥1");
-        const response = await fetch('/api/orders', { // Ajusta la ruta si es necesario
-        
+        const response = await fetch("/api/orders", {
           headers: {
-            
-            'Authorization': `Bearer ${token}`, // Envía el token de autenticación
-            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
-          
         });
-        console.log("🗿🔥2");
-        if (!response.ok) {
-          throw new Error(`Error al cargar pedidos: ${response.statusText}`);
-          console.log("🗿🔥3");
-        }
-        
+
+        if (!response.ok) throw new Error("Error al cargar pedidos");
+
         const data = await response.json();
-        console.log("🗿🔥4");
-        console.log(data);
         setPedidos(data);
       } catch (err) {
         console.error("Error fetching orders:", err);
-        setError("No se pudieron cargar los pedidos. Intenta de nuevo más tarde.");
+        setError("No se pudieron cargar los pedidos. Intenta más tarde.");
       } finally {
         setIsLoading(false);
       }
     }
 
     fetchOrders();
-  }, [token]); // Se ejecuta cuando el componente se monta o el token cambia
+  }, [token]);
 
-  // Función para formatear la fecha
- // ProfilePage.jsx
+  // 🔹 Formateo de fechas
+  const formatDate = (dateString) => {
+    try {
+      return new Date(dateString).toLocaleDateString("es-ES", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      });
+    } catch (e) {
+      console.error("Error al formatear fecha:", e);
+      return dateString;
+    }
+  };
 
-// Función para formatear la fecha (COMPLETA)
-  const formatDate = (dateString) => {
-    try {
-      const options = {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-      };
-      // Utilizamos toLocaleDateString con la zona horaria UTC para evitar problemas de desfase
-      return new Date(dateString).toLocaleDateString('es-ES', options);
-    } catch (e) {
-      console.error("Error al formatear fecha:", e);
-      return dateString; // Retorna la original si falla
-    }
-  };
-
-
-  // Función para renderizar un solo pedido (DRY)
+  // 🔹 Componente de pedido
   const PedidoItem = ({ pedido }) => (
     <article className="pedido-item">
       <div className="pedido-thumb" />
@@ -81,50 +88,47 @@ export default function ProfilePage() {
           <strong>Nro Pedido</strong> #{pedido.id}
         </div>
         <div>
-          Estado: <strong>{pedido.estado || 'Desconocido'}</strong>
+          Estado: <strong>{pedido.estado || "Desconocido"}</strong>
         </div>
         <div>
-          Fecha: 
-          <span className="fecha-pedido">{formatDate(pedido.fecha)}</span> 
-          Total:{" "}
-          <strong>Bs {pedido.total || '0.00'}</strong>
+          Fecha:
+          <span className="fecha-pedido">{formatDate(pedido.fecha)}</span>
+          Total: <strong>Bs {pedido.total || "0.00"}</strong>
         </div>
-        {/* Aquí puedes enlazar a la vista de detalles del pedido si existe */}
         <button className="pedido-btn">Ver detalles</button>
       </div>
     </article>
   );
-  console.log("UsuarioRecibido🤗🎺❤:", user);
+
+  // 🔹 Render
   return (
     <div className="ProfilePage">
       <div className="perfil-grid">
-        {/* Columna izquierda: información personal */}
         <section className="perfil-card perfil-personal">
           <h2>Mi información personal</h2>
+
           <div className="perfil-row">
-            <span>Nombre:</span> <strong>{user?.nombre || '—'}</strong>
+            <span>Nombre:</span> <strong>{user?.nombre || "—"}</strong>
           </div>
           <div className="perfil-row">
             <span>Correo electrónico:</span>{" "}
-            <strong>{user?.email || '—'}</strong>
-          </div>
-          <div className="perfil-row">
-            {/* <span>Nro Celular:</span> <strong>HOLA🥶🔥🔥</strong> */}
+            <strong>{user?.email || "—"}</strong>
           </div>
 
           <h3>Dirección</h3>
           <div className="perfil-row">
-            <span>Zona:</span> <strong>{user?.zona}</strong>
+            <span>Zona:</span> <strong>{user?.zona || "—"}</strong>
           </div>
           <div className="perfil-row">
-            <span>Calle:</span> <strong>{user?.calle}</strong>
+            <span>Calle:</span> <strong>{user?.calle || "—"}</strong>
           </div>
           <div className="perfil-row">
-            <span>Nro Vivienda:</span> <strong>{user?.numero_casa}</strong>
+            <span>Nro Vivienda:</span>{" "}
+            <strong>{user?.numero_casa || "—"}</strong>
           </div>
         </section>
 
-        
+        {/* Pedidos (descomenta si quieres mostrar) */}
         {/* <section className="perfil-card perfil-pedidos">
           <h2>Mis pedidos</h2>
 
@@ -135,7 +139,6 @@ export default function ProfilePage() {
             <div className="pedidos-list">
               {pedidos.length > 0 ? (
                 pedidos.map((pedido) => (
-                  // 4. Renderizado dinámico de la lista de pedidos
                   <PedidoItem key={pedido.id} pedido={pedido} />
                 ))
               ) : (
