@@ -1,106 +1,103 @@
 import React, { useState, useEffect } from "react";
 import "./ProfilePage.css";
 import { useAuth } from "../../context/AuthContext";
+import Swal from "sweetalert2";
 
 export default function ProfilePage() {
-  const { user, token, setUser } = useAuth(); // ✅ asegúrate de tener setUser en el contexto
-  const [pedidos, setPedidos] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { user, token, setUser } = useAuth();
+  const [formData, setFormData] = useState({
+    nit_ci: "",
+    zona: "",
+    calle: "",
+    numero_casa: "",
+  });
+  const [editMode, setEditMode] = useState(false);
+  const [saving, setSaving] = useState(false);
 
-  // 🔹 Efecto 1: actualizar los datos del usuario desde el backend
+  // 🔹 Cargar datos actuales
   useEffect(() => {
-    async function fetchUserData() {
-      if (!token) return;
-
-      try {
-        const res = await fetch("/api/clientes/me", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (!res.ok) throw new Error("No se pudo obtener el perfil del cliente");
-
-        const freshUser = await res.json();
-        console.log("♻️ Datos actualizados del cliente:", freshUser);
-
-        // ✅ Actualizamos el usuario en el contexto global
-        if (setUser) setUser((prev) => ({ ...prev, ...freshUser }));
-      } catch (e) {
-        console.error("Error al refrescar perfil:", e);
-      }
-    }
-
-    fetchUserData();
-  }, [token]);
-
-  // 🔹 Efecto 2: cargar pedidos
-  useEffect(() => {
-    async function fetchOrders() {
-      if (!token) {
-        setIsLoading(false);
-        setError("Usuario no autenticado.");
-        return;
-      }
-
-      try {
-        const response = await fetch("/api/orders", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (!response.ok) throw new Error("Error al cargar pedidos");
-
-        const data = await response.json();
-        setPedidos(data);
-      } catch (err) {
-        console.error("Error fetching orders:", err);
-        setError("No se pudieron cargar los pedidos. Intenta más tarde.");
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    fetchOrders();
-  }, [token]);
-
-  // 🔹 Formateo de fechas
-  const formatDate = (dateString) => {
-    try {
-      return new Date(dateString).toLocaleDateString("es-ES", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
+    if (user) {
+      setFormData({
+        nit_ci: user.nit_ci || "",
+        zona: user.zona || "",
+        calle: user.calle || "",
+        numero_casa: user.numero_casa || "",
       });
-    } catch (e) {
-      console.error("Error al formatear fecha:", e);
-      return dateString;
+    }
+  }, [user]);
+
+  // 🔹 Cambiar valores
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // 🔹 Validar antes de guardar
+  const validateForm = () => {
+    if (formData.nit_ci && !/^[0-9]+$/.test(formData.nit_ci)) {
+      Swal.fire("Error", "El NIT/CI solo debe contener números.", "error");
+      return false;
+    }
+    if (formData.zona.trim().length < 3) {
+      Swal.fire("Error", "La zona debe tener al menos 3 caracteres.", "error");
+      return false;
+    }
+    if (formData.calle.trim().length < 3) {
+      Swal.fire("Error", "La calle debe tener al menos 3 caracteres.", "error");
+      return false;
+    }
+    return true;
+  };
+
+  // 🔹 Guardar cambios (solo al presionar “Guardar cambios”)
+  const handleSave = async () => {
+    if (!token) return Swal.fire("Error", "No estás autenticado.", "error");
+    if (!validateForm()) return;
+
+    setSaving(true);
+    try {
+      const res = await fetch("http://localhost:3000/api/clientes/me", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Error al actualizar datos.");
+
+      setUser((prev) => ({ ...prev, ...data.cliente }));
+
+      Swal.fire({
+        icon: "success",
+        title: "✅ Datos actualizados",
+        text: "Tus cambios se guardaron correctamente.",
+        timer: 1800,
+        showConfirmButton: false,
+      });
+
+      setEditMode(false);
+    } catch (err) {
+      console.error("❌ Error actualizando perfil:", err);
+      Swal.fire("Error", "No se pudieron guardar los cambios.", "error");
+    } finally {
+      setSaving(false);
     }
   };
 
-  // 🔹 Componente de pedido
-  const PedidoItem = ({ pedido }) => (
-    <article className="pedido-item">
-      <div className="pedido-thumb" />
-      <div className="pedido-info">
-        <div>
-          <strong>Nro Pedido</strong> #{pedido.id}
-        </div>
-        <div>
-          Estado: <strong>{pedido.estado || "Desconocido"}</strong>
-        </div>
-        <div>
-          Fecha:
-          <span className="fecha-pedido">{formatDate(pedido.fecha)}</span>
-          Total: <strong>Bs {pedido.total || "0.00"}</strong>
-        </div>
-        <button className="pedido-btn">Ver detalles</button>
-      </div>
-    </article>
-  );
+  // 🔹 Cancelar edición
+  const handleCancel = () => {
+    setEditMode(false);
+    setFormData({
+      nit_ci: user.nit_ci || "",
+      zona: user.zona || "",
+      calle: user.calle || "",
+      numero_casa: user.numero_casa || "",
+    });
+  };
 
-  // 🔹 Render
   return (
     <div className="ProfilePage">
       <div className="perfil-grid">
@@ -111,42 +108,79 @@ export default function ProfilePage() {
             <span>Nombre:</span> <strong>{user?.nombre || "—"}</strong>
           </div>
           <div className="perfil-row">
-            <span>Correo electrónico:</span>{" "}
-            <strong>{user?.email || "—"}</strong>
+            <span>Correo:</span> <strong>{user?.email || "—"}</strong>
+          </div>
+
+          <h3>Datos de facturación</h3>
+
+          {/* --- Campos editables --- */}
+          <div className="perfil-row">
+            <label>NIT / CI:</label>
+            {editMode ? (
+              <input
+                name="nit_ci"
+                value={formData.nit_ci}
+                onChange={handleChange}
+                placeholder="Ej. 12345678"
+              />
+            ) : (
+              <strong>{user?.nit_ci || "—"}</strong>
+            )}
           </div>
 
           <h3>Dirección</h3>
-          <div className="perfil-row">
-            <span>Zona:</span> <strong>{user?.zona || "—"}</strong>
-          </div>
-          <div className="perfil-row">
-            <span>Calle:</span> <strong>{user?.calle || "—"}</strong>
-          </div>
-          <div className="perfil-row">
-            <span>Nro Vivienda:</span>{" "}
-            <strong>{user?.numero_casa || "—"}</strong>
-          </div>
-        </section>
-
-        {/* Pedidos (descomenta si quieres mostrar) */}
-        {/* <section className="perfil-card perfil-pedidos">
-          <h2>Mis pedidos</h2>
-
-          {isLoading && <p>Cargando pedidos...</p>}
-          {error && <p className="error-message">❌ {error}</p>}
-
-          {!isLoading && !error && (
-            <div className="pedidos-list">
-              {pedidos.length > 0 ? (
-                pedidos.map((pedido) => (
-                  <PedidoItem key={pedido.id} pedido={pedido} />
-                ))
+          {["zona", "calle", "numero_casa"].map((field) => (
+            <div className="perfil-row" key={field}>
+              <label>
+                {field === "numero_casa"
+                  ? "Nro Vivienda"
+                  : field.charAt(0).toUpperCase() + field.slice(1)}
+                :
+              </label>
+              {editMode ? (
+                <input
+                  name={field}
+                  value={formData[field]}
+                  onChange={handleChange}
+                  placeholder={`Ingrese ${field}`}
+                />
               ) : (
-                <p>Aún no tienes pedidos registrados.</p>
+                <strong>{user?.[field] || "—"}</strong>
               )}
             </div>
-          )}
-        </section> */}
+          ))}
+
+          {/* --- Botones de acción --- */}
+          <div className="perfil-actions">
+            {!editMode ? (
+              <button
+                type="button"
+                className="btn-edit"
+                onClick={() => setEditMode(true)}
+              >
+                ✏️ Editar
+              </button>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  className="btn-save"
+                  onClick={handleSave}
+                  disabled={saving}
+                >
+                  💾 {saving ? "Guardando..." : "Guardar cambios"}
+                </button>
+                <button
+                  type="button"
+                  className="btn-cancel"
+                  onClick={handleCancel}
+                >
+                  ❌ Cancelar
+                </button>
+              </>
+            )}
+          </div>
+        </section>
       </div>
     </div>
   );
