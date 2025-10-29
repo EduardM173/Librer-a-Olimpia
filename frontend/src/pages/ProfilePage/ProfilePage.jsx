@@ -1,149 +1,186 @@
-import React, { useState, useEffect } from 'react';
-import './ProfilePage.css';
-import { useAuth } from '../../context/AuthContext'; // Asumo que `useAuth` proporciona el token si es necesario
+import React, { useState, useEffect } from "react";
+import "./ProfilePage.css";
+import { useAuth } from "../../context/AuthContext";
+import Swal from "sweetalert2";
 
 export default function ProfilePage() {
-  const { user, token } = useAuth(); // Asumo que useAuth también provee el token
-  const [pedidos, setPedidos] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { user, token, setUser } = useAuth();
+  const [formData, setFormData] = useState({
+    nit_ci: "",
+    zona: "",
+    calle: "",
+    numero_casa: "",
+  });
+  const [editMode, setEditMode] = useState(false);
+  const [saving, setSaving] = useState(false);
 
-  // Datos de dirección aún no ligados al backend (estático por ahora)
-  const direccion = { zona: '—', calle: '—', numero: '—' };
-
-  // 1. Efecto para cargar los pedidos
+  // 🔹 Cargar datos actuales
   useEffect(() => {
-    async function fetchOrders() {
-      if (!token) {
-        setIsLoading(false);
-        setError("Usuario no autenticado.");
-        return;
-      }
-
-      try {
-        console.log("🗿🔥1");
-        const response = await fetch('/api/orders', { // Ajusta la ruta si es necesario
-        
-          headers: {
-            
-            'Authorization': `Bearer ${token}`, // Envía el token de autenticación
-            'Content-Type': 'application/json',
-          },
-          
-        });
-        console.log("🗿🔥2");
-        if (!response.ok) {
-          throw new Error(`Error al cargar pedidos: ${response.statusText}`);
-          console.log("🗿🔥3");
-        }
-        
-        const data = await response.json();
-        console.log("🗿🔥4");
-        console.log(data);
-        setPedidos(data);
-      } catch (err) {
-        console.error("Error fetching orders:", err);
-        setError("No se pudieron cargar los pedidos. Intenta de nuevo más tarde.");
-      } finally {
-        setIsLoading(false);
-      }
+    if (user) {
+      setFormData({
+        nit_ci: user.nit_ci || "",
+        zona: user.zona || "",
+        calle: user.calle || "",
+        numero_casa: user.numero_casa || "",
+      });
     }
+  }, [user]);
 
-    fetchOrders();
-  }, [token]); // Se ejecuta cuando el componente se monta o el token cambia
+  // 🔹 Cambiar valores
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
-  // Función para formatear la fecha
- // ProfilePage.jsx
+  // 🔹 Validar antes de guardar
+  const validateForm = () => {
+    if (formData.nit_ci && !/^[0-9]+$/.test(formData.nit_ci)) {
+      Swal.fire("Error", "El NIT/CI solo debe contener números.", "error");
+      return false;
+    }
+    if (formData.zona.trim().length < 3) {
+      Swal.fire("Error", "La zona debe tener al menos 3 caracteres.", "error");
+      return false;
+    }
+    if (formData.calle.trim().length < 3) {
+      Swal.fire("Error", "La calle debe tener al menos 3 caracteres.", "error");
+      return false;
+    }
+    return true;
+  };
 
-// Función para formatear la fecha (COMPLETA)
-  const formatDate = (dateString) => {
-    try {
-      const options = {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-      };
-      // Utilizamos toLocaleDateString con la zona horaria UTC para evitar problemas de desfase
-      return new Date(dateString).toLocaleDateString('es-ES', options);
-    } catch (e) {
-      console.error("Error al formatear fecha:", e);
-      return dateString; // Retorna la original si falla
-    }
-  };
+  // 🔹 Guardar cambios (solo al presionar “Guardar cambios”)
+  const handleSave = async () => {
+    if (!token) return Swal.fire("Error", "No estás autenticado.", "error");
+    if (!validateForm()) return;
 
+    setSaving(true);
+    try {
+      const res = await fetch("http://localhost:3000/api/clientes/me", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(formData),
+      });
 
-  // Función para renderizar un solo pedido (DRY)
-  const PedidoItem = ({ pedido }) => (
-    <article className="pedido-item">
-      <div className="pedido-thumb" />
-      <div className="pedido-info">
-        <div>
-          <strong>Nro Pedido</strong> #{pedido.id}
-        </div>
-        <div>
-          Estado: <strong>{pedido.estado || 'Desconocido'}</strong>
-        </div>
-        <div>
-          Fecha: 
-          <span className="fecha-pedido">{formatDate(pedido.fecha)}</span> 
-          Total:{" "}
-          <strong>Bs {pedido.total || '0.00'}</strong>
-        </div>
-        {/* Aquí puedes enlazar a la vista de detalles del pedido si existe */}
-        <button className="pedido-btn">Ver detalles</button>
-      </div>
-    </article>
-  );
-  console.log("UsuarioRecibido🤗🎺❤:", user);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Error al actualizar datos.");
+
+      setUser((prev) => ({ ...prev, ...data.cliente }));
+
+      Swal.fire({
+        icon: "success",
+        title: "✅ Datos actualizados",
+        text: "Tus cambios se guardaron correctamente.",
+        timer: 1800,
+        showConfirmButton: false,
+      });
+
+      setEditMode(false);
+    } catch (err) {
+      console.error("❌ Error actualizando perfil:", err);
+      Swal.fire("Error", "No se pudieron guardar los cambios.", "error");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // 🔹 Cancelar edición
+  const handleCancel = () => {
+    setEditMode(false);
+    setFormData({
+      nit_ci: user.nit_ci || "",
+      zona: user.zona || "",
+      calle: user.calle || "",
+      numero_casa: user.numero_casa || "",
+    });
+  };
+
   return (
     <div className="ProfilePage">
       <div className="perfil-grid">
-        {/* Columna izquierda: información personal */}
         <section className="perfil-card perfil-personal">
           <h2>Mi información personal</h2>
+
           <div className="perfil-row">
-            <span>Nombre:</span> <strong>{user?.nombre || '—'}</strong>
+            <span>Nombre:</span> <strong>{user?.nombre || "—"}</strong>
           </div>
           <div className="perfil-row">
-            <span>Correo electrónico:</span>{" "}
-            <strong>{user?.email || '—'}</strong>
+            <span>Correo:</span> <strong>{user?.email || "—"}</strong>
           </div>
+
+          <h3>Datos de facturación</h3>
+
+          {/* --- Campos editables --- */}
           <div className="perfil-row">
-            {/* <span>Nro Celular:</span> <strong>HOLA🥶🔥🔥</strong> */}
+            <label>NIT / CI:</label>
+            {editMode ? (
+              <input
+                name="nit_ci"
+                value={formData.nit_ci}
+                onChange={handleChange}
+                placeholder="Ej. 12345678"
+              />
+            ) : (
+              <strong>{user?.nit_ci || "—"}</strong>
+            )}
           </div>
 
           <h3>Dirección</h3>
-          <div className="perfil-row">
-            <span>Zona:</span> <strong>{user?.zona}</strong>
-          </div>
-          <div className="perfil-row">
-            <span>Calle:</span> <strong>{user?.calle}</strong>
-          </div>
-          <div className="perfil-row">
-            <span>Nro Vivienda:</span> <strong>{user?.numero_casa}</strong>
-          </div>
-        </section>
-
-        
-        {/* <section className="perfil-card perfil-pedidos">
-          <h2>Mis pedidos</h2>
-
-          {isLoading && <p>Cargando pedidos...</p>}
-          {error && <p className="error-message">❌ {error}</p>}
-
-          {!isLoading && !error && (
-            <div className="pedidos-list">
-              {pedidos.length > 0 ? (
-                pedidos.map((pedido) => (
-                  // 4. Renderizado dinámico de la lista de pedidos
-                  <PedidoItem key={pedido.id} pedido={pedido} />
-                ))
+          {["zona", "calle", "numero_casa"].map((field) => (
+            <div className="perfil-row" key={field}>
+              <label>
+                {field === "numero_casa"
+                  ? "Nro Vivienda"
+                  : field.charAt(0).toUpperCase() + field.slice(1)}
+                :
+              </label>
+              {editMode ? (
+                <input
+                  name={field}
+                  value={formData[field]}
+                  onChange={handleChange}
+                  placeholder={`Ingrese ${field}`}
+                />
               ) : (
-                <p>Aún no tienes pedidos registrados.</p>
+                <strong>{user?.[field] || "—"}</strong>
               )}
             </div>
-          )}
-        </section> */}
+          ))}
+
+          {/* --- Botones de acción --- */}
+          <div className="perfil-actions">
+            {!editMode ? (
+              <button
+                type="button"
+                className="btn-edit"
+                onClick={() => setEditMode(true)}
+              >
+                ✏️ Editar
+              </button>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  className="btn-save"
+                  onClick={handleSave}
+                  disabled={saving}
+                >
+                  💾 {saving ? "Guardando..." : "Guardar cambios"}
+                </button>
+                <button
+                  type="button"
+                  className="btn-cancel"
+                  onClick={handleCancel}
+                >
+                  ❌ Cancelar
+                </button>
+              </>
+            )}
+          </div>
+        </section>
       </div>
     </div>
   );

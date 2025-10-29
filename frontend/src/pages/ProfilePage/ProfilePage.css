@@ -114,3 +114,145 @@
     font-weight: 700; 
     cursor: pointer; 
 }
+
+
+/* === CAMPOS DE EDICIÓN === */
+.perfil-form input,
+.perfil-row input {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 8px 10px;
+  width: 100%;
+  max-width: 260px;
+  font-family: "Poppins", sans-serif;
+  font-size: 15px;
+  color: #222;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+.perfil-form input:focus,
+.perfil-row input:focus {
+  outline: none;
+  border-color: #1a2b6b;
+  box-shadow: 0 0 0 3px rgba(26, 43, 107, 0.2);
+}
+
+/* === BOTONES === */
+.perfil-actions {
+  margin-top: 18px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btn-edit,
+.btn-save,
+.btn-cancel {
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-family: "Poppins", sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-edit {
+  background: #1a2b6b;         /* Azul oscuro institucional */
+  color: #fff;
+}
+.btn-edit:hover {
+  background: #14225a;
+  transform: translateY(-1px);
+}
+
+.btn-save {
+  background: #28a745;         /* Verde confirmación */
+  color: #fff;
+}
+.btn-save:hover {
+  background: #218838;
+  transform: translateY(-1px);
+}
+
+.btn-cancel {
+  background: #e74c3c;         /* Rojo alerta */
+  color: #fff;
+}
+.btn-cancel:hover {
+  background: #c0392b;
+  transform: translateY(-1px);
+}
+
+/* === ESTADOS === */
+.btn-save[disabled],
+.btn-save[disabled]:hover {
+  background: #a0a0a0;
+  color: #f2f2f2;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 600px) {
+  .perfil-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .perfil-row span,
+  .perfil-row label {
+    min-width: auto;
+    margin-bottom: 4px;
+  }
+  .perfil-form input {
+    max-width: 100%;
+  }
+  .perfil-actions {
+    justify-content: flex-start;
+  }
+}
+.perfil-card.edit-mode {
+  border: 2px solid #1a2b6b;
+  box-shadow: 0 0 12px rgba(26, 43, 107, 0.2);
+}
+/* === CAMPOS DE EDICIÓN (actualizado con fondo blanco) === */
+.perfil-form input,
+.perfil-row input {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 8px 10px;
+  width: 100%;
+  max-width: 260px;
+  font-family: "Poppins", sans-serif;
+  font-size: 15px;
+  color: #222;
+  background-color: #fff; /* ✅ Fondo blanco */
+  transition: border 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+/* Estado al pasar el mouse */
+.perfil-form input:hover,
+.perfil-row input:hover {
+  background-color: #fafafa; /* Suave gris para distinguir */
+}
+
+/* Estado activo / enfoque */
+.perfil-form input:focus,
+.perfil-row input:focus {
+  outline: none;
+  border-color: #1a2b6b;
+  background-color: #fff; /* Se mantiene blanco al enfocar */
+  box-shadow: 0 0 0 3px rgba(26, 43, 107, 0.2);
+}
+
+/* === LABELS con fondo blanco (para contraste si cambias color del card) === */
+.perfil-row label {
+  font-weight: 600;
+  min-width: 180px;
+  background-color: #fff; /* ✅ Fondo blanco también en labels */
+  padding: 4px 6px;
+  border-radius: 6px;
+  color: #1a2b6b;
+}

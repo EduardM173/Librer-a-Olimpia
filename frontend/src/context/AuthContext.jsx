@@ -1,72 +1,123 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from "react";
 
 const Ctx = createContext();
 export const useAuth = () => useContext(Ctx);
 
 export default function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState('');
-  const [loading, setLoading] = useState(true); // 👈 NUEVO
-  const [modals, setModals] = useState({ login:false, register:false });
+  const [token, setToken] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [modals, setModals] = useState({ login: false, register: false });
 
-  // Cargar desde localStorage al iniciar
+  // =========================================================
+  // Cargar datos guardados al iniciar
+  // =========================================================
   useEffect(() => {
     try {
-      const storedUser = localStorage.getItem('auth_user');
-      const storedToken = localStorage.getItem('auth_token');
+      const storedUser = localStorage.getItem("auth_user");
+      const storedToken = localStorage.getItem("auth_token");
       if (storedUser && storedToken) {
         setUser(JSON.parse(storedUser));
         setToken(storedToken);
       }
     } catch (err) {
-      console.error('Error cargando auth:', err);
+      console.error("Error cargando auth:", err);
     } finally {
-      setLoading(false); // 👈 terminamos de cargar
+      setLoading(false);
     }
   }, []);
 
+  // =========================================================
+  // Guardar cambios de usuario/token en localStorage
+  // =========================================================
   useEffect(() => {
-    user
-      ? localStorage.setItem('auth_user', JSON.stringify(user))
-      : localStorage.removeItem('auth_user');
+    if (user) localStorage.setItem("auth_user", JSON.stringify(user));
+    else localStorage.removeItem("auth_user");
   }, [user]);
 
   useEffect(() => {
-    token
-      ? localStorage.setItem('auth_token', token)
-      : localStorage.removeItem('auth_token');
+    if (token) localStorage.setItem("auth_token", token);
+    else localStorage.removeItem("auth_token");
   }, [token]);
 
-  const openLogin = () => setModals({ login:true, register:false });
-  const openRegister = () => setModals({ login:false, register:true });
-  const closeModals = () => setModals({ login:false, register:false });
+  // =========================================================
+  // Funciones de modales
+  // =========================================================
+  const openLogin = () => setModals({ login: true, register: false });
+  const openRegister = () => setModals({ login: false, register: true });
+  const closeModals = () => setModals({ login: false, register: false });
 
-  const login = (u, t) => { setUser(u); setToken(t); closeModals(); };
+  // =========================================================
+  // LOGIN / LOGOUT
+  // =========================================================
+  const login = (u, t) => {
+    setUser(u);
+    setToken(t);
+    closeModals();
+  };
+
   const logout = async () => {
     try {
       if (token) {
-        await fetch('http://localhost:3000/api/auth/logout', { 
-          method: 'POST',
+        await fetch("http://localhost:3000/api/auth/logout", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
         });
       }
     } catch (error) {
-      // Si falla la llamada (ej. sin internet), no detenemos el logout del frontend
       console.error("Error al registrar el logout en el backend:", error);
+    } finally {
+      setUser(null);
+      setToken("");
+      localStorage.removeItem("auth_user");
+      localStorage.removeItem("auth_token");
     }
-    
-    setUser(null);
-    setToken('');
   };
 
+  // =========================================================
+  // 🔄 REFRESCAR DATOS DEL USUARIO (si el token sigue válido)
+  // =========================================================
+  async function refreshUserData() {
+    if (!token) return;
+    try {
+      const res = await fetch("http://localhost:3000/api/clientes/me", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) throw new Error("No se pudo refrescar el perfil del cliente.");
+
+      const fresh = await res.json();
+      setUser((prev) => ({ ...prev, ...fresh }));
+      localStorage.setItem("auth_user", JSON.stringify({ ...user, ...fresh }));
+      return fresh;
+    } catch (err) {
+      console.warn("⚠️ Token inválido o sesión expirada.");
+      logout();
+    }
+  }
+
+  // =========================================================
+  // Proveer valores al contexto
+  // =========================================================
   return (
-    <Ctx.Provider value={{
-      user, token, loading, login, logout,
-      modals, openLogin, openRegister, closeModals
-    }}>
+    <Ctx.Provider
+      value={{
+        user,
+        setUser, // ✅ Nuevo: permite actualización desde ProfilePage
+        token,
+        loading,
+        login,
+        logout,
+        refreshUserData, // ✅ Nuevo: útil para forzar actualización en cualquier vista
+        modals,
+        openLogin,
+        openRegister,
+        closeModals,
+      }}
+    >
       {children}
     </Ctx.Provider>
   );
