@@ -15,6 +15,8 @@ const pedidos = require('./routes/pedidos.routes');
 const clientesRoutes = require('./routes/clientes.routes'); 
 const checkoutRoutes = require('./routes/checkout.routes');
 
+const adminReportsRoutes = require('./routes/admin.reports.routes');
+
 const app = express();
 
 // Middlewares globales
@@ -28,10 +30,12 @@ app.use(httpLogger);
 app.use('/api/products', products);
 app.use('/api', auth);
 app.use('/api/admin', adminRoutes);
+
+app.use('/api/admin/reportes', adminReportsRoutes);
+
 app.use('/api', ordersRoutes); 
 app.use('/api/pedidos', pedidos);
 app.use('/api/clientes', clientesRoutes);
-app.use('/api', ordersRoutes);
 app.use('/api/checkout', checkoutRoutes);
 
 app.use((err, req, res, next) => {
