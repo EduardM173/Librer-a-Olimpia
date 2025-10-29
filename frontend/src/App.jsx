@@ -29,6 +29,8 @@ import ProfileLayout from './pages/ProfileLayout/ProfileLayout';
 import ProductosAdmin from "./pages/Admin/ProductosAdmin/ProductosAdmin";
 import PedidosAdmin from './pages/PedidosAdmin/PedidosAdmin';
 import ClienteAdmin from './pages/ClienteAdmin/ClienteAdmin';
+import AdminReports from './pages/AdminReports/AdminReports';
+
 
 // 📦 Pedidos del cliente
 import OrdersList from './pages/OrdersPage/OrdersList';
@@ -113,6 +115,16 @@ function AppShell() {
               </RequireAdmin>
             }
           />
+
+          <Route
+            path="/admin/reportes"
+            element={
+              <RequireAdmin>
+                <AdminReports />
+              </RequireAdmin>
+            }
+          />
+
           <Route
             path="/admin/clientes"
             element={
