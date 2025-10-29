@@ -16,6 +16,7 @@ const pedidosRoutes = require('./routes/pedidos.routes');
 const clientesRoutes = require('./routes/clientes.routes');
 const checkoutRoutes = require('./routes/checkout.routes');
 
+const adminReportsRoutes = require('./routes/admin.reports.routes');
 const uploadRoutes = require('./routes/upload.routes');
 
 const app = express();
@@ -29,6 +30,7 @@ app.use(httpLogger);
 // --- Registro de Rutas ---
 app.use('/api/products', productsRoutes);
 app.use('/api/admin', adminProductsRoutes); // ✅ NUEVO CRUD DE PRODUCTOS ADMIN
+app.use('/api/admin/reportes', adminReportsRoutes);
 app.use('/api', authRoutes);
 app.use('/api', ordersRoutes);
 app.use('/api/pedidos', pedidosRoutes);

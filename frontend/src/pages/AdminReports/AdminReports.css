@@ -1,118 +1,282 @@
-/* Estilos generales del contenedor */
-.admin-reports-container {
-    padding: 30px;
-    max-width: 1200px;
-    margin: 0 auto;
+/* Variables base para colores */
+:root {
+  --color-primary: #007bff; /* Azul para acciones */
+  --color-secondary: #6c757d; /* Gris para textos secundarios */
+  --color-background-light: #f4f7f9; /* Fondo claro */
+  --color-sidebar-bg: #343a40; /* Fondo oscuro de la barra lateral */
+  --color-text-light: #f8f9fa; /* Texto claro */
+  --color-card-bg: #ffffff; /* Fondo de tarjetas */
+  --color-border: #dee2e6; /* Borde de tablas/elementos */
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: var(--color-background-light);
+}
+
+/* ------------------- Layout Principal ------------------- */
+.admin-reports-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ------------------- Sidebar ------------------- */
+.admin-sidebar {
+  width: 250px;
+  background-color: var(--color-sidebar-bg);
+  color: var(--color-text-light);
+  padding: 20px;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.logo-container {
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.logo-text {
+  font-size: 28px;
+  margin: 0;
+  color: var(--color-primary);
+  letter-spacing: 1px;
+}
+
+.logo-subtitle {
+    font-size: 10px;
+    margin: 0;
+    font-weight: 300;
+}
+
+.nav-list {
+  list-style: none;
+  padding: 0;
+}
+
+.nav-item {
+  display: block;
+  padding: 12px 15px;
+  text-decoration: none;
+  color: var(--color-text-light);
+  border-radius: 4px;
+  margin-bottom: 5px;
+  transition: background-color 0.3s;
+}
+
+.nav-item:hover {
+  background-color: #495057;
+}
+
+.nav-item.active {
+  background-color: var(--color-primary);
+  font-weight: bold;
+}
+
+/* ------------------- Contenido Principal y Header ------------------- */
+.admin-reports-content {
+  flex-grow: 1;
+  padding: 20px 40px;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 10px 0;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-size: 14px;
+}
+
+.logout-btn {
+  background-color: var(--color-secondary);
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.logout-btn:hover {
+  background-color: #5a6268;
+}
+
+.report-title {
+  font-size: 26px;
+  color: #333;
+  margin-bottom: 30px;
+}
+
+/* ------------------- Filtros y Acciones Row ------------------- */
+.filter-actions-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end; /* Alinea los filtros y el botón de exportar */
+  margin-bottom: 30px;
+  padding: 15px;
+  background-color: var(--color-card-bg);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.date-filters {
+  display: flex;
+  gap: 20px;
+  align-items: flex-end;
+}
+
+.date-input-group label {
+  display: block;
+  font-size: 14px;
+  color: var(--color-secondary);
+  margin-bottom: 5px;
+}
+
+.date-input {
+  padding: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.filter-button {
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.filter-button:hover {
+  background-color: #0056b3;
+}
+
+.export-button {
+  background-color: #28a745; /* Color verde para éxito/exportar */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.export-button:hover {
+  background-color: #1e7e34;
+}
+
+/* ------------------- Tarjetas Resumen ------------------- */
+.summary-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.summary-card {
+  background-color: var(--color-card-bg);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card-label {
+  font-size: 14px;
+  color: var(--color-secondary);
+  margin-bottom: 5px;
+}
+
+.card-value {
+  font-size: 32px;
+  font-weight: bold;
+  margin: 0;
+  color: #333;
+}
+
+.total-sales {
+    color: var(--color-primary); /* Destacar las ventas totales */
+}
+
+/* ------------------- Productos Más Vendidos ------------------- */
+.top-products-section {
+  background-color: var(--color-card-bg);
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .section-title {
-    border-bottom: 2px solid #eee;
-    padding-bottom: 10px;
-    margin-bottom: 20px;
+  font-size: 22px;
+  color: #333;
+  margin-bottom: 20px;
 }
 
-/* --- Panel de Filtros (Fecha de Inicio/Fin) --- */
-.date-filters-panel {
-    display: flex;
-    gap: 20px;
-    align-items: flex-end; /* Alinea el botón con los inputs */
-    margin-bottom: 30px;
-    padding: 15px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    background-color: #f9f9f9;
+.chart-placeholder {
+  height: 300px;
+  background-color: var(--color-background-light);
+  border: 1px dashed var(--color-secondary);
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--color-secondary);
+  margin-bottom: 30px;
 }
 
-.date-filters-panel label {
-    display: flex;
-    flex-direction: column;
-    font-weight: 500;
+.products-table {
+  width: 100%;
+  border-collapse: collapse;
 }
 
-.date-filters-panel input[type="date"] {
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+.products-table th,
+.products-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
 }
 
-.date-filters-panel button {
-    padding: 10px 15px;
-    background-color: #007bff; /* Color primario */
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s;
+.products-table th {
+  background-color: #e9ecef;
+  font-weight: bold;
+  color: #495057;
 }
 
-.date-filters-panel button:hover {
-    background-color: #0056b3;
+.products-table tbody tr:hover {
+  background-color: #f8f9fa;
 }
 
-/* --- Indicadores Clave (Ventas Totales, Pedidos, Clientes) --- */
-.key-metrics-panel {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-    margin-bottom: 40px;
-}
+/* Añade esto a tu AdminReports.css o ajústalo según tu diseño */
 
-.metric-card {
-    background-color: white;
+.chart-container {
+    /* Define un tamaño fijo o máximo para el gráfico */
+    max-width: 900px;
+    margin: 20px auto;
     padding: 20px;
+    background: #ffffff;
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    border-left: 5px solid #28a745; /* Color de énfasis (verde) */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.metric-card p:first-child {
-    margin: 0 0 10px 0;
-    font-size: 1em;
+.chart-placeholder-empty {
+    text-align: center;
+    padding: 50px;
     color: #6c757d;
-}
-
-.metric-value {
-    font-size: 2em;
-    font-weight: bold;
-    color: #343a40;
-    margin: 0;
-}
-
-/* --- Tabla de Productos más Vendidos --- */
-.top-products-section h2 {
-    margin-top: 0;
-    margin-bottom: 20px;
-}
-
-.products-report-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
-}
-
-.products-report-table th, .products-report-table td {
-    border: 1px solid #ddd;
-    padding: 12px;
-    text-align: left;
-}
-
-.products-report-table th {
-    background-color: #f2f2f2;
-    font-weight: 600;
-}
-
-/* Botón de Exportar */
-.btn-export {
-    padding: 10px 20px;
-    background-color: #ffc107; /* Color de advertencia/amarillo */
-    color: #212529;
-    border: none;
+    font-style: italic;
+    border: 1px dashed #ccc;
     border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.3s;
-}
-
-.btn-export:hover {
-    background-color: #e0a800;
+    height: 350px; /* Mismo que el gráfico */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
