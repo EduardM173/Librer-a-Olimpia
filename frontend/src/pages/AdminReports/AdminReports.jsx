@@ -61,7 +61,7 @@ const AdminReports = () => {
     const fetchData = async () => {
         try {
             const { start, end } = dateRange;
-            const API_URL = 'http://localhost:4000/api'; // Ajusta si tu puerto es diferente
+            const API_URL = 'http://localhost:3000/api'; // Ajusta si tu puerto es diferente
 
             // A) OBTENER KPIs FINANCIEROS (Backend modificado)
             const summaryRes = await fetch(`${API_URL}/admin/reportes/summary?fechaInicio=${start}&fechaFin=${end}`, {
@@ -123,16 +123,6 @@ const AdminReports = () => {
 
     return (
         <div className="admin-reports-layout">
-            {/* Sidebar (Simulada o importada) */}
-            <aside className="admin-sidebar">
-                <div className="logo-container">
-                    <h2>Olimpia Admin</h2>
-                </div>
-                <nav>
-                    {/* Aquí irían tus Links de navegación */}
-                    <p style={{color: '#fff'}}>🏠 Dashboard</p>
-                </nav>
-            </aside>
 
             <main className="admin-main-content" style={{ padding: '20px', width: '100%' }}>
                 <header style={{ marginBottom: '20px' }}>

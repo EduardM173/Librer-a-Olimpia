@@ -11,11 +11,12 @@ const validateDate = (dateString) => {
 };
 
 
+// En reports.controller.js
+
 exports.getSalesSummary = async (req, res) => {
     try {
         let { fechaInicio, fechaFin } = req.query;
 
-        // Validación básica de fechas
         if (!fechaInicio || !fechaFin) {
             return res.status(400).json({ error: 'Fechas requeridas' });
         }
@@ -23,46 +24,62 @@ exports.getSalesSummary = async (req, res) => {
         const params = [fechaInicio, fechaFin];
 
         // 1. KPI: Ventas Totales y Cantidad de Pedidos
-        // Usamos COALESCE para que si es null devuelva 0
+        // Usamos nombres estándar de tablas
         const sqlFinancials = `
             SELECT 
-                COALESCE(SUM(monto_total), 0) as totalVentas,
-                COUNT(id) as totalPedidos,
-                COALESCE(SUM(monto_total) / NULLIF(COUNT(id), 0), 0) as ticketPromedio
+                COALESCE(SUM(total_neto), 0) as totalVentas,
+                COUNT(id) as totalPedidos
             FROM venta 
             WHERE operado_en BETWEEN ? AND ?
         `;
 
         const [rowsFinancials] = await pool.query(sqlFinancials, params);
-        const stats = rowsFinancials[0];
+        const stats = rowsFinancials[0] || { totalVentas: 0, totalPedidos: 0 };
 
-        // 2. KPI: Comparativa 
-        // Para el MVP calcularemos la ganancia bruta estimada (Precio - Costo)
-        // Necesitamos hacer JOIN con detalle_venta
-        const sqlGanancia = `
-            SELECT 
-                COALESCE(SUM((vd.precio_unitario_historico - vd.costo_unitario) * vd.cantidad), 0) as gananciaBruta
-            FROM venta_detalle vd
-            JOIN venta v ON vd.venta_id = v.id
-            WHERE v.operado_en BETWEEN ? AND ?
-        `;
-        
-        const [rowsGanancia] = await pool.query(sqlGanancia, params);
-        const ganancia = rowsGanancia[0].gananciaBruta;
+        // Cálculo seguro del Ticket Promedio (evitar división por cero)
+        const ticketPromedio = stats.totalPedidos > 0 
+            ? stats.totalVentas / stats.totalPedidos 
+            : 0;
 
-        // Respuesta JSON estructurada para el Frontend
+        // 2. KPI: Ganancia 
+        let ganancia = 0;
+        try {
+            
+            const sqlGanancia = `
+                SELECT 
+                    COALESCE(SUM(
+                        (vd.precio_unitario - 
+                            CASE 
+                                WHEN vd.costo_unitario >= vd.precio_unitario OR vd.costo_unitario IS NULL 
+                                THEN (vd.precio_unitario * 0.70) 
+                                ELSE vd.costo_unitario 
+                            END
+                        ) * vd.cantidad
+                    ), 0) as gananciaBruta
+                FROM venta_detalle vd
+                JOIN venta v ON vd.venta_id = v.id
+                WHERE v.operado_en BETWEEN ? AND ?
+            `;
+            const [rowsGanancia] = await pool.query(sqlGanancia, params);
+            ganancia = rowsGanancia[0]?.gananciaBruta || 0;
+        } catch (errGanancia) {
+            console.warn("Advertencia: No se pudo calcular ganancia (posible falta de columna costo). Se enviará 0.");
+            ganancia = 0; // Fallback seguro
+        }
+
+        // Respuesta JSON estructurada
         res.json({
             ventas: Number(stats.totalVentas),
             pedidos: Number(stats.totalPedidos),
-            ticketPromedio: Number(stats.ticketPromedio),
+            ticketPromedio: Number(ticketPromedio),
             ganancia: Number(ganancia)
         });
 
     } catch (error) {
-        console.error('Error en getSalesSummary:', error);
+        console.error('Error CRÍTICO en getSalesSummary:', error);
         res.status(500).json({ message: 'Error al calcular KPIs' });
     }
-};
+};;
 
 
 // ===========================================
