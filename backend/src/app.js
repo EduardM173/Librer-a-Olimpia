@@ -19,6 +19,8 @@ const checkoutRoutes = require('./routes/checkout.routes');
 const adminReportsRoutes = require('./routes/admin.reports.routes');
 const uploadRoutes = require('./routes/upload.routes');
 
+const categoryRoutes = require('./routes/category.routes');
+
 const app = express();
 
 // --- Configuración Global ---
@@ -36,6 +38,8 @@ app.use('/api', ordersRoutes);
 app.use('/api/pedidos', pedidosRoutes);
 app.use('/api/clientes', clientesRoutes);
 app.use('/api/checkout', checkoutRoutes);
+// Rutas de categorías
+app.use('/api/categories', categoryRoutes);
 
 app.use('/api', uploadRoutes);
 

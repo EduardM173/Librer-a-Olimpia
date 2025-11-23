@@ -24,13 +24,13 @@ exports.getSalesSummary = async (req, res) => {
         const params = [fechaInicio, fechaFin];
 
         // 1. KPI: Ventas Totales y Cantidad de Pedidos
-        // Usamos nombres estándar de tablas
+        // CORRECCIÓN: Se usa DATE() para comparar solo la fecha de la columna DATETIME 'operado_en'
         const sqlFinancials = `
             SELECT 
                 COALESCE(SUM(total_neto), 0) as totalVentas,
                 COUNT(id) as totalPedidos
             FROM venta 
-            WHERE operado_en BETWEEN ? AND ?
+            WHERE DATE(operado_en) >= ? AND DATE(operado_en) <= ?
         `;
 
         const [rowsFinancials] = await pool.query(sqlFinancials, params);
@@ -45,6 +45,7 @@ exports.getSalesSummary = async (req, res) => {
         let ganancia = 0;
         try {
             
+            // CORRECCIÓN: Se usa DATE() para comparar solo la fecha de la columna DATETIME 'operado_en'
             const sqlGanancia = `
                 SELECT 
                     COALESCE(SUM(
@@ -58,7 +59,7 @@ exports.getSalesSummary = async (req, res) => {
                     ), 0) as gananciaBruta
                 FROM venta_detalle vd
                 JOIN venta v ON vd.venta_id = v.id
-                WHERE v.operado_en BETWEEN ? AND ?
+                WHERE DATE(v.operado_en) >= ? AND DATE(v.operado_en) <= ?
             `;
             const [rowsGanancia] = await pool.query(sqlGanancia, params);
             ganancia = rowsGanancia[0]?.gananciaBruta || 0;
@@ -69,25 +70,26 @@ exports.getSalesSummary = async (req, res) => {
 
         // Respuesta JSON estructurada
         res.json({
-            ventas: Number(stats.totalVentas),
+            ventas: Number(stats.totalVentas).toFixed(2),
             pedidos: Number(stats.totalPedidos),
-            ticketPromedio: Number(ticketPromedio),
-            ganancia: Number(ganancia)
+            ticketPromedio: Number(ticketPromedio).toFixed(2),
+            ganancia: Number(ganancia).toFixed(2)
         });
 
     } catch (error) {
         console.error('Error CRÍTICO en getSalesSummary:', error);
         res.status(500).json({ message: 'Error al calcular KPIs' });
     }
-};;
+};
 
 
 // ===========================================
-// Obtener el Top 10 de Productos Vendidos por Rango de Fechas
+// Obtener el Top 10 de Productos Vendidos por Rango de Fechas (con filtro por Categoría)
 // ===========================================
 exports.getTopProducts = async (req, res) => {
     try {
-        let { fechaInicio, fechaFin, format } = req.query; // Captura 'format'
+        // AÑADIDO: Capturamos categoriaId
+        let { fechaInicio, fechaFin, format, categoriaId } = req.query; 
 
         if (!fechaInicio || !fechaFin) {
             return res.status(400).json({ error: 'Fechas de inicio y fin son requeridas.' });
@@ -100,10 +102,8 @@ exports.getTopProducts = async (req, res) => {
             return res.status(400).json({ error: e.message });
         }
 
-        const params = [fechaInicio, fechaFin];
-
-        const [rows] = await pool.query(
-            `
+        // 1. Base de la consulta y parámetros de fecha
+        let query = `
             SELECT 
             p.sku,
             p.nombre AS producto_nombre,
@@ -114,12 +114,27 @@ exports.getTopProducts = async (req, res) => {
             JOIN venta v ON v.id = vd.venta_id
             JOIN producto p ON p.id = vd.producto_id
             WHERE DATE(v.operado_en) >= ? AND DATE(v.operado_en) <= ? AND v.estado = 'PAGADA'
+        `;
+        const params = [fechaInicio, fechaFin];
+
+        // 2. LÓGICA DE FILTRADO POR CATEGORÍA
+        if (categoriaId) {
+            // Aseguramos que sea un número válido antes de añadirlo
+            const id = Number(categoriaId);
+            if (!isNaN(id) && id > 0) {
+                query += ` AND p.categoria_id = ?`;
+                params.push(id);
+            }
+        }
+        
+        // 3. Cláusulas de agrupación, ordenación y límite
+        query += `
             GROUP BY p.id, p.sku, p.nombre
             ORDER BY cantidad_vendida DESC
             LIMIT 10;
-            `,
-            params
-        );
+        `;
+
+        const [rows] = await pool.query(query, params);
         
         // Formatear los datos y asegurar los decimales
         const topProducts = rows.map(r => ({
@@ -130,21 +145,19 @@ exports.getTopProducts = async (req, res) => {
             gananciaBruta: Number(r.ganancia_bruta).toFixed(2) // Incluir ganancia para el CSV
         }));
 
-        // 3. Lógica Condicional de CSV
+        // 4. Lógica Condicional de CSV
         if (format && format.toLowerCase() === 'csv') {
             stringify(topProducts, { header: true, delimiter: ';' }, (err, output) => {
                 if (err) throw err;
                 
                 // Configurar cabeceras para descarga de archivo
                 res.setHeader('Content-Type', 'text/csv');
-                res.setHeader('Content-Disposition', `attachment; filename="reporte_top10_${fechaInicio}_a_${fechaFin}.csv"`);
+                res.setHeader('Content-Disposition', `attachment; filename="reporte_top10_${fechaInicio}_a_${fechaFin}${categoriaId ? `_cat${categoriaId}` : ''}.csv"`);
                 return res.status(200).send(output);
             });
         } else {
             // Respuesta JSON por defecto
             res.json(topProducts.map(r => ({
-                 // Devolver el JSON original (sin ganancia) para mantener la compatibilidad 
-                 // o incluirla si es requerida en la interfaz. Aquí la mantendremos simple.
                 sku: r.sku,
                 nombre: r.nombre,
                 cantidadVendida: r.cantidadVendida,
