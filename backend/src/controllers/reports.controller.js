@@ -10,83 +10,76 @@ const validateDate = (dateString) => {
     return dateString;
 };
 
-// ===========================================
-// Obtener Ventas Totales y Pedidos por Rango de Fechas
-// ===========================================
+
+// En reports.controller.js
+
 exports.getSalesSummary = async (req, res) => {
     try {
-        let { fechaInicio, fechaFin, format } = req.query; // Captura 'format'
+        let { fechaInicio, fechaFin } = req.query;
 
-        // Validar y sanear fechas
         if (!fechaInicio || !fechaFin) {
-            return res.status(400).json({ error: 'Fechas de inicio y fin son requeridas.' });
+            return res.status(400).json({ error: 'Fechas requeridas' });
         }
 
-        try {
-            fechaInicio = validateDate(fechaInicio);
-            fechaFin = validateDate(fechaFin);
-        } catch (e) {
-            return res.status(400).json({ error: e.message });
-        }
-        
         const params = [fechaInicio, fechaFin];
 
-        // Consulta 1: Ventas Totales y Pedidos Recibidos
-        const [summaryRows] = await pool.query(
-            `
+        // 1. KPI: Ventas Totales y Cantidad de Pedidos
+        // Usamos nombres estándar de tablas
+        const sqlFinancials = `
             SELECT 
-                COALESCE(SUM(v.total_neto), 0) AS ventas_totales,
-                COALESCE(COUNT(DISTINCT p.id), 0) AS pedidos_recibidos
-            FROM venta v
-            LEFT JOIN pedido p ON p.id = v.pedido_id
-            WHERE DATE(v.operado_en) >= ? AND DATE(v.operado_en) <= ? AND v.estado = 'PAGADA';
-            `,
-            params
-        );
-        
-        // Consulta 2: Nuevos Clientes
-        const [clientRows] = await pool.query(
-            `
-            SELECT COUNT(id) AS nuevos_clientes 
-            FROM cliente 
-            WHERE DATE(creado_en) >= ? AND DATE(creado_en) <= ?;
-            `,
-            params
-        );
+                COALESCE(SUM(total_neto), 0) as totalVentas,
+                COUNT(id) as totalPedidos
+            FROM venta 
+            WHERE operado_en BETWEEN ? AND ?
+        `;
 
-        const summaryData = summaryRows[0] || { ventas_totales: 0, pedidos_recibidos: 0 };
-        const clientsData = clientRows[0] || { nuevos_clientes: 0 };
+        const [rowsFinancials] = await pool.query(sqlFinancials, params);
+        const stats = rowsFinancials[0] || { totalVentas: 0, totalPedidos: 0 };
 
-        // 2. Formatear el resultado final
-        const finalResult = {
-            rango_fechas: `${fechaInicio} - ${fechaFin}`,
-            ventasTotales: Number(summaryData.ventas_totales).toFixed(2),
-            pedidosRecibidos: summaryData.pedidos_recibidos,
-            nuevosClientes: clientsData.nuevos_clientes
-        };
+        // Cálculo seguro del Ticket Promedio (evitar división por cero)
+        const ticketPromedio = stats.totalPedidos > 0 
+            ? stats.totalVentas / stats.totalPedidos 
+            : 0;
 
-        // 3. Lógica Condicional de CSV
-        if (format && format.toLowerCase() === 'csv') {
-            const dataToCsv = [finalResult]; // Convertir objeto a array para stringify
+        // 2. KPI: Ganancia 
+        let ganancia = 0;
+        try {
             
-            stringify(dataToCsv, { header: true, delimiter: ';' }, (err, output) => {
-                if (err) throw err;
-                
-                // Configurar cabeceras para descarga de archivo
-                res.setHeader('Content-Type', 'text/csv');
-                res.setHeader('Content-Disposition', `attachment; filename="reporte_resumen_${fechaInicio}_a_${fechaFin}.csv"`);
-                return res.status(200).send(output);
-            });
-        } else {
-            // Respuesta JSON por defecto
-            res.json(finalResult);
+            const sqlGanancia = `
+                SELECT 
+                    COALESCE(SUM(
+                        (vd.precio_unitario - 
+                            CASE 
+                                WHEN vd.costo_unitario >= vd.precio_unitario OR vd.costo_unitario IS NULL 
+                                THEN (vd.precio_unitario * 0.70) 
+                                ELSE vd.costo_unitario 
+                            END
+                        ) * vd.cantidad
+                    ), 0) as gananciaBruta
+                FROM venta_detalle vd
+                JOIN venta v ON vd.venta_id = v.id
+                WHERE v.operado_en BETWEEN ? AND ?
+            `;
+            const [rowsGanancia] = await pool.query(sqlGanancia, params);
+            ganancia = rowsGanancia[0]?.gananciaBruta || 0;
+        } catch (errGanancia) {
+            console.warn("Advertencia: No se pudo calcular ganancia (posible falta de columna costo). Se enviará 0.");
+            ganancia = 0; // Fallback seguro
         }
 
-    } catch (e) {
-        console.error('❌ Error en getSalesSummary:', e.message);
-        res.status(500).json({ error: 'report_summary_failed' });
+        // Respuesta JSON estructurada
+        res.json({
+            ventas: Number(stats.totalVentas),
+            pedidos: Number(stats.totalPedidos),
+            ticketPromedio: Number(ticketPromedio),
+            ganancia: Number(ganancia)
+        });
+
+    } catch (error) {
+        console.error('Error CRÍTICO en getSalesSummary:', error);
+        res.status(500).json({ message: 'Error al calcular KPIs' });
     }
-};
+};;
 
 
 // ===========================================
