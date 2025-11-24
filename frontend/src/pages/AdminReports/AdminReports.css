@@ -1,282 +1,527 @@
-/* Variables base para colores */
+/* =========================================
+   1. Variables y Configuración Base
+   ========================================= */
 :root {
-  --color-primary: #007bff; /* Azul para acciones */
-  --color-secondary: #6c757d; /* Gris para textos secundarios */
-  --color-background-light: #f4f7f9; /* Fondo claro */
-  --color-sidebar-bg: #343a40; /* Fondo oscuro de la barra lateral */
-  --color-text-light: #f8f9fa; /* Texto claro */
-  --color-card-bg: #ffffff; /* Fondo de tarjetas */
-  --color-border: #dee2e6; /* Borde de tablas/elementos */
+  /* Paleta Refinada */
+  --color-primary: #3b82f6;       /* Azul moderno y vibrante */
+  --color-primary-dark: #2563eb;  /* Azul más oscuro para hover */
+  --color-secondary: #64748b;     /* Gris pizarra suave */
+  --color-success: #10b981;       /* Verde esmeralda */
+  --color-danger: #ef4444;        /* Rojo suave */
+  
+  /* Fondos */
+  --color-background-light: #f1f5f9; /* Fondo gris muy suave */
+  --color-sidebar-bg: #1e293b;       /* Azul noche profundo (más elegante que negro) */
+  --color-card-bg: #ffffff;
+  
+  /* Textos */
+  --color-text-main: #334155;
+  --color-text-light: #f8fafc;
+  
+  /* Bordes y Sombras */
+  --color-border: #e2e8f0;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  
+  /* Dimensiones */
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --transition-speed: 0.3s ease;
+}
+
+* {
+  box-sizing: border-box; /* Crucial para que el padding no rompa el ancho */
 }
 
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   background-color: var(--color-background-light);
+  color: var(--color-text-main);
+  line-height: 1.5;
 }
 
-/* ------------------- Layout Principal ------------------- */
+/* =========================================
+   2. Layout Principal
+   ========================================= */
 .admin-reports-layout {
   display: flex;
   min-height: 100vh;
 }
 
-/* ------------------- Sidebar ------------------- */
+.admin-main-content {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow-x: hidden; /* Evita scroll horizontal accidental */
+}
+
+.admin-reports-content {
+  padding: 30px 40px;
+  max-width: 1600px; /* Evita que se estire demasiado en pantallas 4k */
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* =========================================
+   3. Sidebar (Barra Lateral)
+   ========================================= */
 .admin-sidebar {
-  width: 250px;
+  width: 260px;
   background-color: var(--color-sidebar-bg);
   color: var(--color-text-light);
-  padding: 20px;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  padding: 25px 20px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 4px 0 10px rgba(0,0,0,0.05);
+  z-index: 10;
 }
 
 .logo-container {
-  margin-bottom: 40px;
+  margin-bottom: 50px;
   text-align: center;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 
 .logo-text {
-  font-size: 28px;
+  font-size: 24px;
+  font-weight: 700;
   margin: 0;
-  color: var(--color-primary);
-  letter-spacing: 1px;
+  color: #fff;
+  letter-spacing: 0.5px;
 }
 
 .logo-subtitle {
-    font-size: 10px;
-    margin: 0;
-    font-weight: 300;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--color-secondary);
+  margin-top: 5px;
 }
 
 .nav-list {
   list-style: none;
   padding: 0;
+  margin: 0;
 }
 
 .nav-item {
-  display: block;
-  padding: 12px 15px;
+  display: flex;
+  align-items: center;
+  padding: 14px 16px;
   text-decoration: none;
-  color: var(--color-text-light);
-  border-radius: 4px;
-  margin-bottom: 5px;
-  transition: background-color 0.3s;
+  color: #94a3b8; /* Color texto inactivo */
+  border-radius: var(--radius-md);
+  margin-bottom: 8px;
+  transition: all var(--transition-speed);
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .nav-item:hover {
-  background-color: #495057;
+  background-color: rgba(255,255,255,0.05);
+  color: #fff;
+  transform: translateX(4px); /* Pequeña animación de movimiento */
 }
 
 .nav-item.active {
   background-color: var(--color-primary);
-  font-weight: bold;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); /* Sombra de brillo azul */
 }
 
-/* ------------------- Contenido Principal y Header ------------------- */
-.admin-reports-content {
-  flex-grow: 1;
-  padding: 20px 40px;
-}
-
+/* =========================================
+   4. Header y Usuario
+   ========================================= */
 .admin-header {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between; /* Cambiado para permitir título a la izq si se desea */
   align-items: center;
-  padding: 10px 0;
-  margin-bottom: 20px;
+  padding: 15px 40px;
+  background: var(--color-card-bg);
   border-bottom: 1px solid var(--color-border);
+  height: 70px;
+}
+
+/* Espaciador para empujar user-info a la derecha si no hay nada más */
+.admin-header::before {
+  content: '';
+  display: block;
 }
 
 .user-info {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 20px;
   font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-main);
 }
 
 .logout-btn {
-  background-color: var(--color-secondary);
-  color: white;
-  border: none;
-  padding: 8px 15px;
-  border-radius: 4px;
+  background-color: transparent;
+  color: var(--color-secondary);
+  border: 1px solid var(--color-border);
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: var(--transition-speed);
+  font-size: 13px;
 }
 
 .logout-btn:hover {
-  background-color: #5a6268;
+  background-color: #f1f5f9;
+  color: var(--color-danger);
+  border-color: #fecaca;
 }
 
 .report-title {
-  font-size: 26px;
-  color: #333;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--color-text-main);
+  margin-bottom: 10px;
+  margin-top: 20px;
+}
+
+.subtitle {
+  font-size: 15px;
+  color: var(--color-secondary);
   margin-bottom: 30px;
 }
 
-/* ------------------- Filtros y Acciones Row ------------------- */
+/* =========================================
+   5. Filtros y Formularios
+   ========================================= */
 .filter-actions-row {
+  background-color: var(--color-card-bg);
+  padding: 20px 25px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border);
   display: flex;
   justify-content: space-between;
-  align-items: flex-end; /* Alinea los filtros y el botón de exportar */
+  align-items: flex-end;
   margin-bottom: 30px;
-  padding: 15px;
-  background-color: var(--color-card-bg);
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.filters-section {
+  display: flex;
+  gap: 20px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filter-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-main);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-control,
+.date-input {
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  color: var(--color-text-main);
+  background-color: #fff;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  min-width: 200px;
+}
+
+.form-control:focus,
+.date-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .date-filters {
   display: flex;
-  gap: 20px;
-  align-items: flex-end;
+  gap: 15px;
 }
 
-.date-input-group label {
-  display: block;
+.button-group {
+  display: flex;
+  gap: 10px;
+}
+
+.filter-button,
+.export-button {
+  padding: 10px 24px;
+  border-radius: var(--radius-md);
   font-size: 14px;
-  color: var(--color-secondary);
-  margin-bottom: 5px;
-}
-
-.date-input {
-  padding: 8px;
-  border: 1px solid var(--color-border);
-  border-radius: 4px;
-  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: var(--transition-speed);
+  box-shadow: var(--shadow-sm);
 }
 
 .filter-button {
   background-color: var(--color-primary);
   color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: background-color 0.3s;
 }
 
 .filter-button:hover {
-  background-color: #0056b3;
+  background-color: var(--color-primary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
 .export-button {
-  background-color: #28a745; /* Color verde para éxito/exportar */
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: background-color 0.3s;
+  background-color: white;
+  color: var(--color-success);
+  border: 1px solid var(--color-success);
 }
 
 .export-button:hover {
-  background-color: #1e7e34;
+  background-color: var(--color-success);
+  color: white;
 }
 
-/* ------------------- Tarjetas Resumen ------------------- */
-.summary-cards-grid {
+/* =========================================
+   6. Tarjetas y KPIs
+   ========================================= */
+.summary-cards-grid,
+.kpi-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
-  margin-bottom: 40px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 24px;
+  margin-bottom: 35px;
 }
 
-.summary-card {
+.summary-card,
+.kpi-card {
   background-color: var(--color-card-bg);
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 25px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border);
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.summary-card:hover,
+.kpi-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: rgba(59, 130, 246, 0.3);
 }
 
 .card-label {
-  font-size: 14px;
+  font-size: 13px;
+  font-weight: 600;
   color: var(--color-secondary);
-  margin-bottom: 5px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
 }
 
 .card-value {
-  font-size: 32px;
-  font-weight: bold;
-  margin: 0;
-  color: #333;
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--color-text-main);
+  letter-spacing: -1px;
 }
 
 .total-sales {
-    color: var(--color-primary); /* Destacar las ventas totales */
+  color: var(--color-primary);
 }
 
-/* ------------------- Productos Más Vendidos ------------------- */
-.top-products-section {
-  background-color: var(--color-card-bg);
+/* KPI Stock (Específico HU-002) */
+.low-stock-section {
+  background: #fff0f0; /* Fondo rojo muy claro para alerta */
+  border: 1px solid #fecaca;
   padding: 25px;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: var(--radius-lg);
+  margin-top: 20px;
 }
 
+.low-stock-section h3 {
+  color: #991b1b;
+  margin-top: 0;
+}
+
+/* =========================================
+   7. Gráficos
+   ========================================= */
 .section-title {
-  font-size: 22px;
-  color: #333;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-text-main);
   margin-bottom: 20px;
 }
 
-.chart-placeholder {
-  height: 300px;
-  background-color: var(--color-background-light);
-  border: 1px dashed var(--color-secondary);
-  border-radius: 8px;
+.charts-section {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2 columnas por defecto */
+  gap: 30px;
+  margin-bottom: 40px;
+}
+
+.chart-container {
+  width: 100%;
+  height: 400px;
+  background: var(--color-card-bg);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border);
+  padding: 20px;
+  position: relative; /* Para posicionar elementos dentro */
+}
+
+/* Placeholders */
+.chart-placeholder,
+.chart-placeholder-empty {
+  width: 100%;
+  height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
+  background-color: #f8fafc;
+  border: 2px dashed #cbd5e1;
+  border-radius: var(--radius-md);
   color: var(--color-secondary);
-  margin-bottom: 30px;
+  font-weight: 500;
+}
+
+/* =========================================
+   8. Tablas de Datos
+   ========================================= */
+.data-table-section {
+  background: var(--color-card-bg);
+  padding: 0; /* Padding removido para que la tabla toque bordes o se ajuste mejor */
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border);
+  margin-bottom: 40px;
+  overflow: hidden; /* Para recortar esquinas de la tabla */
 }
 
 .products-table {
   width: 100%;
   border-collapse: collapse;
-}
-
-.products-table th,
-.products-table td {
-  padding: 12px 15px;
-  text-align: left;
-  border-bottom: 1px solid var(--color-border);
+  font-size: 14px;
 }
 
 .products-table th {
-  background-color: #e9ecef;
-  font-weight: bold;
-  color: #495057;
+  background-color: #f8fafc;
+  padding: 16px 20px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--color-text-main);
+  border-bottom: 2px solid var(--color-border);
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+}
+
+.products-table td {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-secondary);
+}
+
+.products-table tbody tr {
+  transition: background-color 0.2s;
 }
 
 .products-table tbody tr:hover {
-  background-color: #f8f9fa;
+  background-color: #f1f5f9;
 }
 
-/* Añade esto a tu AdminReports.css o ajústalo según tu diseño */
-
-.chart-container {
-    /* Define un tamaño fijo o máximo para el gráfico */
-    max-width: 900px;
-    margin: 20px auto;
-    padding: 20px;
-    background: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+.products-table tbody tr:last-child td {
+  border-bottom: none;
 }
 
-.chart-placeholder-empty {
-    text-align: center;
-    padding: 50px;
-    color: #6c757d;
-    font-style: italic;
-    border: 1px dashed #ccc;
-    border-radius: 4px;
-    height: 350px; /* Mismo que el gráfico */
-    display: flex;
+/* Alerta en tabla */
+.products-table tr.low-stock-empty {
+  background-color: #fef2f2; /* Rojo muy suave */
+}
+
+.products-table tr.low-stock-empty td {
+  color: #b91c1c;
+}
+
+.products-table tr.low-stock-empty:hover {
+  background-color: #fee2e2;
+}
+
+.text-right {
+  text-align: right;
+}
+
+/* =========================================
+   9. Responsividad (Media Queries)
+   ========================================= */
+@media (max-width: 1024px) {
+  .charts-section {
+    grid-template-columns: 1fr; /* Gráficos uno debajo de otro */
+  }
+  
+  .filter-actions-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .filters-section {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-reports-layout {
+    flex-direction: column;
+  }
+  
+  .admin-sidebar {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
     align-items: center;
-    justify-content: center;
+    padding: 10px 20px;
+  }
+  
+  .logo-container {
+    margin-bottom: 0;
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+  
+  .nav-list {
+    display: flex;
+    gap: 10px;
+  }
+
+  .nav-item {
+    margin-bottom: 0;
+    padding: 8px 12px;
+  }
+  
+  .nav-item span { /* Ocultar texto en móvil si es necesario */
+    display: none; 
+  }
+  
+  .admin-reports-content {
+    padding: 20px;
+  }
+  
+  .card-value {
+    font-size: 28px;
+  }
 }

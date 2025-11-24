@@ -30,5 +30,10 @@ router.get('/summary', adminReports.getSalesSummary);
 // Lista de los 10 productos más vendidos por rango de fechas
 router.get('/top-productos', adminReports.getTopProducts);
 
+// GET /api/admin/reportes/stock-critico
+// Lista de productos con bajo stock + valoración de inventario
+router.get('/stock-critico', adminReports.getLowStockReport);
+
+
 
 module.exports = router;
