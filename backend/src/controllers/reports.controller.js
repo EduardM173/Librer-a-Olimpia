@@ -170,3 +170,71 @@ exports.getTopProducts = async (req, res) => {
         res.status(500).json({ error: 'report_top_products_failed' });
     }
 };
+
+// ===========================================
+// KPI Stock Crítico + Valoración de Inventario
+// ===========================================
+exports.getLowStockReport = async (req, res) => {
+    try {
+        // threshold = umbral de stock crítico (por defecto 5 unidades)
+        let { threshold, sucursalId } = req.query;
+
+        const umbral = Number(threshold) > 0 ? Number(threshold) : 5;
+
+        // Parámetros para la consulta
+        const params = [umbral];
+        let sucursalClause = '';
+
+        if (sucursalId) {
+            sucursalClause = ' AND ia.sucursal_id = ? ';
+            params.push(Number(sucursalId));
+        }
+
+        const sql = `
+            SELECT
+                p.sku,
+                p.nombre,
+                p.categoria_id       AS categoriaId,   -- 👈 NUEVO
+                ia.cantidad_actual   AS stockActual,
+                p.stock_minimo       AS stockMinimo,
+                ia.costo_promedio    AS costoPromedio,
+                p.precio_venta       AS precioVenta,
+                (ia.cantidad_actual * COALESCE(ia.costo_promedio, p.precio_venta)) AS valorInventario
+            FROM inventario_actual ia
+            JOIN producto p ON ia.producto_id = p.id
+            WHERE ia.cantidad_actual < ?
+            ${sucursalClause}
+            ORDER BY ia.cantidad_actual ASC, p.nombre ASC
+        `;
+
+        const [rows] = await pool.query(sql, params);
+
+        const productos = rows.map(r => ({
+            sku: r.sku,
+            nombre: r.nombre,
+            categoriaId: r.categoriaId ? Number(r.categoriaId) : null, // 👈 NUEVO
+            stockActual: Number(r.stockActual),
+            stockMinimo: r.stockMinimo !== null ? Number(r.stockMinimo) : null,
+            costoUnitario: r.costoPromedio !== null ? Number(r.costoPromedio) : null,
+            precioVenta: Number(r.precioVenta),
+            valorInventario: Number(r.valorInventario),
+        }));
+
+        // KPI: número de productos críticos y valoración total
+        const totalValor = productos.reduce(
+            (acc, p) => acc + p.valorInventario,
+            0
+        );
+
+        res.json({
+            threshold: umbral,
+            totalUnidades: productos.length,
+            totalValor: Number(totalValor.toFixed(2)),
+            productos,
+        });
+
+    } catch (e) {
+        console.error('❌ Error en getLowStockReport:', e.message);
+        res.status(500).json({ error: 'report_low_stock_failed' });
+    }
+};
