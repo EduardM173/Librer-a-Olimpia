@@ -238,3 +238,99 @@ exports.getLowStockReport = async (req, res) => {
         res.status(500).json({ error: 'report_low_stock_failed' });
     }
 };
+// ===================== NUEVO: Productos Sin Movimiento ("Hueso") =====================
+// GET /api/admin/reportes/sin-movimiento?dias=90&categoriaId=...&sucursalId=...
+exports.getNoMovementProducts = async (req, res) => {
+    try {
+        // dias = número de días sin venta para considerar "sin movimiento"
+        let { dias, categoriaId, sucursalId } = req.query;
+        const diasNum = Number(dias) > 0 ? Number(dias) : 90; // default 90 días
+
+        const params = [];
+        let whereClause = ''; // para filtros no agregados en HAVING
+
+        // Filtrar por categoría si se proporciona
+        if (categoriaId) {
+            const id = Number(categoriaId);
+            if (!isNaN(id) && id > 0) {
+                whereClause += ` AND p.categoria_id = ? `;
+                params.push(id);
+            }
+        }
+
+        // Filtrar por sucursal (usamos inventario_actual.sucursal_id)
+        let sucursalClause = '';
+        if (sucursalId) {
+            const s = Number(sucursalId);
+            if (!isNaN(s) && s > 0) {
+                sucursalClause = ` AND ia.sucursal_id = ? `;
+                // we'll push later for consistency
+            }
+        }
+
+        // Nota: usamos LEFT JOIN con venta/venta_detalle para obtener la última fecha de venta por producto.
+        // Luego usamos HAVING para seleccionar productos con MAX(operado_en) IS NULL (nunca vendidos)
+        // o con DATEDIFF >= diasNum
+        const sql = `
+            SELECT
+                p.id,
+                p.sku,
+                p.nombre,
+                p.categoria_id AS categoriaId,
+                COALESCE(ia.cantidad_actual, 0) AS stockActual,
+                p.stock_minimo AS stockMinimo,
+                ia.costo_promedio AS costoPromedio,
+                p.precio_venta AS precioVenta,
+                (COALESCE(ia.cantidad_actual, 0) * COALESCE(ia.costo_promedio, p.precio_venta)) AS valorInventario,
+                MAX(DATE(v.operado_en)) AS lastSoldDate,
+                DATEDIFF(CURDATE(), MAX(DATE(v.operado_en))) AS diasSinVenta
+            FROM producto p
+            LEFT JOIN venta_detalle vd ON vd.producto_id = p.id
+            LEFT JOIN venta v ON v.id = vd.venta_id AND v.estado = 'PAGADA'
+            LEFT JOIN inventario_actual ia ON ia.producto_id = p.id
+            WHERE 1=1
+            ${whereClause}
+            ${sucursalId ? ' AND ia.sucursal_id = ? ' : ''}
+            GROUP BY p.id, p.sku, p.nombre, p.categoria_id, ia.cantidad_actual, p.stock_minimo, ia.costo_promedio, p.precio_venta
+            HAVING (MAX(DATE(v.operado_en)) IS NULL) OR (DATEDIFF(CURDATE(), MAX(DATE(v.operado_en))) >= ?)
+            ORDER BY diasSinVenta DESC, p.nombre ASC
+        `;
+
+        // push sucursalId param if needed
+        if (sucursalId) {
+            params.push(Number(sucursalId));
+        }
+        // finally push dias threshold
+        params.push(diasNum);
+
+        const [rows] = await pool.query(sql, params);
+
+        // Mapear resultados con seguridad
+        const productos = rows.map(r => ({
+            id: r.id,
+            sku: r.sku,
+            nombre: r.nombre,
+            categoriaId: r.categoriaId ? Number(r.categoriaId) : null,
+            stockActual: Number(r.stockActual),
+            stockMinimo: r.stockMinimo !== null ? Number(r.stockMinimo) : null,
+            costoUnitario: r.costoPromedio !== null ? Number(r.costoPromedio) : null,
+            precioVenta: Number(r.precioVenta),
+            valorInventario: Number(r.valorInventario),
+            lastSoldDate: r.lastSoldDate ? r.lastSoldDate : null,
+            diasSinVenta: r.lastSoldDate ? Number(r.diasSinVenta) : null, // null => nunca vendido
+        }));
+
+        // KPI: conteo de productos sin movimiento
+        const totalSinMovimiento = productos.length;
+
+        res.json({
+            dias: diasNum,
+            totalSinMovimiento,
+            productos
+        });
+
+    } catch (e) {
+        console.error('❌ Error en getNoMovementProducts:', e.message);
+        res.status(500).json({ error: 'report_no_movement_failed' });
+    }
+};
