@@ -249,9 +249,21 @@ const AdminReports = () => {
 
   const handleExportCsv = () => {
     const { start, end } = dateRange;
+    
+    // Construimos la URL con TODOS los parámetros de los filtros visuales
+    const params = new URLSearchParams({
+      fechaInicio: start,
+      fechaFin: end,
+      threshold: lowStockData.threshold || 5,      // Umbral actual de stock crítico
+      diasSinVenta: noMovementDays || 90,          // Umbral actual de días hueso
+    });
 
-    let url = `${API_BASE_URL}/top-productos?fechaInicio=${start}&fechaFin=${end}&format=csv`;
-    if (selectedCategoryId) url += `&categoriaId=${selectedCategoryId}`;
+    if (selectedCategoryId) {
+      params.append('categoriaId', selectedCategoryId);
+    }
+
+    // Llamamos al NUEVO endpoint
+    const url = `${API_BASE_URL}/export-general?${params.toString()}`;
 
     fetch(url, {
       method: 'GET',
@@ -259,10 +271,10 @@ const AdminReports = () => {
     })
       .then(response => {
         if (!response.ok)
-          throw new Error('Error al descargar el CSV: ' + response.statusText);
+          throw new Error('Error al generar el reporte: ' + response.statusText);
 
         const contentDisposition = response.headers.get('Content-Disposition');
-        let filename = `reporte_${start}_a_${end}.csv`;
+        let filename = `Reporte_Gerencial_${start}.csv`;
 
         if (contentDisposition) {
           const filenameMatch = contentDisposition.match(/filename="(.+)"/);
@@ -284,8 +296,8 @@ const AdminReports = () => {
         window.URL.revokeObjectURL(blobUrl);
       })
       .catch(error => {
-        console.error('Fallo la descarga del CSV:', error);
-        alert('Error al exportar el reporte a CSV. Verifique las fechas.');
+        console.error('Fallo la descarga:', error);
+        alert('Error al exportar el reporte completo.');
       });
   };
 

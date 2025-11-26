@@ -36,6 +36,9 @@ router.get('/stock-critico', adminReports.getLowStockReport);
 
 router.get('/sin-movimiento', adminReports.getNoMovementProducts);
 
+// NUEVA RUTA: Exportación completa
+router.get('/export-general', adminReports.getGeneralReportExport);
+
 
 
 module.exports = router;
