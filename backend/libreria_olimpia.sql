@@ -548,3 +548,25 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+--Tarea03:Optimización de consultas JOIN entre tablas Venta, Detalle y Producto para evitar latencia en reportes.
+
+-- 1. Optimización para filtrar Ventas por Fecha y Estado al mismo tiempo
+-- (Evita que la DB revise ventas 'ANULADAS' cuando pides reportes de ventas 'PAGADAS')
+CREATE INDEX idx_venta_estado_fecha 
+ON venta(estado, operado_en);
+
+-- 2. Optimización para el Buscador de Productos del Dashboard
+-- (Tu código React busca por nombre, y actualmente 'nombre' NO tiene índice, lo cual es lento)
+CREATE INDEX idx_producto_nombre 
+ON producto(nombre);
+
+-- 3. Optimización para filtrar Productos por Categoría
+-- (Ayuda a la gráfica de "Top Productos Filtrados por Categoría")
+CREATE INDEX idx_producto_categoria_activo 
+ON producto(categoria_id, activo);
+
+-- 4. Optimización opcional para JOINs masivos en Detalles
+-- (Ayuda a unir Venta con Detalle más rápido usando el ID y trayendo el producto)
+CREATE INDEX idx_detalle_covering 
+ON venta_detalle(venta_id, producto_id);

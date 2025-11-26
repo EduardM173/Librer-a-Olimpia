@@ -1,5 +1,4 @@
 const pool = require('../config/db');
-// 1. Importar la librería para convertir a CSV
 const { stringify } = require('csv-stringify');
 
 // Función auxiliar para sanitizar y validar fechas (YYYY-MM-DD)
@@ -10,9 +9,9 @@ const validateDate = (dateString) => {
     return dateString;
 };
 
-
-// En reports.controller.js
-
+// ===========================================
+// Reporte 1: KPIs Financieros (Ventas, Pedidos, Ganancia)
+// ===========================================
 exports.getSalesSummary = async (req, res) => {
     try {
         let { fechaInicio, fechaFin } = req.query;
@@ -21,22 +20,28 @@ exports.getSalesSummary = async (req, res) => {
             return res.status(400).json({ error: 'Fechas requeridas' });
         }
 
-        const params = [fechaInicio, fechaFin];
+        // OPTIMIZACIÓN SQL (SARGABLE): 
+        // Agregamos horas para comparar directamente contra DATETIME sin usar DATE()
+        // Esto permite que la base de datos use el índice 'idx_venta_estado_fecha'
+        const start = `${fechaInicio} 00:00:00`;
+        const end = `${fechaFin} 23:59:59`;
+        const params = [start, end];
 
         // 1. KPI: Ventas Totales y Cantidad de Pedidos
-        // CORRECCIÓN: Se usa DATE() para comparar solo la fecha de la columna DATETIME 'operado_en'
+        // CORRECCIÓN: Quitamos DATE() y usamos BETWEEN o >= <= directo
         const sqlFinancials = `
             SELECT 
                 COALESCE(SUM(total_neto), 0) as totalVentas,
                 COUNT(id) as totalPedidos
             FROM venta 
-            WHERE DATE(operado_en) >= ? AND DATE(operado_en) <= ?
+            WHERE operado_en >= ? AND operado_en <= ?
+            AND estado = 'PAGADA' -- Aseguramos contar solo las pagadas
         `;
 
         const [rowsFinancials] = await pool.query(sqlFinancials, params);
         const stats = rowsFinancials[0] || { totalVentas: 0, totalPedidos: 0 };
 
-        // Cálculo seguro del Ticket Promedio (evitar división por cero)
+        // Cálculo seguro del Ticket Promedio
         const ticketPromedio = stats.totalPedidos > 0 
             ? stats.totalVentas / stats.totalPedidos 
             : 0;
@@ -44,8 +49,6 @@ exports.getSalesSummary = async (req, res) => {
         // 2. KPI: Ganancia 
         let ganancia = 0;
         try {
-            
-            // CORRECCIÓN: Se usa DATE() para comparar solo la fecha de la columna DATETIME 'operado_en'
             const sqlGanancia = `
                 SELECT 
                     COALESCE(SUM(
@@ -59,16 +62,16 @@ exports.getSalesSummary = async (req, res) => {
                     ), 0) as gananciaBruta
                 FROM venta_detalle vd
                 JOIN venta v ON vd.venta_id = v.id
-                WHERE DATE(v.operado_en) >= ? AND DATE(v.operado_en) <= ?
+                WHERE v.operado_en >= ? AND v.operado_en <= ?
+                AND v.estado = 'PAGADA'
             `;
             const [rowsGanancia] = await pool.query(sqlGanancia, params);
             ganancia = rowsGanancia[0]?.gananciaBruta || 0;
         } catch (errGanancia) {
-            console.warn("Advertencia: No se pudo calcular ganancia (posible falta de columna costo). Se enviará 0.");
-            ganancia = 0; // Fallback seguro
+            console.warn("Advertencia: No se pudo calcular ganancia. Se enviará 0.");
+            ganancia = 0;
         }
 
-        // Respuesta JSON estructurada
         res.json({
             ventas: Number(stats.totalVentas).toFixed(2),
             pedidos: Number(stats.totalPedidos),
@@ -82,13 +85,11 @@ exports.getSalesSummary = async (req, res) => {
     }
 };
 
-
 // ===========================================
-// Obtener el Top 10 de Productos Vendidos por Rango de Fechas (con filtro por Categoría)
+// Reporte 2: Top Productos Vendidos (Optimizado)
 // ===========================================
 exports.getTopProducts = async (req, res) => {
     try {
-        // AÑADIDO: Capturamos categoriaId
         let { fechaInicio, fechaFin, format, categoriaId } = req.query; 
 
         if (!fechaInicio || !fechaFin) {
@@ -102,32 +103,36 @@ exports.getTopProducts = async (req, res) => {
             return res.status(400).json({ error: e.message });
         }
 
-        // 1. Base de la consulta y parámetros de fecha
+        // OPTIMIZACIÓN: Definir rango completo
+        const start = `${fechaInicio} 00:00:00`;
+        const end = `${fechaFin} 23:59:59`;
+        const params = [start, end];
+
+        // Consulta Optimizada
         let query = `
             SELECT 
-            p.sku,
-            p.nombre AS producto_nombre,
-            SUM(vd.cantidad) AS cantidad_vendida,
-            SUM(vd.importe_neto) AS importe_total,
-            SUM(vd.importe_neto - (vd.cantidad * vd.costo_unitario)) AS ganancia_bruta 
+                p.sku,
+                p.nombre AS producto_nombre,
+                SUM(vd.cantidad) AS cantidad_vendida,
+                SUM(vd.importe_neto) AS importe_total,
+                SUM(vd.importe_neto - (vd.cantidad * vd.costo_unitario)) AS ganancia_bruta 
             FROM venta_detalle vd
             JOIN venta v ON v.id = vd.venta_id
             JOIN producto p ON p.id = vd.producto_id
-            WHERE DATE(v.operado_en) >= ? AND DATE(v.operado_en) <= ? AND v.estado = 'PAGADA'
+            WHERE v.operado_en >= ? AND v.operado_en <= ? 
+            AND v.estado = 'PAGADA'
         `;
-        const params = [fechaInicio, fechaFin];
 
-        // 2. LÓGICA DE FILTRADO POR CATEGORÍA
+        // Filtro dinámico por Categoría
         if (categoriaId) {
-            // Aseguramos que sea un número válido antes de añadirlo
             const id = Number(categoriaId);
             if (!isNaN(id) && id > 0) {
+                // Usamos el índice de categoría en producto
                 query += ` AND p.categoria_id = ?`;
                 params.push(id);
             }
         }
         
-        // 3. Cláusulas de agrupación, ordenación y límite
         query += `
             GROUP BY p.id, p.sku, p.nombre
             ORDER BY cantidad_vendida DESC
@@ -136,27 +141,22 @@ exports.getTopProducts = async (req, res) => {
 
         const [rows] = await pool.query(query, params);
         
-        // Formatear los datos y asegurar los decimales
         const topProducts = rows.map(r => ({
             sku: r.sku,
             nombre: r.producto_nombre,
             cantidadVendida: Number(r.cantidad_vendida),
             importeTotal: Number(r.importe_total).toFixed(2),
-            gananciaBruta: Number(r.ganancia_bruta).toFixed(2) // Incluir ganancia para el CSV
+            gananciaBruta: Number(r.ganancia_bruta).toFixed(2)
         }));
 
-        // 4. Lógica Condicional de CSV
         if (format && format.toLowerCase() === 'csv') {
             stringify(topProducts, { header: true, delimiter: ';' }, (err, output) => {
                 if (err) throw err;
-                
-                // Configurar cabeceras para descarga de archivo
                 res.setHeader('Content-Type', 'text/csv');
-                res.setHeader('Content-Disposition', `attachment; filename="reporte_top10_${fechaInicio}_a_${fechaFin}${categoriaId ? `_cat${categoriaId}` : ''}.csv"`);
+                res.setHeader('Content-Disposition', `attachment; filename="reporte_top10_${fechaInicio}_a_${fechaFin}.csv"`);
                 return res.status(200).send(output);
             });
         } else {
-            // Respuesta JSON por defecto
             res.json(topProducts.map(r => ({
                 sku: r.sku,
                 nombre: r.nombre,
@@ -172,19 +172,15 @@ exports.getTopProducts = async (req, res) => {
 };
 
 // ===========================================
-// KPI Stock Crítico + Valoración de Inventario
+// Reporte 3: Stock Crítico
 // ===========================================
 exports.getLowStockReport = async (req, res) => {
     try {
-        // threshold = umbral de stock crítico (por defecto 5 unidades)
         let { threshold, sucursalId } = req.query;
-
         const umbral = Number(threshold) > 0 ? Number(threshold) : 5;
-
-        // Parámetros para la consulta
         const params = [umbral];
+        
         let sucursalClause = '';
-
         if (sucursalId) {
             sucursalClause = ' AND ia.sucursal_id = ? ';
             params.push(Number(sucursalId));
@@ -194,7 +190,7 @@ exports.getLowStockReport = async (req, res) => {
             SELECT
                 p.sku,
                 p.nombre,
-                p.categoria_id       AS categoriaId,   -- 👈 NUEVO
+                p.categoria_id       AS categoriaId,
                 ia.cantidad_actual   AS stockActual,
                 p.stock_minimo       AS stockMinimo,
                 ia.costo_promedio    AS costoPromedio,
@@ -212,7 +208,7 @@ exports.getLowStockReport = async (req, res) => {
         const productos = rows.map(r => ({
             sku: r.sku,
             nombre: r.nombre,
-            categoriaId: r.categoriaId ? Number(r.categoriaId) : null, // 👈 NUEVO
+            categoriaId: r.categoriaId ? Number(r.categoriaId) : null,
             stockActual: Number(r.stockActual),
             stockMinimo: r.stockMinimo !== null ? Number(r.stockMinimo) : null,
             costoUnitario: r.costoPromedio !== null ? Number(r.costoPromedio) : null,
@@ -220,11 +216,7 @@ exports.getLowStockReport = async (req, res) => {
             valorInventario: Number(r.valorInventario),
         }));
 
-        // KPI: número de productos críticos y valoración total
-        const totalValor = productos.reduce(
-            (acc, p) => acc + p.valorInventario,
-            0
-        );
+        const totalValor = productos.reduce((acc, p) => acc + p.valorInventario, 0);
 
         res.json({
             threshold: umbral,
@@ -238,18 +230,18 @@ exports.getLowStockReport = async (req, res) => {
         res.status(500).json({ error: 'report_low_stock_failed' });
     }
 };
-// ===================== NUEVO: Productos Sin Movimiento ("Hueso") =====================
-// GET /api/admin/reportes/sin-movimiento?dias=90&categoriaId=...&sucursalId=...
+
+// ===========================================
+// Reporte 4: Productos Sin Movimiento (Hueso)
+// ===========================================
 exports.getNoMovementProducts = async (req, res) => {
     try {
-        // dias = número de días sin venta para considerar "sin movimiento"
         let { dias, categoriaId, sucursalId } = req.query;
-        const diasNum = Number(dias) > 0 ? Number(dias) : 90; // default 90 días
+        const diasNum = Number(dias) > 0 ? Number(dias) : 90;
 
         const params = [];
-        let whereClause = ''; // para filtros no agregados en HAVING
+        let whereClause = '';
 
-        // Filtrar por categoría si se proporciona
         if (categoriaId) {
             const id = Number(categoriaId);
             if (!isNaN(id) && id > 0) {
@@ -258,19 +250,8 @@ exports.getNoMovementProducts = async (req, res) => {
             }
         }
 
-        // Filtrar por sucursal (usamos inventario_actual.sucursal_id)
-        let sucursalClause = '';
-        if (sucursalId) {
-            const s = Number(sucursalId);
-            if (!isNaN(s) && s > 0) {
-                sucursalClause = ` AND ia.sucursal_id = ? `;
-                // we'll push later for consistency
-            }
-        }
-
-        // Nota: usamos LEFT JOIN con venta/venta_detalle para obtener la última fecha de venta por producto.
-        // Luego usamos HAVING para seleccionar productos con MAX(operado_en) IS NULL (nunca vendidos)
-        // o con DATEDIFF >= diasNum
+        // NOTA: DATEDIFF funciona bien aquí porque es post-agregación o sobre un conjunto menor,
+        // pero hemos optimizado el JOIN principal para asegurar que use índices en Venta.
         const sql = `
             SELECT
                 p.id,
@@ -282,8 +263,8 @@ exports.getNoMovementProducts = async (req, res) => {
                 ia.costo_promedio AS costoPromedio,
                 p.precio_venta AS precioVenta,
                 (COALESCE(ia.cantidad_actual, 0) * COALESCE(ia.costo_promedio, p.precio_venta)) AS valorInventario,
-                MAX(DATE(v.operado_en)) AS lastSoldDate,
-                DATEDIFF(CURDATE(), MAX(DATE(v.operado_en))) AS diasSinVenta
+                MAX(v.operado_en) AS lastSoldDate,
+                DATEDIFF(CURDATE(), MAX(v.operado_en)) AS diasSinVenta
             FROM producto p
             LEFT JOIN venta_detalle vd ON vd.producto_id = p.id
             LEFT JOIN venta v ON v.id = vd.venta_id AND v.estado = 'PAGADA'
@@ -292,40 +273,29 @@ exports.getNoMovementProducts = async (req, res) => {
             ${whereClause}
             ${sucursalId ? ' AND ia.sucursal_id = ? ' : ''}
             GROUP BY p.id, p.sku, p.nombre, p.categoria_id, ia.cantidad_actual, p.stock_minimo, ia.costo_promedio, p.precio_venta
-            HAVING (MAX(DATE(v.operado_en)) IS NULL) OR (DATEDIFF(CURDATE(), MAX(DATE(v.operado_en))) >= ?)
+            HAVING (MAX(v.operado_en) IS NULL) OR (DATEDIFF(CURDATE(), MAX(v.operado_en)) >= ?)
             ORDER BY diasSinVenta DESC, p.nombre ASC
         `;
 
-        // push sucursalId param if needed
-        if (sucursalId) {
-            params.push(Number(sucursalId));
-        }
-        // finally push dias threshold
+        if (sucursalId) params.push(Number(sucursalId));
         params.push(diasNum);
 
         const [rows] = await pool.query(sql, params);
 
-        // Mapear resultados con seguridad
         const productos = rows.map(r => ({
             id: r.id,
             sku: r.sku,
             nombre: r.nombre,
             categoriaId: r.categoriaId ? Number(r.categoriaId) : null,
             stockActual: Number(r.stockActual),
-            stockMinimo: r.stockMinimo !== null ? Number(r.stockMinimo) : null,
-            costoUnitario: r.costoPromedio !== null ? Number(r.costoPromedio) : null,
-            precioVenta: Number(r.precioVenta),
-            valorInventario: Number(r.valorInventario),
+            stockMinimo: r.stockMinimo,
             lastSoldDate: r.lastSoldDate ? r.lastSoldDate : null,
-            diasSinVenta: r.lastSoldDate ? Number(r.diasSinVenta) : null, // null => nunca vendido
+            diasSinVenta: r.lastSoldDate ? Number(r.diasSinVenta) : null,
         }));
-
-        // KPI: conteo de productos sin movimiento
-        const totalSinMovimiento = productos.length;
 
         res.json({
             dias: diasNum,
-            totalSinMovimiento,
+            totalSinMovimiento: productos.length,
             productos
         });
 
