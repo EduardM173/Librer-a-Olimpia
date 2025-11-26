@@ -34,6 +34,8 @@ router.get('/top-productos', adminReports.getTopProducts);
 // Lista de productos con bajo stock + valoración de inventario
 router.get('/stock-critico', adminReports.getLowStockReport);
 
+router.get('/sin-movimiento', adminReports.getNoMovementProducts);
+
 
 
 module.exports = router;

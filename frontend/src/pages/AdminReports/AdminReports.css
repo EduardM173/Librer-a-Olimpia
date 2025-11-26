@@ -2,44 +2,30 @@
    1. Variables y Configuración Base
    ========================================= */
 :root {
+  /* FORZAR MODO CLARO (Solución bug visual modo oscuro) */
+  color-scheme: light;
+
   /* Paleta Refinada */
-  --color-primary: #3b82f6;       /* Azul moderno y vibrante */
-  --color-primary-dark: #2563eb;  /* Azul más oscuro para hover */
-  --color-secondary: #64748b;     /* Gris pizarra suave */
-  --color-success: #10b981;       /* Verde esmeralda */
-  --color-danger: #ef4444;        /* Rojo suave */
+  --color-primary: #3b82f6;       
+  --color-primary-dark: #2563eb;  
+  --color-secondary: #64748b;     
+  --color-success: #10b981;       
+  --color-danger: #ef4444;        
   
   /* Fondos */
-  --color-background-light: #f1f5f9; /* Fondo gris muy suave */
-  --color-sidebar-bg: #1e293b;       /* Azul noche profundo (más elegante que negro) */
+  --color-background-light: #f8fafc; 
+  --color-sidebar-bg: #1e293b;       
   --color-card-bg: #ffffff;
   
-  /* Textos */
+  /* Textos (Explícitos para evitar herencia de modo oscuro) */
   --color-text-main: #334155;
   --color-text-light: #f8fafc;
   
   /* Bordes y Sombras */
   --color-border: #e2e8f0;
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  
-  /* Dimensiones */
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --transition-speed: 0.3s ease;
-}
-
-* {
-  box-sizing: border-box; /* Crucial para que el padding no rompa el ancho */
-}
-
-body {
-  margin: 0;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  background-color: var(--color-background-light);
-  color: var(--color-text-main);
-  line-height: 1.5;
 }
 
 /* =========================================
@@ -48,227 +34,104 @@ body {
 .admin-reports-layout {
   display: flex;
   min-height: 100vh;
+  background-color: var(--color-background-light);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: var(--color-text-main);
 }
 
 .admin-main-content {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  overflow-x: hidden; /* Evita scroll horizontal accidental */
-}
-
-.admin-reports-content {
-  padding: 30px 40px;
-  max-width: 1600px; /* Evita que se estire demasiado en pantallas 4k */
-  width: 100%;
+  flex: 1;
+  padding: 2rem;
+  max-width: 1600px; /* Aumentado ligeramente para dar espacio a los 5 KPIs */
   margin: 0 auto;
+  width: 100%;
 }
 
 /* =========================================
-   3. Sidebar (Barra Lateral)
+   3. Encabezado
    ========================================= */
-.admin-sidebar {
-  width: 260px;
-  background-color: var(--color-sidebar-bg);
-  color: var(--color-text-light);
-  padding: 25px 20px;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 4px 0 10px rgba(0,0,0,0.05);
-  z-index: 10;
-}
-
-.logo-container {
-  margin-bottom: 50px;
-  text-align: center;
-  padding-bottom: 20px;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-}
-
-.logo-text {
-  font-size: 24px;
-  font-weight: 700;
-  margin: 0;
-  color: #fff;
-  letter-spacing: 0.5px;
-}
-
-.logo-subtitle {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  color: var(--color-secondary);
-  margin-top: 5px;
-}
-
-.nav-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.nav-item {
-  display: flex;
-  align-items: center;
-  padding: 14px 16px;
-  text-decoration: none;
-  color: #94a3b8; /* Color texto inactivo */
-  border-radius: var(--radius-md);
-  margin-bottom: 8px;
-  transition: all var(--transition-speed);
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.nav-item:hover {
-  background-color: rgba(255,255,255,0.05);
-  color: #fff;
-  transform: translateX(4px); /* Pequeña animación de movimiento */
-}
-
-.nav-item.active {
-  background-color: var(--color-primary);
-  color: #fff;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); /* Sombra de brillo azul */
-}
-
-/* =========================================
-   4. Header y Usuario
-   ========================================= */
-.admin-header {
-  display: flex;
-  justify-content: space-between; /* Cambiado para permitir título a la izq si se desea */
-  align-items: center;
-  padding: 15px 40px;
-  background: var(--color-card-bg);
+.admin-header-simple {
+  margin-bottom: 2rem;
   border-bottom: 1px solid var(--color-border);
-  height: 70px;
+  padding-bottom: 1.5rem;
 }
 
-/* Espaciador para empujar user-info a la derecha si no hay nada más */
-.admin-header::before {
-  content: '';
-  display: block;
+.admin-header-simple h1 {
+  font-size: 1.875rem; 
+  color: #1e293b; 
+  margin: 0;
+  font-weight: 800;
+  letter-spacing: -0.025em;
 }
 
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--color-text-main);
-}
-
-.logout-btn {
-  background-color: transparent;
+.admin-header-simple .subtitle {
   color: var(--color-secondary);
-  border: 1px solid var(--color-border);
-  padding: 8px 16px;
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: var(--transition-speed);
-  font-size: 13px;
-}
-
-.logout-btn:hover {
-  background-color: #f1f5f9;
-  color: var(--color-danger);
-  border-color: #fecaca;
-}
-
-.report-title {
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--color-text-main);
-  margin-bottom: 10px;
-  margin-top: 20px;
-}
-
-.subtitle {
-  font-size: 15px;
-  color: var(--color-secondary);
-  margin-bottom: 30px;
+  margin-top: 0.5rem;
+  font-size: 1rem;
 }
 
 /* =========================================
-   5. Filtros y Formularios
+   4. Sección de Filtros
    ========================================= */
-.filter-actions-row {
-  background-color: var(--color-card-bg);
-  padding: 20px 25px;
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--color-border);
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  margin-bottom: 30px;
-  flex-wrap: wrap;
-  gap: 15px;
-}
-
 .filters-section {
   display: flex;
-  gap: 20px;
-  align-items: flex-end;
   flex-wrap: wrap;
+  gap: 1.25rem;
+  background-color: var(--color-card-bg);
+  padding: 1.5rem;
+  border-radius: 1rem; 
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 2rem;
+  align-items: flex-end;
+  border: 1px solid var(--color-border);
 }
 
 .filter-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  min-width: 160px;
 }
 
 .filter-group label {
-  font-size: 13px;
+  font-size: 0.875rem;
   font-weight: 600;
   color: var(--color-text-main);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  margin-bottom: 0.5rem;
 }
 
-.form-control,
-.date-input {
-  padding: 10px 12px;
+.form-control {
+  padding: 0.6rem 0.85rem;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  font-size: 14px;
-  color: var(--color-text-main);
-  background-color: #fff;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  min-width: 200px;
-}
-
-.form-control:focus,
-.date-input:focus {
+  border-radius: 0.5rem;
+  font-size: 0.95rem;
   outline: none;
+  background-color: #ffffff !important; /* Forzar fondo blanco */
+  color: #334155 !important; /* Forzar texto oscuro */
+  transition: all 0.2s ease-in-out;
+  width: 100%;
+  appearance: none; /* Eliminar estilos nativos del sistema */
+}
+
+.form-control:focus {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); 
 }
 
-.date-filters {
-  display: flex;
-  gap: 15px;
-}
-
-.button-group {
-  display: flex;
-  gap: 10px;
-}
-
+/* Estilos de Botones */
 .filter-button,
 .export-button {
-  padding: 10px 24px;
-  border-radius: var(--radius-md);
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
+  padding: 0.6rem 1.25rem;
   border: none;
-  transition: var(--transition-speed);
-  box-shadow: var(--shadow-sm);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+  height: fit-content;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
 .filter-button {
@@ -279,208 +142,353 @@ body {
 .filter-button:hover {
   background-color: var(--color-primary-dark);
   transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
+}
+
+.filter-button:active {
+  transform: translateY(0) scale(0.98);
 }
 
 .export-button {
-  background-color: white;
-  color: var(--color-success);
-  border: 1px solid var(--color-success);
+  background-color: #10b981;
+  color: white;
+  margin-left: auto;
 }
 
 .export-button:hover {
-  background-color: var(--color-success);
-  color: white;
+  background-color: #059669;
+  transform: translateY(-1px);
+}
+
+.export-button:active {
+  transform: translateY(0) scale(0.98);
 }
 
 /* =========================================
-   6. Tarjetas y KPIs
+   5. Tarjetas KPI (Grid) - CORREGIDO
    ========================================= */
-.summary-cards-grid,
 .kpi-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 24px;
-  margin-bottom: 35px;
+  /* CAMBIO IMPORTANTE: Forzar 5 columnas iguales */
+  grid-template-columns: repeat(5, 1fr); 
+  gap: 1rem; /* Reducido ligeramente el gap para que quepan mejor */
+  margin-bottom: 2rem;
+  width: 100%;
 }
 
-.summary-card,
 .kpi-card {
   background-color: var(--color-card-bg);
-  padding: 25px;
-  border-radius: var(--radius-lg);
+  padding: 1.25rem; /* Padding ajustado para optimizar espacio */
+  border-radius: 1rem;
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--color-border);
-  transition: transform 0.2s, box-shadow 0.2s;
+  border-left-width: 5px; 
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  min-width: 0; /* Evita que flex items desborden */
 }
 
-.summary-card:hover,
 .kpi-card:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-lg);
-  border-color: rgba(59, 130, 246, 0.3);
 }
 
-.card-label {
-  font-size: 13px;
-  font-weight: 600;
+.kpi-title {
+  font-size: 0.8rem;
   color: var(--color-secondary);
+  margin: 0 0 0.5rem 0;
   text-transform: uppercase;
-  margin-bottom: 10px;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+  white-space: nowrap; /* Evita que el título salte de línea si es posible */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.kpi-value {
+  font-size: 1.75rem; /* Ligeramente más pequeño para asegurar que quepa */
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* Variantes de Color KPI */
+.kpi-border-primary { border-left-color: var(--color-primary); }
+.kpi-border-success { border-left-color: var(--color-success); }
+.kpi-border-warning { border-left-color: #f59e0b; }
+.kpi-border-info    { border-left-color: #06b6d4; }
+.kpi-border-danger  { border-left-color: var(--color-danger); }
+.kpi-border-purple  { border-left-color: #8b5cf6; }
+.kpi-border-dark    { border-left-color: #334155; }
+
+.kpi-subtitle {
+  font-size: 0.875rem;
+  color: var(--color-secondary);
+  font-weight: 500;
+  margin-bottom: 0.25rem;
 }
 
 .card-value {
-  font-size: 36px;
-  font-weight: 800;
-  color: var(--color-text-main);
-  letter-spacing: -1px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
 }
 
-.total-sales {
-  color: var(--color-primary);
-}
-
-/* KPI Stock (Específico HU-002) */
-.low-stock-section {
-  background: #fff0f0; /* Fondo rojo muy claro para alerta */
-  border: 1px solid #fecaca;
-  padding: 25px;
-  border-radius: var(--radius-lg);
-  margin-top: 20px;
-}
-
-.low-stock-section h3 {
-  color: #991b1b;
-  margin-top: 0;
+.kpi-small-text {
+  color: #64748b;
+  display: block;
+  margin-top: 4px;
+  font-size: 0.75rem;
+  line-height: 1.2;
 }
 
 /* =========================================
-   7. Gráficos
+   6. Sección de Gráficos
    ========================================= */
-.section-title {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--color-text-main);
-  margin-bottom: 20px;
-}
-
 .charts-section {
   display: grid;
-  grid-template-columns: repeat(2, 1fr); /* 2 columnas por defecto */
-  gap: 30px;
-  margin-bottom: 40px;
+  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
 }
 
 .chart-container {
-  width: 100%;
-  height: 400px;
-  background: var(--color-card-bg);
-  border-radius: var(--radius-lg);
+  background-color: var(--color-card-bg);
+  padding: 1.5rem;
+  border-radius: 1rem;
   box-shadow: var(--shadow-sm);
+  min-height: 350px; 
   border: 1px solid var(--color-border);
-  padding: 20px;
-  position: relative; /* Para posicionar elementos dentro */
+  position: relative;
 }
 
-/* Placeholders */
-.chart-placeholder,
 .chart-placeholder-empty {
-  width: 100%;
-  height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #f8fafc;
-  border: 2px dashed #cbd5e1;
-  border-radius: var(--radius-md);
+  height: 100%;
   color: var(--color-secondary);
-  font-weight: 500;
+  text-align: center;
+  padding: 1rem;
+  font-style: italic;
 }
 
 /* =========================================
-   8. Tablas de Datos
+   7. Sección de Tablas y Datos
    ========================================= */
-.data-table-section {
-  background: var(--color-card-bg);
-  padding: 0; /* Padding removido para que la tabla toque bordes o se ajuste mejor */
-  border-radius: var(--radius-lg);
+.data-table-section,
+.low-stock-section {
+  background-color: var(--color-card-bg);
+  padding: 1.75rem;
+  border-radius: 1rem;
   box-shadow: var(--shadow-sm);
+  margin-bottom: 2rem;
   border: 1px solid var(--color-border);
-  margin-bottom: 40px;
-  overflow: hidden; /* Para recortar esquinas de la tabla */
+}
+
+.data-table-section h3,
+.low-stock-section h3 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  color: #0f172a;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-border);
+}
+
+/* Custom Scrollbar */
+.table-wrapper::-webkit-scrollbar {
+  height: 8px;
+}
+.table-wrapper::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+.table-wrapper::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 4px;
+}
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+  background-color: #94a3b8;
 }
 
 .products-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 14px;
+  font-size: 0.95rem;
+  background-color: #fff; /* Asegurar fondo blanco en tabla */
 }
 
-.products-table th {
+.products-table thead th {
   background-color: #f8fafc;
-  padding: 16px 20px;
-  text-align: left;
+  color: #475569;
   font-weight: 600;
-  color: var(--color-text-main);
-  border-bottom: 2px solid var(--color-border);
   text-transform: uppercase;
-  font-size: 12px;
-  letter-spacing: 0.5px;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  text-align: left;
+  padding: 1rem;
+  border-bottom: 2px solid var(--color-border);
+  white-space: nowrap;
 }
 
-.products-table td {
-  padding: 16px 20px;
+.products-table tbody td {
+  padding: 1rem;
   border-bottom: 1px solid var(--color-border);
-  color: var(--color-secondary);
+  color: var(--color-text-main);
+  vertical-align: middle;
 }
 
 .products-table tbody tr {
-  transition: background-color 0.2s;
+  transition: background-color 0.15s ease-in-out;
+  background-color: #fff; /* Fondo base de filas */
 }
 
 .products-table tbody tr:hover {
-  background-color: #f1f5f9;
+  background-color: #f8fafc;
 }
 
-.products-table tbody tr:last-child td {
-  border-bottom: none;
-}
-
-/* Alerta en tabla */
 .products-table tr.low-stock-empty {
-  background-color: #fef2f2; /* Rojo muy suave */
+  background-color: #fef2f2 !important;
 }
 
 .products-table tr.low-stock-empty td {
-  color: #b91c1c;
+  color: #991b1b; 
+  font-weight: 500;
 }
 
 .products-table tr.low-stock-empty:hover {
-  background-color: #fee2e2;
+  background-color: #fee2e2 !important;
 }
 
-.text-right {
-  text-align: right;
+.text-right { text-align: right; }
+
+.table-empty-message {
+  text-align: center;
+  padding: 3rem;
+  color: #64748b;
+  font-style: italic;
+}
+
+/* Low Stock Summary */
+.low-stock-summary {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  justify-content: center; /* Centrado horizontal activado */
+}
+
+.low-stock-summary .kpi-card {
+  min-width: 220px;
+  padding: 1.5rem;
+  flex: 0 1 400px; /* Limita el ancho máximo para que no se estiren demasiado */
+  text-align: center; /* Centra el contenido (texto) dentro de la tarjeta */
+}
+
+.low-stock-filter-container {
+  margin-bottom: 1.5rem;
+  background: #f8fafc;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-border);
+}
+
+.filter-helper-text {
+  color: var(--color-secondary);
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+}
+
+/* Section with Separator */
+.section-with-separator {
+  margin-top: 3rem;
+  border-top: 2px dashed var(--color-border); 
+  padding-top: 2rem;
+}
+
+.advanced-filters-row {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  background-color: #f8fafc;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-border);
+}
+
+.filter-item-small { min-width: 150px; }
+.filter-item-medium { min-width: 220px; flex-grow: 1; }
+
+.filter-label-block {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.filter-actions-end {
+  display: flex;
+  align-items: flex-end;
+  padding-bottom: 1px;
+}
+
+.filter-info-right {
+  margin-left: auto;
+  color: #64748b;
+  font-size: 0.875rem;
+  background: #fff;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+}
+
+.section-description-text {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  color: #64748b;
+  line-height: 1.5;
 }
 
 /* =========================================
-   9. Responsividad (Media Queries)
+   9. Responsividad
    ========================================= */
+/* Ajuste crítico para móviles: volver a apilar KPIs si la pantalla es muy pequeña */
+@media (max-width: 1100px) {
+  .kpi-grid {
+    /* Si la pantalla baja de 1100px, volvemos a auto-fit para que no se rompa */
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
+  }
+}
+
 @media (max-width: 1024px) {
   .charts-section {
-    grid-template-columns: 1fr; /* Gráficos uno debajo de otro */
+    grid-template-columns: 1fr;
   }
   
-  .filter-actions-row {
+  .filters-section {
     flex-direction: column;
     align-items: stretch;
   }
   
-  .filters-section {
+  .export-button {
+    margin-left: 0;
     width: 100%;
+    margin-top: 0.5rem;
+  }
+  
+  .filter-group {
+    min-width: 100%;
   }
 }
 
@@ -489,39 +497,18 @@ body {
     flex-direction: column;
   }
   
-  .admin-sidebar {
-    width: 100%;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 20px;
+  .admin-main-content {
+    padding: 1rem;
   }
   
-  .logo-container {
-    margin-bottom: 0;
-    border-bottom: none;
-    padding-bottom: 0;
+  .advanced-filters-row {
+    flex-direction: column;
+    align-items: stretch;
   }
   
-  .nav-list {
-    display: flex;
-    gap: 10px;
-  }
-
-  .nav-item {
-    margin-bottom: 0;
-    padding: 8px 12px;
-  }
-  
-  .nav-item span { /* Ocultar texto en móvil si es necesario */
-    display: none; 
-  }
-  
-  .admin-reports-content {
-    padding: 20px;
-  }
-  
-  .card-value {
-    font-size: 28px;
+  .filter-info-right {
+    margin-left: 0;
+    margin-top: 0.5rem;
+    text-align: center;
   }
 }

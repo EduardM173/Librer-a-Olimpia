@@ -16,6 +16,15 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
 const API_BASE_URL = 'http://localhost:3000/api/admin/reportes';
 
+// Helper para formatear fechas
+const formatDate = (d) => {
+  if (!d) return 'Nunca';
+  try {
+    const dt = new Date(d);
+    return dt.toISOString().split('T')[0];
+  } catch { return d; }
+};
+
 // --- COMPONENTE: Gráfico de productos filtrados por categoría ---
 const FilteredProductsChart = ({ title, products }) => {
   const data = {
@@ -102,16 +111,23 @@ const AdminReports = () => {
   const [selectedCategoryId, setSelectedCategoryId] = useState('');
   const [topProductsFiltered, setTopProductsFiltered] = useState([]);
 
-  // HU2: datos de Stock Crítico + Valoración
+  // HU2: Stock Crítico
   const [lowStockData, setLowStockData] = useState({
     threshold: 5,
     totalUnidades: 0,
     totalValor: 0,
     productos: [],
   });
-
-  // HU2: texto de búsqueda (filtro por nombre / SKU)
   const [lowStockSearch, setLowStockSearch] = useState('');
+
+  // Productos Sin Movimiento (Hueso)
+  const [noMovementDays, setNoMovementDays] = useState(90);
+  const [noMovementData, setNoMovementData] = useState({ 
+    dias: 90, 
+    totalSinMovimiento: 0, 
+    productos: [] 
+  });
+  const [noMovementSearch, setNoMovementSearch] = useState('');
 
   // ---------------------- FUNCIONES ---------------------------
 
@@ -178,7 +194,7 @@ const AdminReports = () => {
         setTopProductsFiltered([]);
       }
 
-      // D) HU2 – Stock crítico (traemos TODO; filtramos por categoría en frontend)
+      // D) HU2 – Stock crítico
       const lowStockRes = await fetch(`${API_BASE_URL}/stock-critico`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -200,6 +216,24 @@ const AdminReports = () => {
           productos: [],
         }));
       }
+
+      // E) Productos Sin Movimiento (Hueso)
+      let noMovUrl = `${API_BASE_URL}/sin-movimiento?dias=${noMovementDays}`;
+      if (selectedCategoryId) noMovUrl += `&categoriaId=${selectedCategoryId}`;
+      
+      const noMoveRes = await fetch(noMovUrl, { headers: { Authorization: `Bearer ${token}` } });
+      
+      if (noMoveRes.ok) {
+        const noMoveDataResponse = await noMoveRes.json();
+        setNoMovementData({ 
+            dias: noMoveDataResponse.dias, 
+            totalSinMovimiento: noMoveDataResponse.totalSinMovimiento, 
+            productos: noMoveDataResponse.productos || [] 
+        });
+      } else {
+        setNoMovementData({ dias: noMovementDays, totalSinMovimiento: 0, productos: [] });
+      }
+
     } catch (error) {
       console.error('Error cargando reportes:', error);
     }
@@ -292,17 +326,16 @@ const AdminReports = () => {
 
   useEffect(() => {
     if (token) fetchData();
-  }, [token, dateRange, selectedCategoryId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token, dateRange, selectedCategoryId, noMovementDays]);
 
-  // ------------------- FILTRO PARA HU-002 (categoría + texto) -----
+  // ------------------- FILTROS ---------------------
 
   const filteredLowStockProducts = (lowStockData.productos || []).filter(p => {
-    // 1) Filtro por categoría (de arriba)
     const matchCategory =
       !selectedCategoryId ||
       (p.categoriaId && String(p.categoriaId) === String(selectedCategoryId));
 
-    // 2) Filtro por texto (nombre/SKU)
     const term = lowStockSearch.trim().toLowerCase();
     const matchSearch =
       !term ||
@@ -310,6 +343,12 @@ const AdminReports = () => {
       p.sku.toLowerCase().includes(term);
 
     return matchCategory && matchSearch;
+  });
+
+  const filteredNoMovementProducts = (noMovementData.productos || []).filter(p => {
+    const term = noMovementSearch.trim().toLowerCase();
+    if (!term) return true;
+    return p.nombre.toLowerCase().includes(term) || p.sku.toLowerCase().includes(term);
   });
 
   // ------------------------ RENDER -----------------------------
@@ -322,7 +361,7 @@ const AdminReports = () => {
           <p className="subtitle">Indicadores clave de rendimiento y estadísticas</p>
         </header>
 
-        {/* FILTROS */}
+        {/* FILTROS PRINCIPALES */}
         <section className="filters-section">
           <div className="filter-group">
             <label>Desde:</label>
@@ -363,9 +402,7 @@ const AdminReports = () => {
             </select>
           </div>
 
-          <button onClick={fetchData} className="filter-button">
-            Actualizar Datos
-          </button>
+          {/* Botón de actualizar eliminado por ser redundante (useEffect automático) */}
 
           <button
             onClick={handleExportCsv}
@@ -396,6 +433,13 @@ const AdminReports = () => {
           <div className="kpi-card kpi-border-info">
             <h3 className="kpi-title">Ganancia Est.</h3>
             <p className="kpi-value">Bs {kpiStats.ganancia.toFixed(2)}</p>
+          </div>
+
+          {/* KPI: Productos Sin Movimiento */}
+          <div className="kpi-card kpi-border-dark">
+             <h3 className="kpi-title">Prod. Sin Movimiento</h3>
+             <p className="kpi-value">{noMovementData.totalSinMovimiento}</p>
+             <small className="kpi-small-text">Sin ventas en ≥ {noMovementData.dias} días</small>
           </div>
         </section>
 
@@ -435,7 +479,7 @@ const AdminReports = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="4" style={{ textAlign: 'center', padding: '20px' }}>
+                  <td colSpan="4" className="table-empty-message">
                     No hay datos de Top Productos (General) para mostrar en este rango.
                   </td>
                 </tr>
@@ -444,87 +488,97 @@ const AdminReports = () => {
           </table>
         </section>
 
-        {/* HU-002: ALERTAS DE STOCK CRÍTICO */}
+         {/* HU-002: ALERTAS DE STOCK CRÍTICO */}
         <section className="low-stock-section">
-          <h3>Alertas de Stock Crítico</h3>
+          <h3>Alertas de Stock Crítico (HU-002)</h3>
 
-          {/* Filtros de HU-002 */}
-          <div className="low-stock-filter">
+          <div className="low-stock-filter-container">
             <label>Filtrar por producto o SKU:</label>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Ej: lapicero, LIB-001..."
-              value={lowStockSearch}
-              onChange={e => setLowStockSearch(e.target.value)}
+            <input 
+                type="text" 
+                className="form-control" 
+                placeholder="Ej: lapicero, LIB-001..." 
+                value={lowStockSearch} 
+                onChange={e => setLowStockSearch(e.target.value)} 
             />
-            {selectedCategoryId && (
-              <small className="low-stock-current-category">
-                Categoría aplicada: <strong>{categoryName}</strong>
-              </small>
-            )}
+            {selectedCategoryId && <small className="filter-helper-text">Categoría aplicada: <strong>{categoryName}</strong></small>}
           </div>
 
-          <p>
-            Mostrando productos con stock menor al umbral de{' '}
-            <strong>{lowStockData.threshold} unidades</strong>.
-          </p>
+          <p>Mostrando productos con stock menor al umbral de <strong>{lowStockData.threshold} unidades</strong>.</p>
 
           <div className="low-stock-summary">
-            <div className="kpi-card kpi-border-danger">
-              <h4 className="kpi-subtitle">Total Unidades Críticas</h4>
-              <p className="kpi-value-small">{lowStockData.totalUnidades}</p>
-            </div>
-
-            <div className="kpi-card kpi-border-purple">
-              <h4 className="kpi-subtitle">Valor Inventario Crítico</h4>
-              <p className="kpi-value-small">
-                Bs {lowStockData.totalValor.toFixed(2)}
-              </p>
-            </div>
+             <div className="kpi-card kpi-border-danger">
+                <h4 className="kpi-subtitle">Total Unidades Críticas</h4>
+                <p className="card-value">{lowStockData.totalUnidades}</p>
+             </div>
+             <div className="kpi-card kpi-border-purple">
+                <h4 className="kpi-subtitle">Valor Inventario Crítico</h4>
+                <p className="card-value">Bs {lowStockData.totalValor.toFixed(2)}</p>
+             </div>
           </div>
 
           <div className="table-wrapper">
-            <table className="products-table">
-              <thead>
-                <tr>
-                  <th>SKU</th>
-                  <th>Producto</th>
-                  <th className="text-right">Stock Actual</th>
-                  <th className="text-right">Stock Mínimo</th>
-                  <th className="text-right">Valor Inventario (Bs)</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredLowStockProducts.length > 0 ? (
-                  filteredLowStockProducts.map((p, index) => (
-                    <tr
-                      key={index}
-                      className={p.stockActual === 0 ? 'low-stock-empty' : ''}
-                    >
-                      <td>{p.sku}</td>
-                      <td>{p.nombre}</td>
-                      <td className="text-right">{p.stockActual}</td>
-                      <td className="text-right">
-                        {p.stockMinimo !== null ? p.stockMinimo : '-'}
-                      </td>
-                      <td className="text-right">
-                        Bs {p.valorInventario.toFixed(2)}
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="5" style={{ textAlign: 'center', padding: '20px' }}>
-                      No hay productos en estado crítico de stock (o no coinciden con el
-                      filtro).
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+             <table className="products-table">
+               <thead><tr><th>SKU</th><th>Producto</th><th className="text-right">Stock Actual</th><th className="text-right">Stock Mínimo</th><th className="text-right">Valor Inventario (Bs)</th></tr></thead>
+               <tbody>
+                 {filteredLowStockProducts.length > 0 ? filteredLowStockProducts.map((p, i) => (
+                   <tr key={i} className={p.stockActual === 0 ? 'low-stock-empty' : ''}>
+                     <td>{p.sku}</td>
+                     <td>{p.nombre}</td>
+                     <td className="text-right">{p.stockActual}</td>
+                     <td className="text-right">{p.stockMinimo !== null ? p.stockMinimo : '-'}</td>
+                     <td className="text-right">Bs {p.valorInventario.toFixed(2)}</td>
+                   </tr>
+                 )) : (<tr><td colSpan="5" className="table-empty-message">No hay productos en estado crítico de stock (o no coinciden con el filtro).</td></tr>)}
+               </tbody>
+             </table>
           </div>
         </section>
+
+        {/* Productos Sin Movimiento ("Hueso") */}
+        <section className="data-table-section section-with-separator">
+          <h3 className="section-title">Productos Sin Movimiento (Hueso)</h3>
+
+          <div className="advanced-filters-row">
+            <div className="filter-item-small">
+              <label className="filter-label-block">Días sin venta (umbral)</label>
+              <input type="number" min="1" className="form-control" value={noMovementDays} onChange={e => setNoMovementDays(Number(e.target.value) || 1)} />
+            </div>
+
+            <div className="filter-item-medium">
+              <label className="filter-label-block">Filtrar por nombre o SKU</label>
+              <input type="text" className="form-control" placeholder="Ej: cuaderno, ABC-123..." value={noMovementSearch} onChange={e => setNoMovementSearch(e.target.value)} />
+            </div>
+
+            <div className="filter-actions-end">
+                {/* El botón "Aplicar" aquí también podría ser opcional si el useEffect 
+                  reacciona a noMovementDays, pero lo dejo por si prefieres 
+                  forzar la recarga manualmente en esta sección.
+                */}
+              
+            </div>
+
+            {selectedCategoryId && <div className="filter-info-right">Categoría aplicada: <strong>{categoryName}</strong></div>}
+          </div>
+
+          <p className="section-description-text">Productos sin movimiento significa: <em>sin ventas en los últimos {noMovementDays} días (o nunca vendidos)</em>.</p>
+
+          <table className="products-table">
+            <thead><tr><th>SKU</th><th>Producto</th><th className="text-right">Días sin venta</th><th className="text-right">Última venta</th><th className="text-right">Stock</th></tr></thead>
+            <tbody>
+              {filteredNoMovementProducts.length > 0 ? filteredNoMovementProducts.map((p, i) => (
+                <tr key={i}>
+                  <td>{p.sku}</td>
+                  <td>{p.nombre}</td>
+                  <td className="text-right">{p.diasSinVenta === null ? '—' : p.diasSinVenta}</td>
+                  <td className="text-right">{formatDate(p.lastSoldDate)}</td>
+                  <td className="text-right">{p.stockActual}</td>
+                </tr>
+              )) : (<tr><td colSpan="5" className="table-empty-message">No hay productos sin movimiento para este umbral y filtros.</td></tr>)}
+            </tbody>
+          </table>
+        </section>
+
       </main>
     </div>
   );
