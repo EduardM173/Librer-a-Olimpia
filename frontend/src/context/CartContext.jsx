@@ -9,7 +9,7 @@ export const CartProvider = ({ children }) => {
     try {
       const saved = localStorage.getItem("cart_items");
       const parsed = saved ? JSON.parse(saved) : [];
-      return Array.isArray(parsed) ? 
+      return Array.isArray(parsed) ? parsed : [];
     } catch {
       return [];
     }
