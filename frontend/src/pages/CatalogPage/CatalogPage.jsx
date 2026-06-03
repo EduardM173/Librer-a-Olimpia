@@ -11,19 +11,21 @@ export default function CatalogPage() {
   const [meta, setMeta] = useState({ page: 1, pageSize: 12, total: 0 });
   const [loading, setLoading] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const tabs = useMemo(() => ([
     { key: 'popular', label: 'Popular', catId: null },
     ...categories.map(c => ({ key: 'cat-' + c.id, label: c.nombre, catId: c.id }))
   ]), [categories]);
 
-  async function load(page = 1, cat = activeCat) {
+  async function load(page = 1, cat = activeCat, search = searchTerm) {
     setLoading(true);
     try {
       const { items, meta } = await getProducts({
         page,
         pageSize: 12,
         categoryId: cat,
+        search,
         sort: cat ? 'new' : 'popular'
       });
       setList(items);
@@ -40,14 +42,30 @@ export default function CatalogPage() {
   }, []);
 
   useEffect(() => {
-    load(1, activeCat);
+    load(1, activeCat, searchTerm);
   }, [activeCat]);
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    load(1, activeCat, searchTerm);
+  };
 
   return (
     <div className="CatalogPage">
       <header className="catalogo-header">
         <h1>Catálogo</h1>
         <p>Explora nuestros productos. Haz clic para ver más detalles.</p>
+        <form onSubmit={handleSearch} className="catalogo-search-form">
+          <input
+            type="text"
+            placeholder="Buscar..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-input"
+            id="buscar"
+          />
+          <button type="submit" className="search-btn">Buscar</button>
+        </form>
       </header>
 
       <nav className="catalogo-tabs">

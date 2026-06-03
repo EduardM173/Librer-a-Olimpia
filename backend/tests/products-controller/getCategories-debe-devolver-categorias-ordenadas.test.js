@@ -1,3 +1,5 @@
+const test = require('node:test');
+const assert = require('node:assert/strict');
 const {
   pool,
   productsController,
@@ -5,25 +7,22 @@ const {
   resetTestState,
 } = require('../helpers/products-controller-test.helper');
 
-describe('Prueba unitaria: getCategories devuelve categorias ordenadas', () => {
-  beforeEach(() => {
-    resetTestState();
-  });
+test('getCategories devuelve correctamente la lista de categorias', async () => {
+  resetTestState();
 
-  test('Debe retornar la lista de categorias recibida desde base de datos', async () => {
-    // Preparacion de la prueba
-    const req = {};
-    const res = createRes();
-    const rows = [
-      { id: 1, nombre: 'Accesorios' },
-      { id: 2, nombre: 'Libros' },
-    ];
-    pool.query.mockResolvedValueOnce([rows]);
+  // Preparacion de la prueba
+  const req = {};
+  const res = createRes();
+  const rows = [
+    { id: 1, nombre: 'Accesorios' },
+    { id: 2, nombre: 'Libros' },
+  ];
+  pool.query.mockResolvedValueOnce([rows]);
 
-    // Logica de la prueba
-    await productsController.getCategories(req, res);
+  // Logica de la prueba
+  await productsController.getCategories(req, res);
 
-    // Verificacion del resultado esperado o Assert
-    expect(res.json).toHaveBeenCalledWith(rows);
-  });
+  // Verificacion del resultado esperado o Assert
+  assert.equal(res.statusCode, 200);
+  assert.deepEqual(res.body, rows);
 });

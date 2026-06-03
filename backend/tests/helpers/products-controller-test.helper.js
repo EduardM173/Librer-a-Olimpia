@@ -1,30 +1,48 @@
-const assert = require('node:assert/strict');
 const path = require('path');
 
-// 1. Mocking require cache for db.js
-const dbPath = path.resolve(__dirname, '../../src/config/db.js');
+function createAsyncMock() {
+  const queue = [];
+
+  const mockFn = async (...args) => {
+    mockFn.calls.push(args);
+    const next = queue.shift();
+
+    if (!next) {
+      throw new Error('Mock de query no configurado para esta llamada');
+    }
+
+    if (next.type === 'reject') {
+      throw next.value;
+    }
+
+    return next.value;
+  };
+
+  mockFn.calls = [];
+  mockFn.mockResolvedValueOnce = (value) => {
+    queue.push({ type: 'resolve', value });
+    return mockFn;
+  };
+  mockFn.mockRejectedValueOnce = (value) => {
+    queue.push({ type: 'reject', value });
+    return mockFn;
+  };
+  mockFn.reset = () => {
+    queue.length = 0;
+    mockFn.calls.length = 0;
+  };
+
+  return mockFn;
+}
+
+const queryMock = createAsyncMock();
+const poolMock = { query: queryMock };
+
 const controllerPath = path.resolve(__dirname, '../../src/controllers/products.controller.js');
+const dbPath = path.resolve(__dirname, '../../src/config/db.js');
 
-let mockQueries = [];
-let queryCalls = [];
-
-const poolMock = {
-  query: async (sql, params) => {
-    queryCalls.push([sql, params]);
-    if (mockQueries.length === 0) {
-      throw new Error("No mock queries configured for pool.query");
-    }
-    const nextMock = mockQueries.shift();
-    if (nextMock instanceof Error) {
-      throw nextMock;
-    }
-    return nextMock;
-  }
-};
-
-delete require.cache[dbPath];
 delete require.cache[controllerPath];
-
+delete require.cache[dbPath];
 require.cache[dbPath] = {
   id: dbPath,
   filename: dbPath,
@@ -34,174 +52,28 @@ require.cache[dbPath] = {
 
 const productsController = require(controllerPath);
 
-function asymmetricDeepEqual(actual, expected) {
-  if (expected && typeof expected.asymmetricMatch === 'function') {
-    assert.ok(expected.asymmetricMatch(actual), `Asymmetric match failed for value: ${actual}`);
-    return;
-  }
-  if (expected && expected instanceof RegExp) {
-    assert.ok(typeof actual === 'string' && expected.test(actual), `RegExp match failed for value: ${actual}`);
-    return;
-  }
-  if (Array.isArray(expected)) {
-    assert.ok(Array.isArray(actual), `Expected array, got ${typeof actual}`);
-    assert.equal(actual.length, expected.length, 'Arrays length mismatch');
-    for (let i = 0; i < expected.length; i++) {
-      asymmetricDeepEqual(actual[i], expected[i]);
-    }
-    return;
-  }
-  if (expected && typeof expected === 'object') {
-    assert.ok(actual && typeof actual === 'object', `Expected object, got ${typeof actual}`);
-    for (const key of Object.keys(expected)) {
-      asymmetricDeepEqual(actual[key], expected[key]);
-    }
-    return;
-  }
-  assert.equal(actual, expected);
-}
-
-// 2. Mocking Jest globals so Johan's files run without modifications under node --test
-global.jest = {
-  mock: () => {},
-  fn: (impl) => {
-    const fnMock = (...args) => {
-      fnMock.mock.calls.push(args);
-      if (fnMock.mock.returnValue !== undefined) {
-        return fnMock.mock.returnValue;
-      }
-      if (impl) return impl(...args);
-      return fnMock;
-    };
-    fnMock.mock = { calls: [] };
-    fnMock.mockReturnThis = () => {
-      fnMock.mock.returnValue = fnMock;
-      return fnMock;
-    };
-    return fnMock;
-  }
-};
-
-global.describe = (name, fn) => {
-  fn();
-};
-
-let beforeEachFn = () => {};
-global.beforeEach = (fn) => {
-  beforeEachFn = fn;
-};
-
-const nodeTest = require('node:test');
-global.test = (name, fn) => {
-  nodeTest(name, async () => {
-    beforeEachFn();
-    await fn();
-  });
-};
-
-global.expect = (received) => {
-  return {
-    toHaveBeenCalledWith(...expectedArgs) {
-      if (typeof received === 'function' && received.mock) {
-        const matched = received.mock.calls.some(call => {
-          try {
-            asymmetricDeepEqual(call, expectedArgs);
-            return true;
-          } catch {
-            return false;
-          }
-        });
-        if (!matched) {
-          throw new Error(`Expected mock function to be called with ${JSON.stringify(expectedArgs)}, but was called with ${JSON.stringify(received.mock.calls)}`);
-        }
-      } else if (received === poolMock) {
-        const matched = queryCalls.some(callArgs => {
-          try {
-            asymmetricDeepEqual(callArgs, expectedArgs);
-            return true;
-          } catch {
-            return false;
-          }
-        });
-        if (!matched) {
-          throw new Error(`Expected pool.query to be called with ${JSON.stringify(expectedArgs)}, but query calls were ${JSON.stringify(queryCalls)}`);
-        }
-      }
-    },
-    toHaveBeenNthCalledWith(n, ...expectedArgs) {
-      const callArgs = queryCalls[n - 1];
-      if (!callArgs) {
-        throw new Error(`Expected pool.query to be called at least ${n} times, but was called only ${queryCalls.length} times`);
-      }
-      try {
-        asymmetricDeepEqual(callArgs, expectedArgs);
-      } catch (err) {
-        throw new Error(`Expected pool.query at call ${n} to be called with ${JSON.stringify(expectedArgs)}, but was called with ${JSON.stringify(callArgs)}. Details: ${err.message}`);
-      }
-    },
-    not: {
-      toHaveBeenCalled() {
-        if (received === poolMock) {
-          assert.equal(queryCalls.length, 0, `Expected pool.query not to be called, but it was called ${queryCalls.length} times`);
-        } else if (typeof received === 'function' && received.mock) {
-          assert.equal(received.mock.calls.length, 0, `Expected mock function not to be called, but it was called ${received.mock.calls.length} times`);
-        }
-      }
-    },
-    toHaveBeenCalled() {
-      if (received === poolMock) {
-        assert.ok(queryCalls.length > 0, 'Expected pool.query to be called');
-      } else if (typeof received === 'function' && received.mock) {
-        assert.ok(received.mock.calls.length > 0, 'Expected mock function to be called');
-      }
-    }
-  };
-};
-
-global.expect.stringContaining = (str) => {
-  return {
-    asymmetricMatch(other) {
-      return typeof other === 'string' && other.includes(str);
-    }
-  };
-};
-
-global.expect.any = (type) => {
-  return {
-    asymmetricMatch(other) {
-      if (type === String) return typeof other === 'string';
-      if (type === Number) return typeof other === 'number';
-      return false;
-    }
-  };
-};
-
 function createRes() {
-  const res = {
+  return {
     statusCode: 200,
     body: undefined,
+    statusCalls: [],
+    jsonCalls: [],
+    status(code) {
+      this.statusCalls.push(code);
+      this.statusCode = code;
+      return this;
+    },
+    json(payload) {
+      this.jsonCalls.push(payload);
+      this.body = payload;
+      return this;
+    },
   };
-  res.status = global.jest.fn(() => res);
-  res.json = global.jest.fn((payload) => {
-    res.body = payload;
-    return res;
-  });
-  return res;
 }
 
 function resetTestState() {
-  mockQueries = [];
-  queryCalls = [];
+  queryMock.reset();
 }
-
-poolMock.query.mockResolvedValueOnce = (val) => {
-  mockQueries.push(val);
-  return poolMock.query;
-};
-poolMock.query.mockRejectedValueOnce = (err) => {
-  mockQueries.push(err);
-  return poolMock.query;
-};
 
 module.exports = {
   pool: poolMock,

@@ -1,3 +1,5 @@
+const test = require('node:test');
+const assert = require('node:assert/strict');
 const {
   pool,
   productsController,
@@ -5,25 +7,21 @@ const {
   resetTestState,
 } = require('../helpers/products-controller-test.helper');
 
-describe('Prueba unitaria: getCategories responde 500 si hay error de base de datos', () => {
-  beforeEach(() => {
-    resetTestState();
-  });
+test('getCategories responde 500 si hay error de base de datos', async () => {
+  resetTestState();
 
-  test('Debe responder con server_error cuando ocurre una excepcion al consultar categorias', async () => {
-    // Preparacion de la prueba
-    const req = {};
-    const res = createRes();
-    pool.query.mockRejectedValueOnce(new Error('db categories error'));
+  // Preparacion de la prueba
+  const req = {};
+  const res = createRes();
+  pool.query.mockRejectedValueOnce(new Error('db categories error'));
 
-    // Logica de la prueba
-    await productsController.getCategories(req, res);
+  // Logica de la prueba
+  await productsController.getCategories(req, res);
 
-    // Verificacion del resultado esperado o Assert
-    expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith({
-      error: 'server_error',
-      message: 'Error al obtener categorías desde la base de datos.',
-    });
+  // Verificacion del resultado esperado o Assert
+  assert.equal(res.statusCode, 500);
+  assert.deepEqual(res.body, {
+    error: 'server_error',
+    message: 'Error al obtener categorías desde la base de datos.',
   });
 });
