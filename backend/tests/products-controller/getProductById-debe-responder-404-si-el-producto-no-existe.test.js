@@ -1,3 +1,5 @@
+const test = require('node:test');
+const assert = require('node:assert/strict');
 const {
   pool,
   productsController,
@@ -5,25 +7,21 @@ const {
   resetTestState,
 } = require('../helpers/products-controller-test.helper');
 
-describe('Prueba unitaria: getProductById responde 404 si el producto no existe', () => {
-  beforeEach(() => {
-    resetTestState();
-  });
+test('getProductById responde 404 si el producto no existe', async () => {
+  resetTestState();
 
-  test('Debe devolver not_found cuando la consulta no retorna filas', async () => {
-    // Preparacion de la prueba
-    const req = { params: { id: '99' } };
-    const res = createRes();
-    pool.query.mockResolvedValueOnce([[]]);
+  // Preparacion de la prueba
+  const req = { params: { id: '99' } };
+  const res = createRes();
+  pool.query.mockResolvedValueOnce([[]]);
 
-    // Logica de la prueba
-    await productsController.getProductById(req, res);
+  // Logica de la prueba
+  await productsController.getProductById(req, res);
 
-    // Verificacion del resultado esperado o Assert
-    expect(res.status).toHaveBeenCalledWith(404);
-    expect(res.json).toHaveBeenCalledWith({
-      error: 'not_found',
-      message: 'Producto no encontrado.',
-    });
+  // Verificacion del resultado esperado o Assert
+  assert.equal(res.statusCode, 404);
+  assert.deepEqual(res.body, {
+    error: 'not_found',
+    message: 'Producto no encontrado.',
   });
 });
