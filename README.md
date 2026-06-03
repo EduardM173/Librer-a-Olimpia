@@ -71,6 +71,42 @@ El sistema procesa datos en tiempo real para generar los siguientes indicadores:
 
 ---
 
+## 🐞 MantisBT con Docker
+
+Para gestionar incidencias del proyecto con MantisBT sin mezclarlo con la base de datos principal, el repositorio incluye una composición Docker separada.
+
+### Levantar el servicio
+
+```powershell
+docker compose -f docker-compose.mantisbt.yml up -d --build
+```
+
+### Completar la instalación
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\docker\mantisbt\install.ps1
+```
+
+### Acceso
+
+- MantisBT: http://localhost:8081/
+- Instalador: http://localhost:8081/admin/install.php
+
+### Credenciales de la base de datos Docker
+
+- Host: `mantis-db`
+- Base: `mantisbt`
+- Usuario: `mantisbt`
+- Contraseña: `mantisbt123`
+
+### Notas
+
+- La imagen usa MantisBT 2.28.3 preconstruido con Apache.
+- La base de datos es independiente del MySQL del proyecto principal.
+- Después de instalar, MantisBT recomienda restringir o eliminar el directorio `admin`.
+
+---
+
 ## 📝 Licencia
 
 Este proyecto es parte de un trabajo académico y no está destinado a uso comercial.
